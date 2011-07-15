@@ -22,6 +22,7 @@
 
 // you must instantiate cells using this method!
 // you may subclass +cell to set defaults you weren't able to do in IB
+// NB: the initWithStyle method will not be called (the initWithCoder method will be)
 + (id)cell;
 + (NSString *)reuseIdentifier;
 + (CGFloat)rowHeight;
