@@ -52,7 +52,7 @@
 @end
 
 @implementation __NSURLConnection_MFBlockize_Helper
-@synthesize block = ___block, data = __data, connection = __connection;
+@synthesize block = ___block, data = __data, connection = __connection, response = __response;
 
 - (id)initWithRequest:(NSURLRequest *)request block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
     if ((self = [super init])) {
