@@ -12,7 +12,7 @@
 
 @interface __Facebook_MFBlockize_Helper : NSObject <FBRequestDelegate>
 // this is used to make sure our call object is not dealloced before we're done with it
-@property (nonatomic, retain) id fbCallObject;
+@property (nonatomic, retain) FBRequest *request;
 @property (nonatomic, copy) void (^successBlock)(id result);
 @property (nonatomic, copy) void (^failBlock)(NSError *error);
 @end
@@ -29,9 +29,9 @@
     
     FBRequest *request = [self requestWithGraphPath:graphPath andParams:params andDelegate:helper];
     // make sure request stays alive as long as we need it
-    helper.fbCallObject = request;
+    helper.request = request;
     // make sure helper stays alive as long as we need it
-    objc_setAssociatedObject(owner, &request, helper, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(owner, request, helper, OBJC_ASSOCIATION_RETAIN);
 
     __block id weakOwner = owner;
     helper.successBlock = ^(id result) {
@@ -47,16 +47,17 @@
 }
 
 - (void)mfCancelCallWithOwner:(id)owner object:(id)cancelObject {
-    objc_setAssociatedObject(owner, &cancelObject, nil, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(owner, cancelObject, nil, OBJC_ASSOCIATION_RETAIN);
 }
 
 @end
 
 @implementation __Facebook_MFBlockize_Helper
-@synthesize fbCallObject, successBlock, failBlock;
+@synthesize request, successBlock, failBlock;
 
 - (void)dealloc {
-    self.fbCallObject = nil;
+    self.request.delegate = nil;
+    self.request = nil;
     self.successBlock = nil;
     self.failBlock = nil;
     
