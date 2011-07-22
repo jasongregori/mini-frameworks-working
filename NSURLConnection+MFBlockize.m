@@ -26,6 +26,10 @@
 
 @implementation NSURLConnection (MFBlockize)
 
++ (id)mfSendRequestForURL:(NSString *)url withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
+    return [self mfSendRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]] withBlock:block];
+}
+
 + (id)mfSendRequest:(NSURLRequest *)request withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
     // ## the helper will run the request and call the block
     __NSURLConnection_MFBlockize_Helper *helper = [[[__NSURLConnection_MFBlockize_Helper alloc] initWithRequest:request block:block] autorelease];
@@ -47,6 +51,20 @@
     }];
     // associate object with owner
     objc_setAssociatedObject(owner, request, object, OBJC_ASSOCIATION_RETAIN);
+}
+
+#pragma mark - images
++ (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image))block {
+    return [self mfSendRequestForURL:url withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (block) {
+            if (data) {
+                block([UIImage imageWithData:data]);
+            }
+            else {
+                block(nil);
+            }
+        }
+    }];
 }
 
 @end

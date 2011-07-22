@@ -27,7 +27,11 @@
 
 @interface NSURLConnection (MFBlockize)
 
++ (id)mfSendRequestForURL:(NSString *)url withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
 + (id)mfSendRequest:(NSURLRequest *)request withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
 + (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block;
+
+#pragma mark images
++ (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image))block;
 
 @end
