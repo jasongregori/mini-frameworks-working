@@ -54,14 +54,14 @@
 }
 
 #pragma mark - images
-+ (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image))block {
++ (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block {
     return [self mfSendRequestForURL:url withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (block) {
             if (data) {
-                block([UIImage imageWithData:data]);
+                block([UIImage imageWithData:data],nil);
             }
             else {
-                block(nil);
+                block(nil,error);
             }
         }
     }];

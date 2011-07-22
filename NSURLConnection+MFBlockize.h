@@ -32,6 +32,6 @@
 + (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block;
 
 #pragma mark images
-+ (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image))block;
++ (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block;
 
 @end
