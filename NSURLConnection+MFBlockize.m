@@ -78,6 +78,7 @@
         self.data = [NSMutableData data];
         self.block = block;
         self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
+        NSLog(@"current run loop mode: %@", [[NSRunLoop currentRunLoop] currentMode]);
         if (!self.connection) {
             if (block) {
                 block(nil,nil,[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]);
