@@ -36,3 +36,7 @@
 @interface UINavigationController (MFEasyInit)
 + (id)mfAnotherWithRootViewController:(UIViewController *)rootViewController;
 @end
+
+@interface UIView (MFEasyInit)
++ (id)mfAnotherWithFrame:(CGRect)frame;
+@end

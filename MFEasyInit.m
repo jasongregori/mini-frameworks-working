@@ -63,3 +63,9 @@
     return [[[self alloc] initWithRootViewController:rootViewController] autorelease];
 }
 @end
+
+@implementation UIView (MFEasyInit)
++ (id)mfAnotherWithFrame:(CGRect)frame {
+    return [[[self alloc] initWithFrame:frame] autorelease];
+}
+@end
