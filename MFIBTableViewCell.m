@@ -12,6 +12,8 @@
 
 @implementation MFIBTableViewCell
 
+// TODO: replace initWithFrame: so it throws an error
+
 + (id)cell {
     static char nibKey;
     UINib *nib = objc_getAssociatedObject(self, &nibKey);
