@@ -20,6 +20,10 @@
 
     UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:nil] autorelease];
 
+    if (cancelTitle) {
+        alert.cancelButtonIndex = [alert mfAddButtonWithTitle:cancelTitle block:cancelBlock];
+    }
+    
     va_list titlesAndBlocks;
     va_start(titlesAndBlocks, firstTitle);
     NSString *buttonTitle = firstTitle;
@@ -29,10 +33,6 @@
         buttonTitle = va_arg(titlesAndBlocks, NSString *);
     }
     va_end(titlesAndBlocks);
-    
-    if (cancelTitle) {
-        alert.cancelButtonIndex = [alert mfAddButtonWithTitle:cancelTitle block:cancelBlock];
-    }
     
     return alert;
 }
