@@ -42,17 +42,17 @@
 
 + (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block {
     __block id weakOwner = owner;
-    #warning major warning here: this request could die because it is copied by the connection (not retained) therefore it isn't really valid and it's possible another request could override this associated object
-    // suggest using the object itself?
-    __block NSURLRequest *weakRequest = request;
-    id object = [self mfSendRequest:request withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
+
+    // ## use the object itself as the key because we know it will be around and unique for it's lifetime
+    __block id object = nil;
+    object = [self mfSendRequest:request withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
         // call block
         if (block) { block(weakOwner, data, response, error); }
         // remove association
-        objc_setAssociatedObject(weakOwner, weakRequest, nil, OBJC_ASSOCIATION_RETAIN);
+        objc_setAssociatedObject(weakOwner, object, nil, OBJC_ASSOCIATION_RETAIN);
     }];
     // associate object with owner
-    objc_setAssociatedObject(owner, request, object, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(owner, object, object, OBJC_ASSOCIATION_RETAIN);
 }
 
 #pragma mark - images
