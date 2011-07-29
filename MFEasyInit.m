@@ -44,7 +44,7 @@
 @end
 
 @implementation UIBarButtonItem (MFEasyInit)
-+ (id)mfAnotherWithSystemItem:(UIBarButtonSystemItem)systemItem target:(id)target action:(SEL)action {
++ (id)mfAnotherWithBarButtonSystemItem:(UIBarButtonSystemItem)systemItem target:(id)target action:(SEL)action {
     return [[[self alloc] initWithBarButtonSystemItem:systemItem target:target action:action] autorelease];
 }
 + (id)mfAnotherWithCustomView:(UIView *)customView {

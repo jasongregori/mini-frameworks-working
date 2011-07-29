@@ -27,7 +27,7 @@
 @end
 
 @interface UIBarButtonItem (MFEasyInit)
-+ (id)mfAnotherWithSystemItem:(UIBarButtonSystemItem)systemItem target:(id)target action:(SEL)action;
++ (id)mfAnotherWithBarButtonSystemItem:(UIBarButtonSystemItem)systemItem target:(id)target action:(SEL)action;
 + (id)mfAnotherWithCustomView:(UIView *)customView;
 + (id)mfAnotherWithImage:(UIImage *)image style:(UIBarButtonItemStyle)style target:(id)target action:(SEL)action;
 + (id)mfAnotherWithTitle:(NSString *)title style:(UIBarButtonItemStyle)style target:(id)target action:(SEL)action;
