@@ -17,16 +17,18 @@
 @implementation UIAlertView (MFBlockize)
 
 + (id)mfAnotherWithTitle:(NSString *)title message:(NSString *)message cancelButtonTitle:(NSString *)cancelTitle block:(void (^)())cancelBlock otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... {
+
     UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:nil] autorelease];
+
     va_list titlesAndBlocks;
     va_start(titlesAndBlocks, firstTitle);
-    
     NSString *buttonTitle = firstTitle;
     while (buttonTitle) {
         void (^buttonBlock)() = va_arg(titlesAndBlocks, void (^)());
         [alert mfAddButtonWithTitle:buttonTitle block:buttonBlock];
         buttonTitle = va_arg(titlesAndBlocks, NSString *);
     }
+    va_end(titlesAndBlocks);
     
     if (cancelTitle) {
         alert.cancelButtonIndex = [alert mfAddButtonWithTitle:cancelTitle block:cancelBlock];
