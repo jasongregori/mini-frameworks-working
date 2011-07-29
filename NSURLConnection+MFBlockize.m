@@ -42,6 +42,8 @@
 
 + (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block {
     __block id weakOwner = owner;
+    #warning major warning here: this request could die because it is copied by the connection (not retained) therefore it isn't really valid and it's possible another request could override this associated object
+    // suggest using the object itself?
     __block NSURLRequest *weakRequest = request;
     id object = [self mfSendRequest:request withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
         // call block
