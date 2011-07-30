@@ -15,6 +15,7 @@
  • You must end the list with a nil in a title slot!
  • You may not end on a nil block since we don't know if there might be another title and block
  
+ • NB: Adding blocks to your alertView sets it's delegate, resetting it's delegate will make your blocks not get called.
  • NB: Your blocks will be retained as long as the alert exists
        so if you are retaining the alert you'll want to use a weak ref to yourself
        and if you are not retaining the alert you probably want a strong ref so you won't be dealloced before the alert is finished

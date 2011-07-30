@@ -11,6 +11,7 @@
 #import <objc/runtime.h>
 
 @interface __UIAlertView_MFBlockize_Helper : NSObject <UIAlertViewDelegate>
++ (__UIAlertView_MFBlockize_Helper *)helperForAlertView:(UIAlertView *)alert;
 - (void)addBlock:(void (^)())block forButtonIndex:(NSUInteger)index;
 @end
 
@@ -18,10 +19,13 @@
 
 + (id)mfAnotherWithTitle:(NSString *)title message:(NSString *)message cancelButtonTitle:(NSString *)cancelTitle block:(void (^)())cancelBlock otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... {
 
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:nil] autorelease];
+    // you must set the cancel button in here otherwise it doesn't always go the right place
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:cancelTitle otherButtonTitles:nil] autorelease];
 
+    __UIAlertView_MFBlockize_Helper *helper = [__UIAlertView_MFBlockize_Helper helperForAlertView:alert];
+    
     if (cancelTitle) {
-        alert.cancelButtonIndex = [alert mfAddButtonWithTitle:cancelTitle block:cancelBlock];
+        [helper addBlock:cancelBlock forButtonIndex:alert.cancelButtonIndex];
     }
     
     va_list titlesAndBlocks;
@@ -29,7 +33,8 @@
     NSString *buttonTitle = firstTitle;
     while (buttonTitle) {
         void (^buttonBlock)() = va_arg(titlesAndBlocks, void (^)());
-        [alert mfAddButtonWithTitle:buttonTitle block:buttonBlock];
+        [helper addBlock:buttonBlock forButtonIndex:[alert addButtonWithTitle:buttonTitle]];
+        
         buttonTitle = va_arg(titlesAndBlocks, NSString *);
     }
     va_end(titlesAndBlocks);
@@ -38,16 +43,8 @@
 }
 
 - (NSUInteger)mfAddButtonWithTitle:(NSString *)title block:(void (^)())block {
-    static char associationKey;
-    __UIAlertView_MFBlockize_Helper *helper = objc_getAssociatedObject(self, &associationKey);
-    if (!helper) {
-        helper = [[[__UIAlertView_MFBlockize_Helper alloc] init] autorelease];
-        self.delegate = helper;
-        objc_setAssociatedObject(self, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    
     NSUInteger index = [self addButtonWithTitle:title];
-    [helper addBlock:block forButtonIndex:index];
+    [[__UIAlertView_MFBlockize_Helper helperForAlertView:self] addBlock:block forButtonIndex:index];
     return index;
 }
 
@@ -59,6 +56,17 @@
 
 @implementation __UIAlertView_MFBlockize_Helper
 @synthesize indexToBlock;
+
++ (__UIAlertView_MFBlockize_Helper *)helperForAlertView:(UIAlertView *)alert {
+    static char associationKey;
+    __UIAlertView_MFBlockize_Helper *helper = objc_getAssociatedObject(self, &associationKey);
+    if (!helper) {
+        helper = [[[__UIAlertView_MFBlockize_Helper alloc] init] autorelease];
+        alert.delegate = helper;
+        objc_setAssociatedObject(self, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return helper;
+}
 
 - (id)init {
     self = [super init];
