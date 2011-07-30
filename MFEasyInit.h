@@ -22,7 +22,8 @@
 @end
 
 @interface UIAlertView (MFEasyInit)
-// warning: the otherButtonTitles part has not been tested yet
+// an alert with an OK button
++ (id)mfAnotherWithTitle:(NSString *)title message:(NSString *)message;
 + (id)mfAnotherWithTitle:(NSString *)title message:(NSString *)message delegate:(id)delegate cancelButtonTitle:(NSString *)cancelButtonTitle otherButtonTitles:(NSString *)otherButtonTitles, ... NS_REQUIRES_NIL_TERMINATION;
 @end
 
