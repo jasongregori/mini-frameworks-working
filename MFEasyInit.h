@@ -40,4 +40,6 @@
 
 @interface UIView (MFEasyInit)
 + (id)mfAnotherWithFrame:(CGRect)frame;
+// if your view has a corresponding nib with the same name, this method will instantiate one.
++ (id)mfAnotherWithNib;
 @end

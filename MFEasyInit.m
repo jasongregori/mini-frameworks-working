@@ -8,6 +8,8 @@
 
 #import "MFEasyInit.h"
 
+#import <objc/runtime.h>
+
 @implementation NSObject (MFEasyInit)
 + (id)mfAnother {
     return [[[self alloc] init] autorelease];
@@ -105,5 +107,19 @@ static NSString *ok() {
 @implementation UIView (MFEasyInit)
 + (id)mfAnotherWithFrame:(CGRect)frame {
     return [[[self alloc] initWithFrame:frame] autorelease];
+}
++ (id)mfAnotherWithNib {
+    static char nibKey;
+    UINib *nib = objc_getAssociatedObject(self, &nibKey);
+    if (!nib) {
+        nib = [UINib nibWithNibName:NSStringFromClass(self) bundle:[NSBundle mainBundle]];
+        objc_setAssociatedObject(self, &nibKey, nib, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    NSAssert(nib, @"%@: +mfAnotherWithNib: No nib found for this class: %@!", NSStringFromClass(self), NSStringFromClass(self));
+    NSArray *objects = [nib instantiateWithOwner:nil options:nil];
+    NSAssert([objects count], @"%@: +mfAnotherWithNib: We weren't able to load anything from the nib!", NSStringFromClass(self));
+    id view = [objects objectAtIndex:0];
+    NSAssert([view isKindOfClass:[self class]], @"%@: +mfAnotherWithNib: We didn't get an actual cell!", NSStringFromClass(self));
+    return view;
 }
 @end
