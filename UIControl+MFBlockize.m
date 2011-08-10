@@ -22,6 +22,9 @@
     [self addTarget:helper action:@selector(callBlockWith:event:) forControlEvents:controlEvents];
     objc_setAssociatedObject(self, helper, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
+- (void)mfOnTap:(void (^)(id sender, UIEvent *event))block {
+    [self mfAddForControlEvents:UIControlEventTouchUpInside block:block];
+}
 @end
 
 @implementation __UIControl_MFBlockize_Helper

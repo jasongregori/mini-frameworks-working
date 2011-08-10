@@ -18,4 +18,6 @@
 
 @interface UIControl (MFBlockize)
 - (void)mfAddForControlEvents:(UIControlEvents)controlEvents block:(void (^)(id sender, UIEvent *event))block;
+// uses above method with UIControlEventTouchUpInside
+- (void)mfOnTap:(void (^)(id sender, UIEvent *event))block;
 @end
