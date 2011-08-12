@@ -61,11 +61,14 @@
                                   DISPATCH_TIME_FOREVER,
                                   0);
         dispatch_source_set_event_handler(self.__timer, ^(void) {
+            // if we don't retain weakSelf here, and weakSelf gets dealloced bu __tblock, we crash!
+            [weakSelf retain];
             if (weakSelf.__tblock) {
                 weakSelf.__tblock();
                 weakSelf.__tblock = nil;
             }
             dispatch_source_cancel(weakSelf.__timer);
+            [weakSelf release];
         });
         dispatch_resume(self.__timer);
     }
