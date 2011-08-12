@@ -22,9 +22,9 @@
         objc_setAssociatedObject(self, &nibKey, nib, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     NSArray *objects = [nib instantiateWithOwner:nil options:nil];
-    NSAssert([objects count], @"%@: +cell: We weren't able to load anything from the nib!", NSStringFromClass(self));
+    NSAssert1([objects count], @"%@: +cell: We weren't able to load anything from the nib!", NSStringFromClass(self));
     id cell = [objects objectAtIndex:0];
-    NSAssert([cell isKindOfClass:[self class]], @"%@: +cell: We didn't get an actual cell!", NSStringFromClass(self));
+    NSAssert1([cell isKindOfClass:[self class]], @"%@: +cell: We didn't get an actual cell!", NSStringFromClass(self));
     return cell;
 }
 

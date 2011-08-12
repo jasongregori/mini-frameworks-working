@@ -115,11 +115,11 @@ static NSString *ok() {
         nib = [UINib nibWithNibName:NSStringFromClass(self) bundle:[NSBundle mainBundle]];
         objc_setAssociatedObject(self, &nibKey, nib, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
-    NSAssert(nib, @"%@: +mfAnotherWithNib: No nib found for this class: %@!", NSStringFromClass(self), NSStringFromClass(self));
+    NSAssert2(nib, @"%@: +mfAnotherWithNib: No nib found for this class: %@!", NSStringFromClass(self), NSStringFromClass(self));
     NSArray *objects = [nib instantiateWithOwner:nil options:nil];
-    NSAssert([objects count], @"%@: +mfAnotherWithNib: We weren't able to load anything from the nib!", NSStringFromClass(self));
+    NSAssert1([objects count], @"%@: +mfAnotherWithNib: We weren't able to load anything from the nib!", NSStringFromClass(self));
     id view = [objects objectAtIndex:0];
-    NSAssert([view isKindOfClass:[self class]], @"%@: +mfAnotherWithNib: We didn't get an actual cell!", NSStringFromClass(self));
+    NSAssert1([view isKindOfClass:[self class]], @"%@: +mfAnotherWithNib: We didn't get an actual cell!", NSStringFromClass(self));
     return view;
 }
 @end
