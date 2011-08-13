@@ -36,12 +36,11 @@
 @end
 
 @interface MFTimerBlockHelper ()
-@property (copy) void (^__tblock)();
 @property dispatch_source_t __timer;
 @end
 
 @implementation MFTimerBlockHelper
-@synthesize __tblock, __timer;
+@synthesize __timer;
 
 + (id)timerBlockHelperAfter:(NSTimeInterval)seconds call:(void (^)())block {
     return [[[self alloc] initAfter:seconds call:block] autorelease];
@@ -50,8 +49,6 @@
 - (id)initAfter:(NSTimeInterval)seconds call:(void (^)())block {
     self = [super init];
     if (self) {
-        __block MFTimerBlockHelper *weakSelf = self;
-        self.__tblock = block;
         self.__timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER,
                                               0,
                                               0,
@@ -61,14 +58,9 @@
                                   DISPATCH_TIME_FOREVER,
                                   0);
         dispatch_source_set_event_handler(self.__timer, ^(void) {
-            // if we don't retain weakSelf here, and weakSelf gets dealloced bu __tblock, we crash!
-            [weakSelf retain];
-            if (weakSelf.__tblock) {
-                weakSelf.__tblock();
-                weakSelf.__tblock = nil;
+            if (block) {
+                block();
             }
-            dispatch_source_cancel(weakSelf.__timer);
-            [weakSelf release];
         });
         dispatch_resume(self.__timer);
     }
@@ -76,7 +68,6 @@
 }
 
 - (void)dealloc {    
-    self.__tblock = nil;
     [self cancel];
     dispatch_release(self.__timer);
 
@@ -84,7 +75,14 @@
 }
 
 - (void)cancel {
-    dispatch_source_cancel(self.__timer);    
+    dispatch_source_cancel(self.__timer);
+    if (dispatch_get_current_queue() != dispatch_get_main_queue()) {
+        // if we aren't on the main thread it is possible that our block and our cancel could happen at the same time!
+        // wait until the main queue is cleared before we return. this insures to the caller that the block will not be called or be running after this returns
+        dispatch_sync(dispatch_get_main_queue(), ^(void) {
+            // do nothing
+        });
+    }
 }
 
 @end
