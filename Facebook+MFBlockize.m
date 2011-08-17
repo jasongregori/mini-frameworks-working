@@ -20,14 +20,23 @@
 @implementation Facebook (MFBlockize)
 
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
-                   andParams:(NSMutableDictionary *)params
+                   andParams:(NSDictionary *)params
+                       owner:(id)owner
+                successBlock:(void (^)(id weakOwner, id result))successBlock
+                   failBlock:(void (^)(id weakOwner, NSError *error))failBlock {
+    return [self mfRequestWithGraphPath:graphPath andParams:params andHTTPMethod:@"GET" owner:owner successBlock:successBlock failBlock:failBlock];
+}
+
+- (id)mfRequestWithGraphPath:(NSString *)graphPath
+                   andParams:(NSDictionary *)params
+               andHTTPMethod:(NSString *)httpMethod
                        owner:(id)owner
                 successBlock:(void (^)(id weakOwner, id result))successBlock
                    failBlock:(void (^)(id weakOwner, NSError *error))failBlock {
     
     __Facebook_MFBlockize_Helper *helper = [[[__Facebook_MFBlockize_Helper alloc] init] autorelease];
     
-    FBRequest *request = [self requestWithGraphPath:graphPath andParams:params andDelegate:helper];
+    FBRequest *request = [self requestWithGraphPath:graphPath andParams:[[params mutableCopy] autorelease] andHttpMethod:httpMethod andDelegate:helper];
     // make sure request stays alive as long as we need it
     helper.request = request;
     // make sure helper stays alive as long as we need it
@@ -45,6 +54,8 @@
 
     return request;
 }
+
+
 
 - (void)mfCancelCallWithOwner:(id)owner object:(id)cancelObject {
     objc_setAssociatedObject(owner, cancelObject, nil, OBJC_ASSOCIATION_RETAIN);

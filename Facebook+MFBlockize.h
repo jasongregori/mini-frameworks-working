@@ -24,7 +24,13 @@
 @interface Facebook (MFBlockize)
 
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
-                   andParams:(NSMutableDictionary *)params
+                   andParams:(NSDictionary *)params
+                       owner:(id)owner
+                successBlock:(void (^)(id weakOwner, id result))successBlock
+                   failBlock:(void (^)(id weakOwner, NSError *error))failBlock;
+- (id)mfRequestWithGraphPath:(NSString *)graphPath
+                   andParams:(NSDictionary *)params
+               andHTTPMethod:(NSString *)httpMethod
                        owner:(id)owner
                 successBlock:(void (^)(id weakOwner, id result))successBlock
                    failBlock:(void (^)(id weakOwner, NSError *error))failBlock;
