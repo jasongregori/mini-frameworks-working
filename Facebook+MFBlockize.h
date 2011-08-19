@@ -23,6 +23,15 @@
 
 @interface Facebook (MFBlockize)
 
++ (id <FBSessionDelegate>)mfGlobalSessionDelegate;
+
+#pragma mark Login
+// you cannot cancel this
+- (void)mfAuthorize:(NSArray *)permissions
+       successBlock:(void (^)())successBlock
+          failBlock:(void (^)(BOOL userDidCancel))failBlock;
+
+#pragma mark Request
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
                        owner:(id)owner
@@ -34,6 +43,7 @@
                        owner:(id)owner
                 successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
                    failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSError *error))failBlock;
+
 - (void)mfCancelCallWithOwner:(id)owner object:(id)cancelObject;
 
 @end

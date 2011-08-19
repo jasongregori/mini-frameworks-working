@@ -10,6 +10,14 @@
 
 #import <objc/runtime.h>
 
+@interface __Facebook_MFBlockize_GlobalSessionDelegate : NSObject <FBSessionDelegate>
++ (__Facebook_MFBlockize_GlobalSessionDelegate *)sharedSessionDelegate;
+- (void)authorize:(Facebook *)facebook
+      permissions:(NSArray *)permissions
+     successBlock:(void (^)())successBlock
+        failBlock:(void (^)(BOOL userDidCancel))failBlock;
+@end
+
 @interface __Facebook_MFBlockize_Helper : NSObject <FBRequestDelegate>
 // this is used to make sure our call object is not dealloced before we're done with it
 @property (nonatomic, retain) FBRequest *request;
@@ -19,6 +27,19 @@
 @end
 
 @implementation Facebook (MFBlockize)
+
++ (id <FBSessionDelegate>)mfGlobalSessionDelegate {
+    return [__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate];
+}
+
+- (void)mfAuthorize:(NSArray *)permissions
+       successBlock:(void (^)())successBlock
+          failBlock:(void (^)(BOOL userDidCancel))failBlock {
+    [[__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate]authorize:self
+                                                                      permissions:permissions
+                                                                     successBlock:successBlock
+                                                                        failBlock:failBlock];
+}
 
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
@@ -60,6 +81,77 @@
 
 - (void)mfCancelCallWithOwner:(id)owner object:(id)cancelObject {
     objc_setAssociatedObject(owner, cancelObject, nil, OBJC_ASSOCIATION_RETAIN);
+}
+
+@end
+
+#pragma mark - Helpers
+
+@interface __Facebook_MFBlockize_GlobalSessionDelegate ()
+@property (nonatomic, copy) void (^successBlock)();
+@property (nonatomic, copy) void (^failBlock)(BOOL userDidCancel);
+@end
+
+@implementation __Facebook_MFBlockize_GlobalSessionDelegate
+@synthesize successBlock = __successBlock, failBlock = __failBlock;
+
++ (__Facebook_MFBlockize_GlobalSessionDelegate *)sharedSessionDelegate {
+    static __Facebook_MFBlockize_GlobalSessionDelegate *d = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        d = [[__Facebook_MFBlockize_GlobalSessionDelegate alloc] init];
+    });
+    return d;
+}
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        // if the app starts up and we were in the middle of a login
+        // and the user did not use the login or cancel buttons but just switched back to us
+        // we need to cancel!
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
+                                                          object:nil
+                                                           queue:[NSOperationQueue mainQueue]
+                                                      usingBlock:^(NSNotification *n) {
+                                                          [self fbDidNotLogin:YES];
+                                                      }];
+    }
+    return self;
+}
+
+- (void)authorize:(Facebook *)facebook
+      permissions:(NSArray *)permissions
+     successBlock:(void (^)())successBlock
+        failBlock:(void (^)(BOOL userDidCancel))failBlock {
+    
+    self.successBlock = successBlock;
+    self.failBlock = failBlock;
+    
+    [facebook authorize:permissions delegate:self];
+}
+
+- (void)fbDidLogin {
+    if (self.successBlock)
+    {
+        self.successBlock();
+    }
+    self.successBlock = nil;
+    self.failBlock = nil;
+}
+
+- (void)fbDidNotLogin:(BOOL)cancelled {
+    if (self.failBlock) {
+        self.failBlock(cancelled);
+    }
+    self.successBlock = nil;
+    self.failBlock = nil;
+}
+
+- (void)dealloc {
+    self.successBlock = nil;
+    self.failBlock = nil;
+    [super dealloc];
 }
 
 @end
