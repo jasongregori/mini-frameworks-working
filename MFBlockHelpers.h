@@ -19,6 +19,7 @@
 @end
 
 // calls your block after the desired time UNLESS dealloced
+// NB: do not call cancel from inside your block as this may result in a deadlock
 @interface MFTimerBlockHelper : NSObject
 + (id)timerBlockHelperAfter:(NSTimeInterval)seconds call:(void (^)())block;
 - (id)initAfter:(NSTimeInterval)seconds call:(void (^)())block;
