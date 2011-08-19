@@ -13,8 +13,9 @@
 @interface __Facebook_MFBlockize_Helper : NSObject <FBRequestDelegate>
 // this is used to make sure our call object is not dealloced before we're done with it
 @property (nonatomic, retain) FBRequest *request;
-@property (nonatomic, copy) void (^successBlock)(id result);
-@property (nonatomic, copy) void (^failBlock)(NSError *error);
+@property (nonatomic, assign) NSInteger statusCode;
+@property (nonatomic, copy) void (^successBlock)(NSInteger statusCode, id result);
+@property (nonatomic, copy) void (^failBlock)(NSInteger statusCode, NSError *error);
 @end
 
 @implementation Facebook (MFBlockize)
@@ -22,8 +23,8 @@
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
                        owner:(id)owner
-                successBlock:(void (^)(id weakOwner, id result))successBlock
-                   failBlock:(void (^)(id weakOwner, NSError *error))failBlock {
+                successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
+                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSError *error))failBlock {
     return [self mfRequestWithGraphPath:graphPath andParams:params andHTTPMethod:@"GET" owner:owner successBlock:successBlock failBlock:failBlock];
 }
 
@@ -31,8 +32,8 @@
                    andParams:(NSDictionary *)params
                andHTTPMethod:(NSString *)httpMethod
                        owner:(id)owner
-                successBlock:(void (^)(id weakOwner, id result))successBlock
-                   failBlock:(void (^)(id weakOwner, NSError *error))failBlock {
+                successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
+                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSError *error))failBlock {
     
     __Facebook_MFBlockize_Helper *helper = [[[__Facebook_MFBlockize_Helper alloc] init] autorelease];
     
@@ -43,12 +44,12 @@
     objc_setAssociatedObject(owner, request, helper, OBJC_ASSOCIATION_RETAIN);
 
     __block id weakOwner = owner;
-    helper.successBlock = ^(id result) {
-        successBlock(weakOwner, result);
+    helper.successBlock = ^(NSInteger statusCode, id result) {
+        successBlock(weakOwner, statusCode, result);
         [self mfCancelCallWithOwner:weakOwner object:request];
     };
-    helper.failBlock = ^(NSError *error) {
-        failBlock(weakOwner, error);
+    helper.failBlock = ^(NSInteger statusCode, NSError *error) {
+        failBlock(weakOwner, statusCode, error);
         [self mfCancelCallWithOwner:weakOwner object:request];
     };
 
@@ -64,7 +65,7 @@
 @end
 
 @implementation __Facebook_MFBlockize_Helper
-@synthesize request, successBlock, failBlock;
+@synthesize request, successBlock, failBlock, statusCode;
 
 - (void)dealloc {
     self.request.delegate = nil;
@@ -77,15 +78,24 @@
 
 #pragma mark -
 
+- (void)request:(FBRequest *)request didReceiveResponse:(NSURLResponse *)response {
+    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+        self.statusCode = [(NSHTTPURLResponse *)response statusCode];
+    }
+    else {
+        self.statusCode = 0;
+    }
+}
+
 - (void)request:(FBRequest *)request didLoad:(id)result {
     if (self.successBlock) {
-        self.successBlock(result);
+        self.successBlock(self.statusCode, result);
     }
 }
 
 - (void)request:(FBRequest *)request didFailWithError:(NSError *)error {
     if (self.failBlock) {
-        self.failBlock(error);
+        self.failBlock(self.statusCode, error);
     }
 }
 

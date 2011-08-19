@@ -26,14 +26,14 @@
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
                        owner:(id)owner
-                successBlock:(void (^)(id weakOwner, id result))successBlock
-                   failBlock:(void (^)(id weakOwner, NSError *error))failBlock;
+                successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
+                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSError *error))failBlock;
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
                andHTTPMethod:(NSString *)httpMethod
                        owner:(id)owner
-                successBlock:(void (^)(id weakOwner, id result))successBlock
-                   failBlock:(void (^)(id weakOwner, NSError *error))failBlock;
+                successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
+                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSError *error))failBlock;
 - (void)mfCancelCallWithOwner:(id)owner object:(id)cancelObject;
 
 @end
