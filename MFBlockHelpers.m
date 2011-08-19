@@ -76,7 +76,7 @@
 
 - (void)cancel {
     dispatch_source_cancel(self.__timer);
-    if (dispatch_get_current_queue() != dispatch_get_main_queue()) {
+    if (![NSThread isMainThread]) {
         // if we aren't on the main thread it is possible that our block and our cancel could happen at the same time!
         // wait until the main queue is cleared before we return. this insures to the caller that the block will not be called or be running after this returns
         dispatch_sync(dispatch_get_main_queue(), ^(void) {
