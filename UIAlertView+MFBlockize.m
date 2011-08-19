@@ -59,11 +59,11 @@
 
 + (__UIAlertView_MFBlockize_Helper *)helperForAlertView:(UIAlertView *)alert {
     static char associationKey;
-    __UIAlertView_MFBlockize_Helper *helper = objc_getAssociatedObject(self, &associationKey);
+    __UIAlertView_MFBlockize_Helper *helper = objc_getAssociatedObject(alert, &associationKey);
     if (!helper) {
         helper = [[[__UIAlertView_MFBlockize_Helper alloc] init] autorelease];
         alert.delegate = helper;
-        objc_setAssociatedObject(self, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(alert, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return helper;
 }
