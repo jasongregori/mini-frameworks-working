@@ -23,7 +23,7 @@
 @property (nonatomic, retain) FBRequest *request;
 @property (nonatomic, assign) NSInteger statusCode;
 @property (nonatomic, copy) void (^successBlock)(NSInteger statusCode, id result);
-@property (nonatomic, copy) void (^failBlock)(NSInteger statusCode, NSError *error);
+@property (nonatomic, copy) void (^failBlock)(NSInteger statusCode, NSString *error);
 @end
 
 @implementation Facebook (MFBlockize)
@@ -45,7 +45,7 @@
                    andParams:(NSDictionary *)params
                        owner:(id)owner
                 successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
-                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSError *error))failBlock {
+                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
     return [self mfRequestWithGraphPath:graphPath andParams:params andHTTPMethod:@"GET" owner:owner successBlock:successBlock failBlock:failBlock];
 }
 
@@ -54,7 +54,7 @@
                andHTTPMethod:(NSString *)httpMethod
                        owner:(id)owner
                 successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
-                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSError *error))failBlock {
+                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
     
     __Facebook_MFBlockize_Helper *helper = [[[__Facebook_MFBlockize_Helper alloc] init] autorelease];
     
@@ -69,7 +69,7 @@
         successBlock(weakOwner, statusCode, result);
         [self mfCancelCallWithOwner:weakOwner object:request];
     };
-    helper.failBlock = ^(NSInteger statusCode, NSError *error) {
+    helper.failBlock = ^(NSInteger statusCode, NSString *error) {
         failBlock(weakOwner, statusCode, error);
         [self mfCancelCallWithOwner:weakOwner object:request];
     };
@@ -187,7 +187,8 @@
 
 - (void)request:(FBRequest *)request didFailWithError:(NSError *)error {
     if (self.failBlock) {
-        self.failBlock(self.statusCode, error);
+        NSString *errorString = [[error userInfo] valueForKeyPath:@"error.message"];
+        self.failBlock(self.statusCode, errorString);
     }
 }
 
