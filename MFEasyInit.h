@@ -14,6 +14,10 @@
 @interface NSObject (MFEasyInit)
 // alloc init autoreleases another instance of your object
 + (id)mfAnother;
+// if you call this method on a class, any instances created through the mfAnother method will have this block run on it before returned.
+// other MFEasyInit mfAnother... methods that make sense to be customized will be.
+// it's like a poor man's iOS 5 appearance proxy :)
++ (void)mfSetCustomizationBlock:(void (^)(id object))customizationBlock;
 @end
 
 @interface UIActivityIndicatorView (MFEasyInit)

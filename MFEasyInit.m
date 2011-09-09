@@ -10,9 +10,22 @@
 
 #import <objc/runtime.h>
 
+static char __MFEasyInit__CustomizationBlockKey;
+
 @implementation NSObject (MFEasyInit)
++ (void)__mfCustomize:(id)object {
+    void (^block)(id object) = objc_getAssociatedObject([self class], &__MFEasyInit__CustomizationBlockKey);
+    if (block) {
+        block(object);
+    }
+}
 + (id)mfAnother {
-    return [[[self alloc] init] autorelease];
+    id object = [[[self alloc] init] autorelease];
+    [[self class] __mfCustomize:object];
+    return object;
+}
++ (void)mfSetCustomizationBlock:(void (^)(id object))customizationBlock {
+    objc_setAssociatedObject(self, &__MFEasyInit__CustomizationBlockKey, [[customizationBlock copy] autorelease], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 @end
 
@@ -100,7 +113,9 @@ static NSString *ok() {
 
 @implementation UINavigationController (MFEasyInit)
 + (id)mfAnotherWithRootViewController:(UIViewController *)rootViewController {
-    return [[[self alloc] initWithRootViewController:rootViewController] autorelease];
+    id c = [[[self alloc] initWithRootViewController:rootViewController] autorelease];
+    [UINavigationController __mfCustomize:c];
+    return c;
 }
 @end
 
