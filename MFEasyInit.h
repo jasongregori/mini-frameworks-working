@@ -38,6 +38,10 @@
 + (id)mfAnotherWithTitle:(NSString *)title style:(UIBarButtonItemStyle)style target:(id)target action:(SEL)action;
 @end
 
+@interface UIImageView (MFEasyInit)
++ (id)mfAnotherWithImage:(UIImage *)image;
+@end
+
 @interface UINavigationController (MFEasyInit)
 + (id)mfAnotherWithRootViewController:(UIViewController *)rootViewController;
 @end

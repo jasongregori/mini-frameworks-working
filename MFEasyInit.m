@@ -111,6 +111,12 @@ static NSString *ok() {
 }
 @end
 
+@implementation UIImageView (MFEasyInit)
++ (id)mfAnotherWithImage:(UIImage *)image {
+    return [[[self alloc] initWithImage:image] autorelease];
+}
+@end
+
 @implementation UINavigationController (MFEasyInit)
 + (id)mfAnotherWithRootViewController:(UIViewController *)rootViewController {
     id c = [[[self alloc] initWithRootViewController:rootViewController] autorelease];
