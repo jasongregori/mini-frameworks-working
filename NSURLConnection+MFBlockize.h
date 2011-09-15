@@ -23,6 +23,8 @@
  
  */
 
+// !!!: You may only send a request from an NSThread right now. In the future, we should have our own internal thread like these guys: https://github.com/gowalla/AFNetworking/blob/master/AFNetworking/AFHTTPRequestOperation.m
+
 #import <Foundation/Foundation.h>
 
 @interface NSURLConnection (MFBlockize)
