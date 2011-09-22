@@ -29,6 +29,10 @@
     [self mfAddObserver:observer name:name object:nil queue:nil usingBlock:block];
 }
 
++ (void)mfRemoveObserver:(id)observer name:(NSString *)name {
+    objc_setAssociatedObject(observer, name, nil, OBJC_ASSOCIATION_RETAIN);
+}
+
 @end
 
 @implementation __NSNotificationCenter_MFBlockize_Helper

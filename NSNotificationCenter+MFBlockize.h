@@ -24,4 +24,6 @@
 + (void)mfAddObserver:(id)observer name:(NSString *)name object:(id)obj queue:(NSOperationQueue *)queue usingBlock:(void (^)(id weakObserver, NSNotification *n))block;
 // uses nil for object and queue
 + (void)mfAddObserver:(id)observer name:(NSString *)name usingBlock:(void (^)(id weakObserver, NSNotification *n))block;
+
++ (void)mfRemoveObserver:(id)observer name:(NSString *)name;
 @end
