@@ -14,6 +14,7 @@
 
 // calls your block on dealloc
 @interface MFDeallocBlockHelper : NSObject
++ (void)whenThisObjectDeallocates:(id)object callBlock:(void (^)(id weakobject))block;
 + (id)deallocBlockHelper:(void (^)())block;
 - (void)cancel;
 @end

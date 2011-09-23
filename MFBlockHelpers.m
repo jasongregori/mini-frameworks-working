@@ -8,12 +8,24 @@
 
 #import "MFBlockHelpers.h"
 
+#import <objc/runtime.h>
+
 @interface MFDeallocBlockHelper ()
 @property (copy) void (^__dblock)();
 @end
 
 @implementation MFDeallocBlockHelper
 @synthesize __dblock;
+
++ (void)whenThisObjectDeallocates:(id)object callBlock:(void (^)(id weakobject))block {
+    __block id weakobject = object;
+    MFDeallocBlockHelper *helper = [self deallocBlockHelper:^(void) {
+        if (block) {
+            block(weakobject);
+        }
+    }];
+    objc_setAssociatedObject(object, helper, helper, OBJC_ASSOCIATION_RETAIN);
+}
 
 + (id)deallocBlockHelper:(void (^)())block {
     MFDeallocBlockHelper *helper = [[[self alloc] init] autorelease];
