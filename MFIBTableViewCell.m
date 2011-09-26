@@ -23,7 +23,7 @@
     }
     NSArray *objects = [nib instantiateWithOwner:nil options:nil];
     NSAssert1([objects count], @"%@: +cell: We weren't able to load anything from the nib!", NSStringFromClass(self));
-    id cell = [objects objectAtIndex:0];
+    MFIBTableViewCell *cell = [objects objectAtIndex:0];
     NSAssert1([cell isKindOfClass:[self class]], @"%@: +cell: We didn't get an actual cell!", NSStringFromClass(self));
     return cell;
 }
@@ -33,6 +33,7 @@
     NSString *ri = objc_getAssociatedObject(self, &riKey);
     if (!ri) {
         ri = [[self cell] reuseIdentifier];
+        NSAssert1(ri, @"%@: +cell: reuseIdentifer has not been set! Please set it to something.", NSStringFromClass(self));
         objc_setAssociatedObject(self, &riKey, ri, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return ri;
