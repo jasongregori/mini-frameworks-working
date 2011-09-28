@@ -35,7 +35,12 @@
 
 - (void)dealloc {
     if (self.__dblock) {
-        dispatch_sync(dispatch_get_main_queue(), ^ { self.__dblock(); });
+        if ([NSThread isMainThread]) {
+            self.__dblock();
+        }
+        else {
+            dispatch_sync(dispatch_get_main_queue(), ^ { self.__dblock(); });
+        }
         self.__dblock = nil;
     }
     [super dealloc];
