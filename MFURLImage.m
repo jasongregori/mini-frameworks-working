@@ -28,6 +28,7 @@
         [__url release];
         __url = [url copy];
         
+        self.connectionRef = nil;
         self.image = nil;
         if (__url) {
             __block MFURLImageView *weakSelf = self;
