@@ -49,10 +49,10 @@
         // call block
         if (block) { block(weakOwner, data, response, error); }
         // remove association
-        objc_setAssociatedObject(weakOwner, object, nil, OBJC_ASSOCIATION_RETAIN);
+        objc_setAssociatedObject(weakOwner, (__bridge void *)object, nil, OBJC_ASSOCIATION_RETAIN);
     }];
     // associate object with owner
-    objc_setAssociatedObject(owner, object, object, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(owner, (__bridge void *)object, object, OBJC_ASSOCIATION_RETAIN);
 }
 
 #pragma mark - images

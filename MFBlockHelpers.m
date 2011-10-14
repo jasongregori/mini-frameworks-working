@@ -24,7 +24,7 @@
             block(weakobject);
         }
     }];
-    objc_setAssociatedObject(object, helper, helper, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(object, (__bridge void *)helper, helper, OBJC_ASSOCIATION_RETAIN);
 }
 
 + (id)deallocBlockHelper:(void (^)())block {

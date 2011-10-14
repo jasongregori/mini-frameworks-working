@@ -48,13 +48,14 @@
 }
 
 + (id)objectForKey:(NSString *)key {
-    NSData *data = nil;
+    CFTypeRef dataRef = NULL;
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)[NSDictionary dictionaryWithObjectsAndKeys:
                                                             commonAttributes,
                                                             kCFBooleanTrue, kSecReturnData,
                                                             nil],
-                                          (CFTypeRef *) &data);
-    [data autorelease];
+                                          &dataRef);
+    NSData *data = (__bridge_transfer NSData *)dataRef;
+//    [data autorelease];
     if (status == errSecSuccess && data) {
         return [NSKeyedUnarchiver unarchiveObjectWithData:data];
     }

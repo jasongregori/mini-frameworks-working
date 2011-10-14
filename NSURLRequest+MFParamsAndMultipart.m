@@ -10,7 +10,7 @@
 
 static inline NSString *escapeString(NSString *string) {
     return (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                               (CFStringRef)string,
+                                                               (__bridge CFStringRef)string,
                                                                NULL,
                                                                (CFStringRef)@"!*'();:@&=+$,/?%#[]",
                                                                kCFStringEncodingUTF8);

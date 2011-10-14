@@ -62,7 +62,7 @@
     // make sure request stays alive as long as we need it
     helper.request = request;
     // make sure helper stays alive as long as we need it
-    objc_setAssociatedObject(owner, request, helper, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(owner, (__bridge void *)request, helper, OBJC_ASSOCIATION_RETAIN);
 
     __block id weakOwner = owner;
     helper.successBlock = ^(NSInteger statusCode, id result) {
@@ -80,7 +80,7 @@
 
 
 - (void)mfCancelCallWithOwner:(id)owner object:(id)cancelObject {
-    objc_setAssociatedObject(owner, cancelObject, nil, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(owner, (__bridge void *)cancelObject, nil, OBJC_ASSOCIATION_RETAIN);
 }
 
 @end

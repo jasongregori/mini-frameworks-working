@@ -22,7 +22,7 @@
     helper.realObserver = [[NSNotificationCenter defaultCenter] addObserverForName:name object:obj queue:queue usingBlock:^(NSNotification *n) {
         block(weakObserver, n);
     }];
-    objc_setAssociatedObject(observer, name, helper, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(observer, (__bridge void *)name, helper, OBJC_ASSOCIATION_RETAIN);
 }
 
 + (void)mfAddObserver:(id)observer name:(NSString *)name usingBlock:(void (^)(id observer, NSNotification *n))block {
@@ -30,7 +30,7 @@
 }
 
 + (void)mfRemoveObserver:(id)observer name:(NSString *)name {
-    objc_setAssociatedObject(observer, name, nil, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(observer, (__bridge void *)name, nil, OBJC_ASSOCIATION_RETAIN);
 }
 
 @end
