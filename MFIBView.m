@@ -13,8 +13,7 @@
 @implementation MFIBView
 
 - (id)initWithFrame:(CGRect)frame {
-    [self release];
-    self = [[[self class] mfView] retain];
+    self = [[self class] mfView];
     if (!CGRectEqualToRect(frame, CGRectZero)) {
         self.frame = frame;
     }

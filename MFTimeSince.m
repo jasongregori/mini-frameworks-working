@@ -24,7 +24,7 @@ NSString * const MFTimeSinceLocalizationMoreThanOneDayKey = @"MoreDays";
 @end
 
 @interface MFTimeSince ()
-@property (nonatomic, retain) NSMutableArray *__localizations;
+@property (nonatomic, strong) NSMutableArray *__localizations;
 @end
 
 @implementation MFTimeSince
@@ -58,13 +58,9 @@ static MFTimeSince *__globalTimeSince = nil;
     return self;
 }
 
-- (void)dealloc {
-    self.__localizations = nil;
-    [super dealloc];
-}
 
 - (void)setLocalizationString:(NSString *)localization forUpToThisManyUnits:(double)upto secondsInUnit:(NSUInteger)secondsInUnit {
-    __MFTimeSince_Localization *l = [[[__MFTimeSince_Localization alloc] init] autorelease];
+    __MFTimeSince_Localization *l = [[__MFTimeSince_Localization alloc] init];
     l.localization = localization;
     l.upto = upto * (double)secondsInUnit;
     l.secondsInUnit = secondsInUnit;
@@ -111,9 +107,5 @@ static MFTimeSince *__globalTimeSince = nil;
     return [NSString stringWithFormat:@"Upto %f seconds, \"%@\"", self.upto, self.localization];
 }
 
-- (void)dealloc {
-    self.localization = nil;
-    [super dealloc];
-}
 
 @end

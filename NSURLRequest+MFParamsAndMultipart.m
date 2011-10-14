@@ -9,11 +9,11 @@
 #import "NSURLRequest+MFParamsAndMultipart.h"
 
 static inline NSString *escapeString(NSString *string) {
-    return (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                               (__bridge CFStringRef)string,
-                                                               NULL,
-                                                               (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-                                                               kCFStringEncodingUTF8);
+    return (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                                                 (__bridge CFStringRef)string,
+                                                                                 NULL,
+                                                                                 (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                                                 kCFStringEncodingUTF8);
 }
 
 static NSURL *urlWithParams(NSString *url, NSDictionary *params) {

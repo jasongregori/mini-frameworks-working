@@ -18,19 +18,19 @@
 @implementation UIBarButtonItem (MFBlockize)
 
 + (id)mfAnotherWithBarButtonSystemItem:(UIBarButtonSystemItem)systemItem targetBlock:(void (^)())block {
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:systemItem target:nil action:NULL] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:systemItem target:nil action:NULL];
     item.mfTargetBlock = block;
     return item;
 }
 
 + (id)mfAnotherWithImage:(UIImage *)image style:(UIBarButtonItemStyle)style targetBlock:(void (^)())block {
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithImage:image style:style target:nil action:NULL] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:image style:style target:nil action:NULL];
     item.mfTargetBlock = block;
     return item;
 }
 
 + (id)mfAnotherWithTitle:(NSString *)title style:(UIBarButtonItemStyle)style targetBlock:(void (^)())block {
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithTitle:title style:style target:nil action:NULL] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:title style:style target:nil action:NULL];
     item.mfTargetBlock = block;
     return item;
 }
@@ -38,7 +38,7 @@
 static char __associatedHelperKey;
 
 - (void)setMfTargetBlock:(void (^)())mfTargetBlock {
-    __UIBarButtonItem_MFBlockize_Helper *helper = [[[__UIBarButtonItem_MFBlockize_Helper alloc] init] autorelease];
+    __UIBarButtonItem_MFBlockize_Helper *helper = [[__UIBarButtonItem_MFBlockize_Helper alloc] init];
     helper.block = mfTargetBlock;
     self.target = helper;
     self.action = @selector(callBlock);
@@ -54,11 +54,6 @@ static char __associatedHelperKey;
 @implementation __UIBarButtonItem_MFBlockize_Helper
 @synthesize block;
 
-- (void)dealloc {
-    self.block = nil;
-    
-    [super dealloc];
-}
 
 - (void)callBlock {
     if (self.block) {

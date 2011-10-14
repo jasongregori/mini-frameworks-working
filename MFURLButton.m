@@ -9,27 +9,19 @@
 #import "MFURLButton.h"
 
 @interface MFURLButton ()
-@property (nonatomic, retain) id connectionRef;
+@property (nonatomic, strong) id connectionRef;
 @end
 
 @implementation MFURLButton
 @synthesize url = __url;
 @synthesize connectionRef = __connectionRef;
 
-- (void)dealloc {
-    self.url = nil;
-    self.connectionRef = nil;
-    
-    [super dealloc];
-}
-
 - (void)setUrl:(NSString *)url {
     if (__url != url) {
-        [__url release];
         __url = [url copy];
         
         if (__url) {
-            __block MFURLButton *weakSelf = self;
+            __unsafe_unretained MFURLButton *weakSelf = self;
             self.connectionRef = [NSURLConnection mfGetImage:url
                                                    withBlock:^(UIImage *image, NSError *error) {
                                                        weakSelf.imageView.image = image;

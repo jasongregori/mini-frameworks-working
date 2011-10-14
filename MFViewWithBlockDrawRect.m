@@ -11,11 +11,6 @@
 @implementation MFViewWithBlockDrawRect
 @synthesize drawRectBlock;
 
-- (void)dealloc {
-    self.drawRectBlock = nil;
-    [super dealloc];
-}
-
 - (void)drawRect:(CGRect)rect
 {
     if (self.drawRectBlock) {

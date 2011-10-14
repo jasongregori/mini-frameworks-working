@@ -20,7 +20,7 @@
 + (id)mfAnotherWithTitle:(NSString *)title message:(NSString *)message cancelButtonTitle:(NSString *)cancelTitle block:(void (^)())cancelBlock otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... {
 
     // you must set the cancel button in here otherwise it doesn't always go the right place
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:cancelTitle otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:cancelTitle otherButtonTitles:nil];
 
     __UIAlertView_MFBlockize_Helper *helper = [__UIAlertView_MFBlockize_Helper helperForAlertView:alert];
     
@@ -51,7 +51,7 @@
 @end
 
 @interface __UIAlertView_MFBlockize_Helper ()
-@property (nonatomic, retain) NSMutableDictionary *indexToBlock;
+@property (nonatomic, strong) NSMutableDictionary *indexToBlock;
 @end
 
 @implementation __UIAlertView_MFBlockize_Helper
@@ -61,7 +61,7 @@
     static char associationKey;
     __UIAlertView_MFBlockize_Helper *helper = objc_getAssociatedObject(alert, &associationKey);
     if (!helper) {
-        helper = [[[__UIAlertView_MFBlockize_Helper alloc] init] autorelease];
+        helper = [[__UIAlertView_MFBlockize_Helper alloc] init];
         alert.delegate = helper;
         objc_setAssociatedObject(alert, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
@@ -76,14 +76,10 @@
     return self;
 }
 
-- (void)dealloc {
-    self.indexToBlock = nil;
-    [super dealloc];
-}
 
 - (void)addBlock:(void (^)())block forButtonIndex:(NSUInteger)index {
     if (block) {
-        [self.indexToBlock setObject:[[block copy] autorelease]
+        [self.indexToBlock setObject:[block copy]
                               forKey:[NSNumber numberWithUnsignedInteger:index]];
     }
 }

@@ -9,7 +9,7 @@
 #import "MFButtonThatsVeryCustomizable.h"
 
 @interface MFButtonThatsVeryCustomizable ()
-@property (nonatomic, retain) NSMutableDictionary *__mfContentLookup;
+@property (nonatomic, strong) NSMutableDictionary *__mfContentLookup;
 @end
 
 @implementation MFButtonThatsVeryCustomizable
@@ -31,14 +31,10 @@
     return self;
 }
 
-- (void)dealloc {
-    self.__mfContentLookup = nil;
-    [super dealloc];
-}
 
 - (void)setCustomizationBlock:(void (^)(MFButtonThatsVeryCustomizable *button))block
                      forState:(UIControlState)state {
-    [self.__mfContentLookup setObject:[[block copy] autorelease]
+    [self.__mfContentLookup setObject:[block copy]
                                forKey:[NSNumber numberWithUnsignedInteger:state]];
     if (self.state == state) {
         [self mfLayoutCustomizations];

@@ -17,7 +17,7 @@
 
 @implementation UIControl (MFBlockize)
 - (void)mfAddForControlEvents:(UIControlEvents)controlEvents block:(void (^)(id sender, UIEvent *event))block {
-    __UIControl_MFBlockize_Helper *helper = [[[__UIControl_MFBlockize_Helper alloc] init] autorelease];
+    __UIControl_MFBlockize_Helper *helper = [[__UIControl_MFBlockize_Helper alloc] init];
     helper.block = block;
     [self addTarget:helper action:@selector(callBlockWith:event:) forControlEvents:controlEvents];
     objc_setAssociatedObject(self, (__bridge void *)helper, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -36,9 +36,5 @@
     }
 }
 
-- (void)dealloc {
-    self.block = nil;
-    [super dealloc];
-}
 
 @end

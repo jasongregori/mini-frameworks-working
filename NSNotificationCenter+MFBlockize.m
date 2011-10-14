@@ -11,14 +11,14 @@
 #import <objc/runtime.h>
 
 @interface __NSNotificationCenter_MFBlockize_Helper : NSObject
-@property (nonatomic, retain) id realObserver;
+@property (nonatomic, strong) id realObserver;
 @end
 
 @implementation NSNotificationCenter (MFBlockize)
 
 + (void)mfAddObserver:(id)observer name:(NSString *)name object:(id)obj queue:(NSOperationQueue *)queue usingBlock:(void (^)(id observer, NSNotification *n))block {
-    __NSNotificationCenter_MFBlockize_Helper *helper = [[[__NSNotificationCenter_MFBlockize_Helper alloc] init] autorelease];
-    __block id weakObserver = observer;
+    __NSNotificationCenter_MFBlockize_Helper *helper = [[__NSNotificationCenter_MFBlockize_Helper alloc] init];
+    __unsafe_unretained id weakObserver = observer;
     helper.realObserver = [[NSNotificationCenter defaultCenter] addObserverForName:name object:obj queue:queue usingBlock:^(NSNotification *n) {
         block(weakObserver, n);
     }];
@@ -42,9 +42,7 @@
     // remove real observer!
     if (self.realObserver) {
         [[NSNotificationCenter defaultCenter] removeObserver:self.realObserver];
-        self.realObserver = nil;
     }
-    [super dealloc];
 }
 
 @end

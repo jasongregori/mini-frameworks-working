@@ -18,7 +18,7 @@
 @synthesize __dblock;
 
 + (void)whenThisObjectDeallocates:(id)object callBlock:(void (^)(id weakobject))block {
-    __block id weakobject = object;
+    __unsafe_unretained id weakobject = object;
     MFDeallocBlockHelper *helper = [self deallocBlockHelper:^(void) {
         if (block) {
             block(weakobject);
@@ -28,7 +28,7 @@
 }
 
 + (id)deallocBlockHelper:(void (^)())block {
-    MFDeallocBlockHelper *helper = [[[self alloc] init] autorelease];
+    MFDeallocBlockHelper *helper = [[self alloc] init];
     helper.__dblock = block;
     return helper;
 }
@@ -41,9 +41,7 @@
         else {
             dispatch_sync(dispatch_get_main_queue(), ^ { self.__dblock(); });
         }
-        self.__dblock = nil;
     }
-    [super dealloc];
 }
 
 - (void)cancel {
@@ -60,7 +58,7 @@
 @synthesize __timer;
 
 + (id)timerBlockHelperAfter:(NSTimeInterval)seconds call:(void (^)())block {
-    return [[[self alloc] initAfter:seconds call:block] autorelease];
+    return [[self alloc] initAfter:seconds call:block];
 }
 
 - (id)initAfter:(NSTimeInterval)seconds call:(void (^)())block {
@@ -88,7 +86,6 @@
     [self cancel];
     dispatch_release(self.__timer);
 
-    [super dealloc];
 }
 
 - (void)cancel {

@@ -12,9 +12,9 @@
 
 @interface __NSURLConnection_MFBlockize_Helper : NSObject
 @property (nonatomic, copy) void (^block)(NSData *data, NSURLResponse *response, NSError *error);
-@property (nonatomic, retain) NSMutableData *data;
-@property (nonatomic, retain) NSURLConnection *connection;
-@property (nonatomic, retain) NSURLResponse *response;
+@property (nonatomic, strong) NSMutableData *data;
+@property (nonatomic, strong) NSURLConnection *connection;
+@property (nonatomic, strong) NSURLResponse *response;
 - (id)initWithRequest:(NSURLRequest *)request block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
 - (void)cancel;
 @end
@@ -32,7 +32,7 @@
 
 + (id)mfSendRequest:(NSURLRequest *)request withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
     // ## the helper will run the request and call the block
-    __NSURLConnection_MFBlockize_Helper *helper = [[[__NSURLConnection_MFBlockize_Helper alloc] initWithRequest:request block:block] autorelease];
+    __NSURLConnection_MFBlockize_Helper *helper = [[__NSURLConnection_MFBlockize_Helper alloc] initWithRequest:request block:block];
     if (!helper) { return nil; }
     // ## the onDealloc object retains the helper in it's block and cancels it and releases it on dealloc
     return [__NSURLConnection_MFBlockize_OnDealloc performOnDealloc:^(void) {
@@ -41,7 +41,7 @@
 }
 
 + (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block {
-    __block id weakOwner = owner;
+    __unsafe_unretained id weakOwner = owner;
 
     // ## use the object itself as the key because we know it will be around and unique for it's lifetime
     __block id object = nil;
@@ -85,7 +85,6 @@
             if (block) {
                 block(nil,nil,[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]);
             }
-            [self release];
             return nil;
         }
     }
@@ -102,7 +101,6 @@
 - (void)dealloc {
     [self cancel];
     
-    [super dealloc];
 }
 
 #pragma mark - NSURLConnection Delegate Methods
@@ -136,7 +134,7 @@
 @synthesize performOnDeallocBlock = __performOnDeallocBlock;
 
 + (id)performOnDealloc:(void (^)())block {
-    __NSURLConnection_MFBlockize_OnDealloc *o = [[[__NSURLConnection_MFBlockize_OnDealloc alloc] init] autorelease];
+    __NSURLConnection_MFBlockize_OnDealloc *o = [[__NSURLConnection_MFBlockize_OnDealloc alloc] init];
     o.performOnDeallocBlock = block;
     return o;
 }
@@ -145,9 +143,7 @@
     if (self.performOnDeallocBlock) {
         self.performOnDeallocBlock();
     }
-    self.performOnDeallocBlock = nil;
     
-    [super dealloc];
 }
 
 @end

@@ -25,12 +25,11 @@ static UIActionSheet *__vmfAnotherWith(NSString *title,
                                        NSString *firstOtherButtonTitle,
                                        va_list otherButtonTitlesAndBlocks) {
     // you must set the destructive button here otherwise it doesn't always go the right place
-    UIActionSheet *sheet = [[[UIActionSheet alloc] initWithTitle:title
+    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:title
                                                         delegate:nil
                                                cancelButtonTitle:nil
                                           destructiveButtonTitle:destructiveTitle
-                                               otherButtonTitles:nil]
-                            autorelease];
+                                               otherButtonTitles:nil];
     
     __UIActionSheet_MFBlockize_Helper *helper = [__UIActionSheet_MFBlockize_Helper helperForActionSheet:sheet];
     
@@ -120,7 +119,7 @@ otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... {
 @end
 
 @interface __UIActionSheet_MFBlockize_Helper ()
-@property (nonatomic, retain) NSMutableDictionary *indexToBlock;
+@property (nonatomic, strong) NSMutableDictionary *indexToBlock;
 @end
 
 @implementation __UIActionSheet_MFBlockize_Helper
@@ -130,7 +129,7 @@ otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... {
     static char associationKey;
     __UIActionSheet_MFBlockize_Helper *helper = objc_getAssociatedObject(sheet, &associationKey);
     if (!helper) {
-        helper = [[[__UIActionSheet_MFBlockize_Helper alloc] init] autorelease];
+        helper = [[__UIActionSheet_MFBlockize_Helper alloc] init];
         sheet.delegate = helper;
         objc_setAssociatedObject(sheet, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
@@ -145,14 +144,10 @@ otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... {
     return self;
 }
 
-- (void)dealloc {
-    self.indexToBlock = nil;
-    [super dealloc];
-}
 
 - (void)addBlock:(void (^)())block forButtonIndex:(NSUInteger)index {
     if (block) {
-        [self.indexToBlock setObject:[[block copy] autorelease]
+        [self.indexToBlock setObject:[block copy]
                               forKey:[NSNumber numberWithUnsignedInteger:index]];
     }
 }

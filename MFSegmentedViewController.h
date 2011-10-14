@@ -36,7 +36,7 @@ typedef UIView * (^MFViewBlock)(id segmentedViewController);
 - (void)setBackgroundView:(UIView *)backgroundView;
 
 // these are returned in the order they are shown in the segmented control
-@property (nonatomic, retain, readonly) NSArray *names;
+@property (nonatomic, strong, readonly) NSArray *names;
 
 @property (nonatomic, assign) NSUInteger selectedIndex;
 // views aren't loaded until they are needed

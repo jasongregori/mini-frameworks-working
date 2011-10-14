@@ -20,7 +20,7 @@
 
 @interface __Facebook_MFBlockize_Helper : NSObject <FBRequestDelegate>
 // this is used to make sure our call object is not dealloced before we're done with it
-@property (nonatomic, retain) FBRequest *request;
+@property (nonatomic, strong) FBRequest *request;
 @property (nonatomic, assign) NSInteger statusCode;
 @property (nonatomic, copy) void (^successBlock)(NSInteger statusCode, id result);
 @property (nonatomic, copy) void (^failBlock)(NSInteger statusCode, NSString *error);
@@ -56,15 +56,15 @@
                 successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
                    failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
     
-    __Facebook_MFBlockize_Helper *helper = [[[__Facebook_MFBlockize_Helper alloc] init] autorelease];
+    __Facebook_MFBlockize_Helper *helper = [[__Facebook_MFBlockize_Helper alloc] init];
     
-    FBRequest *request = [self requestWithGraphPath:graphPath andParams:[[params mutableCopy] autorelease] andHttpMethod:httpMethod andDelegate:helper];
+    FBRequest *request = [self requestWithGraphPath:graphPath andParams:[params mutableCopy] andHttpMethod:httpMethod andDelegate:helper];
     // make sure request stays alive as long as we need it
     helper.request = request;
     // make sure helper stays alive as long as we need it
     objc_setAssociatedObject(owner, (__bridge void *)request, helper, OBJC_ASSOCIATION_RETAIN);
 
-    __block id weakOwner = owner;
+    __unsafe_unretained id weakOwner = owner;
     helper.successBlock = ^(NSInteger statusCode, id result) {
         successBlock(weakOwner, statusCode, result);
         [self mfCancelCallWithOwner:weakOwner object:request];
@@ -148,11 +148,6 @@
     self.failBlock = nil;
 }
 
-- (void)dealloc {
-    self.successBlock = nil;
-    self.failBlock = nil;
-    [super dealloc];
-}
 
 @end
 
@@ -161,11 +156,7 @@
 
 - (void)dealloc {
     self.request.delegate = nil;
-    self.request = nil;
-    self.successBlock = nil;
-    self.failBlock = nil;
     
-    [super dealloc];
 }
 
 #pragma mark -

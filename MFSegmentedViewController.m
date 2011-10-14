@@ -12,11 +12,11 @@
 #define kSegmentedControlWidth (320 - 2 * kSegmentedControlMargin)
 
 @interface MFSegmentedViewController ()
-@property (nonatomic, retain, readwrite) NSArray *names;
-@property (nonatomic, retain) NSMutableDictionary *__loadedSubViews;
-@property (nonatomic, retain) UISegmentedControl *__segmentedControl;
-@property (nonatomic, retain) NSArray *__viewBlocks;
-@property (nonatomic, retain) UIView *__viewContainer;
+@property (nonatomic, strong, readwrite) NSArray *names;
+@property (nonatomic, strong) NSMutableDictionary *__loadedSubViews;
+@property (nonatomic, strong) UISegmentedControl *__segmentedControl;
+@property (nonatomic, strong) NSArray *__viewBlocks;
+@property (nonatomic, strong) UIView *__viewContainer;
 
 - (void)__layoutSelectedIndex;
 - (void)__segmentedControlValueChanged;
@@ -51,7 +51,7 @@
         NSUInteger count = [namesAndViewBlocks count];
         for (NSUInteger i = 0; i < count; i+=2) {
             [kys addObject:[namesAndViewBlocks objectAtIndex:i]];
-            [vbs addObject:[[[namesAndViewBlocks objectAtIndex:i+1] copy] autorelease]];
+            [vbs addObject:[[namesAndViewBlocks objectAtIndex:i+1] copy]];
         }
         
         self.names = kys;
@@ -74,16 +74,6 @@
     return nil;
 }
 
-- (void)dealloc
-{
-    self.names = nil;
-    self.__loadedSubViews = nil;
-    self.__segmentedControl = nil;
-    self.__viewBlocks = nil;
-    self.__viewContainer = nil;
-    
-    [super dealloc];
-}
 
 - (void)didReceiveMemoryWarning
 {
@@ -91,7 +81,7 @@
     [super didReceiveMemoryWarning];
     
     // Release any views that aren't being used
-    for (NSNumber *index in [[self.__loadedSubViews copy] autorelease])
+    for (NSNumber *index in [self.__loadedSubViews copy])
     {
         if ([index unsignedIntegerValue] != self.selectedIndex)
         {
@@ -197,7 +187,7 @@
     
     CGFloat containerTop = 0;
     
-    UISegmentedControl *sc = [[[UISegmentedControl alloc] initWithItems:self.names] autorelease];
+    UISegmentedControl *sc = [[UISegmentedControl alloc] initWithItems:self.names];
     sc.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     sc.segmentedControlStyle = UISegmentedControlStyleBar;
     sc.selectedSegmentIndex = self.selectedIndex;
@@ -208,16 +198,16 @@
         self.navigationItem.titleView = sc;
     }
     else {
-        UIToolbar *toolbar = [[[UIToolbar alloc] init] autorelease];
+        UIToolbar *toolbar = [[UIToolbar alloc] init];
         toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         toolbar.barStyle = self.barStyle;
         containerTop = 30; //[toolbar sizeThatFits:CGSizeZero].height;
         toolbar.frame = CGRectMake(0, 0, self.view.bounds.size.width, containerTop);
-        toolbar.items = [NSArray arrayWithObject:[[[UIBarButtonItem alloc] initWithCustomView:sc] autorelease]];
+        toolbar.items = [NSArray arrayWithObject:[[UIBarButtonItem alloc] initWithCustomView:sc]];
         [self.view addSubview:toolbar];
     }
     
-    UIView *container = [[[UIView alloc] initWithFrame:CGRectMake(0, containerTop, self.view.bounds.size.width, self.view.bounds.size.height - containerTop)] autorelease];
+    UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, containerTop, self.view.bounds.size.width, self.view.bounds.size.height - containerTop)];
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     self.__viewContainer = container;
     [self.view addSubview:container];

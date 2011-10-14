@@ -20,18 +20,18 @@ static char __MFEasyInit__CustomizationBlockKey;
     }
 }
 + (id)mfAnother {
-    id object = [[[self alloc] init] autorelease];
+    id object = [[self alloc] init];
     [[self class] __mfCustomize:object];
     return object;
 }
 + (void)mfSetCustomizationBlock:(void (^)(id object))customizationBlock {
-    objc_setAssociatedObject(self, &__MFEasyInit__CustomizationBlockKey, [[customizationBlock copy] autorelease], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &__MFEasyInit__CustomizationBlockKey, [customizationBlock copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 @end
 
 @implementation UIActivityIndicatorView (MFEasyInit)
 + (id)mfAnotherWithActivityIndicatorStyle:(UIActivityIndicatorViewStyle)style {
-    return [[[self alloc] initWithActivityIndicatorStyle:style] autorelease];
+    return [[self alloc] initWithActivityIndicatorStyle:style];
 }
 + (id)mfAnotherWithActivityIndicatorStyle:(UIActivityIndicatorViewStyle)style animating:(BOOL)animating {
     UIActivityIndicatorView *aiv = [self mfAnotherWithActivityIndicatorStyle:style];
@@ -73,7 +73,6 @@ static NSString *ok() {
         }
         
         // save it forever
-        [ok retain];
     });
     return ok;
 }
@@ -82,7 +81,7 @@ static NSString *ok() {
     return [self mfAnotherWithTitle:title message:message delegate:nil cancelButtonTitle:ok() otherButtonTitles:nil];
 }
 + (id)mfAnotherWithTitle:(NSString *)title message:(NSString *)message delegate:(id)delegate cancelButtonTitle:(NSString *)cancelButtonTitle otherButtonTitles:(NSString *)otherButtonTitles, ... {
-    UIAlertView *alert = [[[self alloc] initWithTitle:title message:message delegate:delegate cancelButtonTitle:cancelButtonTitle otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[self alloc] initWithTitle:title message:message delegate:delegate cancelButtonTitle:cancelButtonTitle otherButtonTitles:nil];
     // ## we must add the other button titles here since we cannot pass the varargs into the init method
     va_list buttons;
     va_start(buttons, otherButtonTitles);
@@ -98,28 +97,28 @@ static NSString *ok() {
 
 @implementation UIBarButtonItem (MFEasyInit)
 + (id)mfAnotherWithBarButtonSystemItem:(UIBarButtonSystemItem)systemItem target:(id)target action:(SEL)action {
-    return [[[self alloc] initWithBarButtonSystemItem:systemItem target:target action:action] autorelease];
+    return [[self alloc] initWithBarButtonSystemItem:systemItem target:target action:action];
 }
 + (id)mfAnotherWithCustomView:(UIView *)customView {
-    return [[[self alloc] initWithCustomView:customView] autorelease];
+    return [[self alloc] initWithCustomView:customView];
 }
 + (id)mfAnotherWithImage:(UIImage *)image style:(UIBarButtonItemStyle)style target:(id)target action:(SEL)action {
-    return [[[self alloc] initWithImage:image style:style target:target action:action] autorelease];
+    return [[self alloc] initWithImage:image style:style target:target action:action];
 }
 + (id)mfAnotherWithTitle:(NSString *)title style:(UIBarButtonItemStyle)style target:(id)target action:(SEL)action {
-    return [[[self alloc] initWithTitle:title style:style target:target action:action] autorelease];
+    return [[self alloc] initWithTitle:title style:style target:target action:action];
 }
 @end
 
 @implementation UIImageView (MFEasyInit)
 + (id)mfAnotherWithImage:(UIImage *)image {
-    return [[[self alloc] initWithImage:image] autorelease];
+    return [[self alloc] initWithImage:image];
 }
 @end
 
 @implementation UINavigationController (MFEasyInit)
 + (id)mfAnotherWithRootViewController:(UIViewController *)rootViewController {
-    id c = [[[self alloc] initWithRootViewController:rootViewController] autorelease];
+    id c = [[self alloc] initWithRootViewController:rootViewController];
     [UINavigationController __mfCustomize:c];
     return c;
 }
@@ -127,7 +126,7 @@ static NSString *ok() {
 
 @implementation UIView (MFEasyInit)
 + (id)mfAnotherWithFrame:(CGRect)frame {
-    return [[[self alloc] initWithFrame:frame] autorelease];
+    return [[self alloc] initWithFrame:frame];
 }
 + (id)mfAnotherWithNib {
     static char nibKey;
