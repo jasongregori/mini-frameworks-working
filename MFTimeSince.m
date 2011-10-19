@@ -76,7 +76,7 @@ static MFTimeSince *__globalTimeSince = nil;
 }
 
 - (NSString *)timeSince:(NSDate *)date {
-    return [self timeSinceTimestamp:[date timeIntervalSince1970]];
+    return date ? [self timeSinceTimestamp:[date timeIntervalSince1970]] : nil;
 }
 
 - (NSString *)timeSinceTimestamp:(NSTimeInterval)timestamp {
