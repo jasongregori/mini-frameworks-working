@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIImagePickerController
+@interface UIImagePickerController (MFBlockize)
 
 + (id)mfAnotherWithDidFinishPickingBlock:(void (^)(NSDictionary *mediaInfo))didPickBlock
                              cancelBlock:(void (^)())cancelBlock;
