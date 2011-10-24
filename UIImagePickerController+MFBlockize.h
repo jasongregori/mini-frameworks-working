@@ -12,5 +12,7 @@
 
 + (id)mfAnotherWithDidFinishPickingBlock:(void (^)(NSDictionary *mediaInfo))didPickBlock
                              cancelBlock:(void (^)())cancelBlock;
+- (void)mfAddDidFinishPickingBlock:(void (^)(NSDictionary *mediaInfo))didPickBlock
+                       cancelBlock:(void (^)())cancelBlock;
 
 @end

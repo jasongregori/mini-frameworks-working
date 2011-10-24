@@ -19,17 +19,21 @@
 
 + (id)mfAnotherWithDidFinishPickingBlock:(void (^)(NSDictionary *mediaInfo))didPickBlock
                              cancelBlock:(void (^)())cancelBlock {
+    UIImagePickerController *c = [self new];
+    [c mfAddDidFinishPickingBlock:didPickBlock cancelBlock:cancelBlock];
+    return c;
+}
+
+- (void)mfAddDidFinishPickingBlock:(void (^)(NSDictionary *mediaInfo))didPickBlock
+                       cancelBlock:(void (^)())cancelBlock {
     __UIImagePickerController_MFBlockize_Helper *helper = [__UIImagePickerController_MFBlockize_Helper new];
     helper.didPickBlock = didPickBlock;
     helper.cancelBlock = cancelBlock;
     
-    UIImagePickerController *c = [self new];
-    c.delegate = helper;
+    self.delegate = helper;
     
     static char associationKey;
-    objc_setAssociatedObject(c, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    
-    return c;
+    objc_setAssociatedObject(self, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end
