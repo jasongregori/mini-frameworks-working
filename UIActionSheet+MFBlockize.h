@@ -24,5 +24,7 @@ otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... NS_REQUIRES_NIL_TERMINATI
 otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... NS_REQUIRES_NIL_TERMINATION;
 
 - (NSUInteger)mfAddButtonWithTitle:(NSString *)title block:(void (^)())block;
+// the cancel button should be added last to look correctly
+- (NSUInteger)mfAddCancelButtonWithTitle:(NSString *)title block:(void (^)())block;
 
 @end

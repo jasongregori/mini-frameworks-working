@@ -115,6 +115,12 @@ otherButtonTitlesAndBlocks:(NSString *)firstTitle, ... {
     [[__UIActionSheet_MFBlockize_Helper helperForActionSheet:self] addBlock:block forButtonIndex:index];
     return index;
 }
+- (NSUInteger)mfAddCancelButtonWithTitle:(NSString *)title block:(void (^)())block {
+    NSInteger index = [self addButtonWithTitle:title];
+    [[__UIActionSheet_MFBlockize_Helper helperForActionSheet:self] addBlock:block forButtonIndex:index];
+    self.cancelButtonIndex = index;
+    return index;
+}
 
 @end
 
