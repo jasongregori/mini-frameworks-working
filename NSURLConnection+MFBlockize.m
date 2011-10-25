@@ -44,7 +44,7 @@
     __unsafe_unretained id weakOwner = owner;
 
     // ## use the object itself as the key because we know it will be around and unique for it's lifetime
-    __block id object = nil;
+    __block __unsafe_unretained id object = nil;
     object = [self mfSendRequest:request withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
         // call block
         if (block) { block(weakOwner, data, response, error); }
