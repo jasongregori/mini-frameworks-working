@@ -1,5 +1,5 @@
 //
-//  NSURLRequest+MFParamsAndMultipart.h
+//  NSURLRequest+MFQueryParams.h
 //  zabbi
 //
 //  Created by Jason Gregori on 7/22/11.
@@ -8,13 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSURLRequest (MFParamsAndMultipart)
+@interface NSURLRequest (MFQueryParams)
 
 + (id)mfRequestWithURL:(NSString *)url andParams:(NSDictionary *)params;
 
 @end
 
-@interface NSMutableURLRequest (MFParamsAndMultipart)
+@interface NSMutableURLRequest (MFQueryParams)
 
 - (void)mfSetURL:(NSString *)url andParams:(NSDictionary *)params;
 

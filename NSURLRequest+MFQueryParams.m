@@ -1,12 +1,12 @@
 //
-//  NSURLRequest+MFParamsAndMultipart.m
+//  NSURLRequest+MFQueryParams.m
 //  zabbi
 //
 //  Created by Jason Gregori on 7/22/11.
 //  Copyright 2011 Jason Gregori. All rights reserved.
 //
 
-#import "NSURLRequest+MFParamsAndMultipart.h"
+#import "NSURLRequest+MFQueryParams.h"
 
 static inline NSString *escapeString(NSString *string) {
     return (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
@@ -25,7 +25,7 @@ static NSURL *urlWithParams(NSString *url, NSDictionary *params) {
     return [NSURL URLWithString:newURL];
 }
 
-@implementation NSURLRequest (MFParamsAndMultipart)
+@implementation NSURLRequest (MFQueryParams)
 
 + (id)mfRequestWithURL:(NSString *)url andParams:(NSDictionary *)params {
     return [self requestWithURL:urlWithParams(url, params)];
@@ -33,7 +33,7 @@ static NSURL *urlWithParams(NSString *url, NSDictionary *params) {
 
 @end
 
-@implementation NSMutableURLRequest (MFParamsAndMultipart)
+@implementation NSMutableURLRequest (MFQueryParams)
 
 - (void)mfSetURL:(NSString *)url andParams:(NSDictionary *)params {
     [self setURL:urlWithParams(url, params)];
