@@ -10,7 +10,7 @@
 
 /*
  
- You have two options for making requests
+ You have two options for making requests:
  
  • mfSend...
     • Retain the object returned. If you release it, the connection is cancelled.
@@ -21,6 +21,11 @@
     • weakOwner is given back to the block as a convience for you
     • NB: Make sure you don't create a retain cycle here in your blocks!
  
+ Notes
+ -----
+ 
+ background - if you set this to YES, we will keep the app running in the background to send this request.
+ 
  */
 
 // !!!: You may only send a request from an NSThread right now. In the future, we should have our own internal thread like these guys: https://github.com/gowalla/AFNetworking/blob/master/AFNetworking/AFHTTPRequestOperation.m
@@ -29,9 +34,10 @@
 
 @interface NSURLConnection (MFBlockize)
 
+// Defaults: background = NO
 + (id)mfSendRequestForURL:(NSString *)url withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
-+ (id)mfSendRequest:(NSURLRequest *)request withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
-+ (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block;
++ (id)mfSendRequest:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
++ (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block;
 
 #pragma mark images
 + (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block;

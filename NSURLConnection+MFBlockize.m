@@ -8,6 +8,7 @@
 
 #import "NSURLConnection+MFBlockize.h"
 
+#import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 
 @interface __NSURLConnection_MFBlockize_Helper : NSObject
@@ -15,7 +16,8 @@
 @property (nonatomic, strong) NSMutableData *data;
 @property (nonatomic, strong) NSURLConnection *connection;
 @property (nonatomic, strong) NSURLResponse *response;
-- (id)initWithRequest:(NSURLRequest *)request block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
+@property (nonatomic, assign) UIBackgroundTaskIdentifier taskID;
+- (id)initWithRequest:(NSURLRequest *)request background:(BOOL)background block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
 - (void)cancel;
 @end
 
@@ -27,12 +29,12 @@
 @implementation NSURLConnection (MFBlockize)
 
 + (id)mfSendRequestForURL:(NSString *)url withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
-    return [self mfSendRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]] withBlock:block];
+    return [self mfSendRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]] background:NO withBlock:block];
 }
 
-+ (id)mfSendRequest:(NSURLRequest *)request withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
++ (id)mfSendRequest:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
     // ## the helper will run the request and call the block
-    __NSURLConnection_MFBlockize_Helper *helper = [[__NSURLConnection_MFBlockize_Helper alloc] initWithRequest:request block:block];
+    __NSURLConnection_MFBlockize_Helper *helper = [[__NSURLConnection_MFBlockize_Helper alloc] initWithRequest:request background:background block:block];
     if (!helper) { return nil; }
     // ## the onDealloc object retains the helper in it's block and cancels it and releases it on dealloc
     return [__NSURLConnection_MFBlockize_OnDealloc performOnDealloc:^(void) {
@@ -40,12 +42,12 @@
     }];
 }
 
-+ (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block {
++ (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block {
     __unsafe_unretained id weakOwner = owner;
 
     // ## use the object itself as the key because we know it will be around and unique for it's lifetime
     __block __unsafe_unretained id object = nil;
-    object = [self mfSendRequest:request withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
+    object = [self mfSendRequest:request background:background withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
         // call block
         if (block) { block(weakOwner, data, response, error); }
         // remove association
@@ -73,20 +75,29 @@
 @end
 
 @implementation __NSURLConnection_MFBlockize_Helper
-@synthesize block = ___block, data = __data, connection = __connection, response = __response;
+@synthesize block = ___block, data = __data, connection = __connection, response = __response, taskID = __taskID;
 
-- (id)initWithRequest:(NSURLRequest *)request block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
+- (id)initWithRequest:(NSURLRequest *)request background:(BOOL)background block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
     if ((self = [super init])) {
         self.data = [NSMutableData data];
         self.block = block;
         self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
-
+        
         if (!self.connection) {
             if (block) {
                 block(nil,nil,[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]);
             }
             return nil;
         }
+        
+        UIApplication *app = [UIApplication sharedApplication];
+        __block UIBackgroundTaskIdentifier taskID = UIBackgroundTaskInvalid;
+        if (background) {
+            taskID = [app beginBackgroundTaskWithExpirationHandler:^{
+                [app endBackgroundTask:taskID];
+            }];
+        }
+        self.taskID = taskID;
     }
     return self;
 }
@@ -96,11 +107,14 @@
     self.connection = nil;
     self.block = nil;
     self.data = nil;
+    if (self.taskID != UIBackgroundTaskInvalid) {
+        [[UIApplication sharedApplication] endBackgroundTask:self.taskID];
+        self.taskID = UIBackgroundTaskInvalid;
+    }
 }
 
 - (void)dealloc {
     [self cancel];
-    
 }
 
 #pragma mark - NSURLConnection Delegate Methods
