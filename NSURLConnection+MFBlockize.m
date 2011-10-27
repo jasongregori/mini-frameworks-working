@@ -12,17 +12,11 @@
 #import <objc/runtime.h>
 
 @interface __NSURLConnection_MFBlockize_Helper : NSObject
-@property (nonatomic, copy) void (^block)(NSData *data, NSURLResponse *response, NSError *error);
-@property (nonatomic, strong) NSMutableData *data;
-@property (nonatomic, strong) NSURLConnection *connection;
-@property (nonatomic, strong) NSURLResponse *response;
-@property (nonatomic, assign) UIBackgroundTaskIdentifier taskID;
 - (id)initWithRequest:(NSURLRequest *)request background:(BOOL)background block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
 - (void)cancel;
 @end
 
 @interface __NSURLConnection_MFBlockize_OnDealloc : NSObject
-@property (nonatomic, copy) void (^performOnDeallocBlock)();
 + (id)performOnDealloc:(void (^)())block;
 @end
 
@@ -74,16 +68,26 @@
 
 @end
 
+#pragma mark - __NSURLConnection_MFBlockize_Helper
+
+@interface __NSURLConnection_MFBlockize_Helper () {
+    void (^_block)(NSData *data, NSURLResponse *response, NSError *error);
+    NSMutableData *_data;
+    NSURLConnection *_connection;
+    NSURLResponse *_response;
+    UIBackgroundTaskIdentifier _taskID;
+}
+@end
+
 @implementation __NSURLConnection_MFBlockize_Helper
-@synthesize block = ___block, data = __data, connection = __connection, response = __response, taskID = __taskID;
 
 - (id)initWithRequest:(NSURLRequest *)request background:(BOOL)background block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
     if ((self = [super init])) {
-        self.data = [NSMutableData data];
-        self.block = block;
-        self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
+        _data = [NSMutableData data];
+        _block = [block copy];
+        _connection = [NSURLConnection connectionWithRequest:request delegate:self];
         
-        if (!self.connection) {
+        if (!_connection) {
             if (block) {
                 block(nil,nil,[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]);
             }
@@ -97,19 +101,19 @@
                 [app endBackgroundTask:taskID];
             }];
         }
-        self.taskID = taskID;
+        _taskID = taskID;
     }
     return self;
 }
 
 - (void)cancel {
-    [self.connection cancel];
-    self.connection = nil;
-    self.block = nil;
-    self.data = nil;
-    if (self.taskID != UIBackgroundTaskInvalid) {
-        [[UIApplication sharedApplication] endBackgroundTask:self.taskID];
-        self.taskID = UIBackgroundTaskInvalid;
+    [_connection cancel];
+    _connection = nil;
+    _block = nil;
+    _data = nil;
+    if (_taskID != UIBackgroundTaskInvalid) {
+        [[UIApplication sharedApplication] endBackgroundTask:_taskID];
+        _taskID = UIBackgroundTaskInvalid;
     }
 }
 
@@ -120,44 +124,49 @@
 #pragma mark - NSURLConnection Delegate Methods
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    self.data.length = 0;
-    self.response = response;
+    _data.length = 0;
+    _response = response;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    [self.data appendData:data];
+    [_data appendData:data];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    if (self.block) {
-        self.block(self.data, self.response, nil);
+    if (_block) {
+        _block(_data, _response, nil);
     }
     [self cancel];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    if (self.block) {
-        self.block(nil,nil,error);
+    if (_block) {
+        _block(nil,nil,error);
     }
     [self cancel];
 }
 
 @end
 
+#pragma mark -  __NSURLConnection_MFBlockize_OnDealloc 
+   
+@interface __NSURLConnection_MFBlockize_OnDealloc () {
+    void (^_performOnDeallocBlock)();
+}
+@end
+
 @implementation __NSURLConnection_MFBlockize_OnDealloc
-@synthesize performOnDeallocBlock = __performOnDeallocBlock;
 
 + (id)performOnDealloc:(void (^)())block {
     __NSURLConnection_MFBlockize_OnDealloc *o = [[__NSURLConnection_MFBlockize_OnDealloc alloc] init];
-    o.performOnDeallocBlock = block;
+    o->_performOnDeallocBlock = block;
     return o;
 }
 
 - (void)dealloc {
-    if (self.performOnDeallocBlock) {
-        self.performOnDeallocBlock();
+    if (_performOnDeallocBlock) {
+        _performOnDeallocBlock();
     }
-    
 }
 
 @end
