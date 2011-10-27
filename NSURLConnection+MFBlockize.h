@@ -16,17 +16,16 @@
     • Retain the object returned. If you release it, the connection is cancelled.
  • mfSendWithOwner...
     • The connection is kept alive until the owner is dealloced or the connection finishes.
-    • The connection becomes associated with the owner.
-    • This type of request is handy when you know you will only be cancelling if you yourself are dealloced.
-    • weakOwner is given back to the block as a convience for you
-    • NB: Make sure you don't create a retain cycle here in your blocks!
  
  Notes
  -----
  
- • NSURLConnection+MFBlockize is completely thread and dispatch_queue safe. It uses the main thread to run the url connection.
  • Your block will be run on the main thread.
  • background - if you set this to YES, we will keep the app running in the background to send this request.
+ 
+ • NSURLConnection+MFBlockize is completely thread and dispatch_queue safe. It uses the main thread to run the url connection.
+ • Once your block is called; the block, the connection, and all the data needed for it is released.
+   You do not need to worry about releasing the object, at that point it is basically an nsobject that is retaining nothing.
  
  */
 
@@ -34,9 +33,17 @@
 
 @interface NSURLConnection (MFBlockize)
 
++ (id)mfSendRequest:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
+
 // Defaults: background = NO
 + (id)mfSendRequestForURL:(NSString *)url withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
-+ (id)mfSendRequest:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block;
+
+/*
+ • The connection becomes associated with the owner.
+ • This type of request is handy when you know you will only be cancelling if you yourself are dealloced.
+ • weakOwner is given back to the block as a convience for you
+ • NB: Make sure you don't create a retain cycle here in your blocks!
+*/
 + (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block;
 
 #pragma mark images
