@@ -38,7 +38,7 @@
 
 + (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block {
     __unsafe_unretained id weakOwner = owner;
-
+    
     // ## use the object itself as the key because we know it will be around and unique for it's lifetime
     __block __unsafe_unretained id object = nil;
     object = [self mfSendRequest:request background:background withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -71,49 +71,63 @@
 #pragma mark - __NSURLConnection_MFBlockize_Helper
 
 @interface __NSURLConnection_MFBlockize_Helper () {
-    void (^_block)(NSData *data, NSURLResponse *response, NSError *error);
+    // always accessed from main thread except on init and dealloc
     NSMutableData *_data;
-    NSURLConnection *_connection;
     NSURLResponse *_response;
-    UIBackgroundTaskIdentifier _taskID;
 }
+// potentially accessed from multiple threads (atomic)
+@property (copy) void (^block)(NSData *data, NSURLResponse *response, NSError *error);
+@property (strong) NSURLConnection *connection;
+@property UIBackgroundTaskIdentifier taskID;
+- (void)__startConnection:(NSURLRequest *)request;
 @end
 
 @implementation __NSURLConnection_MFBlockize_Helper
+@synthesize block = ___block, connection = __connection, taskID = __taskID;
 
 - (id)initWithRequest:(NSURLRequest *)request background:(BOOL)background block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
     if ((self = [super init])) {
         _data = [NSMutableData data];
-        _block = [block copy];
-        _connection = [NSURLConnection connectionWithRequest:request delegate:self];
+        self.block = block;
         
-        if (!_connection) {
-            if (block) {
-                block(nil,nil,[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]);
-            }
-            return nil;
-        }
-        
-        UIApplication *app = [UIApplication sharedApplication];
+        // start background task
         __block UIBackgroundTaskIdentifier taskID = UIBackgroundTaskInvalid;
         if (background) {
+            UIApplication *app = [UIApplication sharedApplication];
             taskID = [app beginBackgroundTaskWithExpirationHandler:^{
                 [app endBackgroundTask:taskID];
             }];
         }
-        _taskID = taskID;
+        self.taskID = taskID;
+
+        // start connection
+        // wait until done because we might get deallocated before startConnection finishes otherwise
+        [self performSelectorOnMainThread:@selector(__startConnection:) withObject:request waitUntilDone:YES];
     }
     return self;
 }
 
+// mayb only be called on main thread
+- (void)__startConnection:(NSURLRequest *)request {
+    self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
+    
+    if (!self.connection) {
+        if (self.block) {
+            self.block(nil,nil,[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]);
+        }
+        [self cancel];
+    }
+}
+
+// may be called from any thread or dispatch_queue
 - (void)cancel {
-    [_connection cancel];
-    _connection = nil;
-    _block = nil;
-    _data = nil;
-    if (_taskID != UIBackgroundTaskInvalid) {
-        [[UIApplication sharedApplication] endBackgroundTask:_taskID];
-        _taskID = UIBackgroundTaskInvalid;
+    // we want to make sure this block never gets called again and we release all the vars in it
+    self.block = nil;
+    [self.connection cancel];
+    self.connection = nil;
+    if (self.taskID != UIBackgroundTaskInvalid) {
+        [[UIApplication sharedApplication] endBackgroundTask:self.taskID];
+        self.taskID = UIBackgroundTaskInvalid;
     }
 }
 
@@ -121,7 +135,7 @@
     [self cancel];
 }
 
-#pragma mark - NSURLConnection Delegate Methods
+#pragma mark - NSURLConnection Delegate Methods - these are only called on the main thread
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     _data.length = 0;
@@ -133,15 +147,19 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    if (_block) {
-        _block(_data, _response, nil);
+    // it's possible that the block could turn nil between the if and the call so get a local copy
+    void (^block)(NSData *data, NSURLResponse *response, NSError *error) = self.block;
+    if (block) {
+        block(_data, _response, nil);
     }
     [self cancel];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    if (_block) {
-        _block(nil,nil,error);
+    // it's possible that the block could turn nil between the if and the call so get a local copy
+    void (^block)(NSData *data, NSURLResponse *response, NSError *error) = self.block;
+    if (block) {
+        block(nil,nil,error);
     }
     [self cancel];
 }
@@ -149,7 +167,7 @@
 @end
 
 #pragma mark -  __NSURLConnection_MFBlockize_OnDealloc 
-   
+
 @interface __NSURLConnection_MFBlockize_OnDealloc () {
     void (^_performOnDeallocBlock)();
 }

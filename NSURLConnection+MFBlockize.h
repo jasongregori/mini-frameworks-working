@@ -24,11 +24,11 @@
  Notes
  -----
  
- background - if you set this to YES, we will keep the app running in the background to send this request.
+ • NSURLConnection+MFBlockize is completely thread and dispatch_queue safe. It uses the main thread to run the url connection.
+ • Your block will be run on the main thread.
+ • background - if you set this to YES, we will keep the app running in the background to send this request.
  
  */
-
-// !!!: You may only send a request from an NSThread right now. In the future, we should have our own internal thread like these guys: https://github.com/gowalla/AFNetworking/blob/master/AFNetworking/AFHTTPRequestOperation.m
 
 #import <Foundation/Foundation.h>
 
