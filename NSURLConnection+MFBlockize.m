@@ -97,7 +97,8 @@
 
 // may only be called on main thread
 - (void)__startConnection:(NSURLRequest *)request;
-- (void)__callBlockAndCancelWithData:(NSData *)data response:(NSURLResponse *)response error:(NSError *)error;
+- (void)__callBlockAndCleanupWithData:(NSData *)data response:(NSURLResponse *)response error:(NSError *)error;
+- (void)__cleanup;
 @end
 
 @implementation __NSURLConnection_MFBlockize_Helper
@@ -129,40 +130,50 @@
     return self;
 }
 
+// may be called from any thread or dispatch_queue
+- (void)cancel {
+    // we want to make sure this block never gets called again and we release all the vars in it
+    self.block = nil;
+    if (self.connection) {
+        [self.connection cancel];
+        self.connection = nil;
+    }
+    [self __cleanup];
+}
+
+- (void)dealloc {
+    // the connection retains us, so if we get here the connection must have finished or cancelled already
+    [self __cleanup];
+}
+
 // may only be called on main thread
 - (void)__startConnection:(NSURLRequest *)request {
     self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
     
     if (!self.connection) {
-        [self __callBlockAndCancelWithData:nil response:nil error:[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]];
+        [self __callBlockAndCleanupWithData:nil response:nil error:[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]];
     }
 }
 
 // may only be called on main thread
-- (void)__callBlockAndCancelWithData:(NSData *)data response:(NSURLResponse *)response error:(NSError *)error {
+- (void)__callBlockAndCleanupWithData:(NSData *)data response:(NSURLResponse *)response error:(NSError *)error {
     // it's possible that the block could become nil between the if and the call so get a local copy
     void (^block)(NSData *data, NSURLResponse *response, NSError *error) = self.block;
     if (block) {
         // copy the data so we're sure it won't change on the user
         block([data copy], response, error);
+        // release the block, it should never be called more than once
+        self.block = nil;
     }
-    [self cancel];
+    [self __cleanup];
 }
 
 // may be called from any thread or dispatch_queue
-- (void)cancel {
-    // we want to make sure this block never gets called again and we release all the vars in it
-    self.block = nil;
-    [self.connection cancel];
-    self.connection = nil;
+- (void)__cleanup {
     if (self.taskID != UIBackgroundTaskInvalid) {
         [[UIApplication sharedApplication] endBackgroundTask:self.taskID];
         self.taskID = UIBackgroundTaskInvalid;
     }
-}
-
-- (void)dealloc {
-    [self cancel];
 }
 
 #pragma mark - NSURLConnection Delegate Methods - these are only called on the main thread
@@ -177,11 +188,11 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    [self __callBlockAndCancelWithData:_data response:_response error:nil];
+    [self __callBlockAndCleanupWithData:_data response:_response error:nil];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    [self __callBlockAndCancelWithData:nil response:nil error:error];
+    [self __callBlockAndCleanupWithData:nil response:nil error:error];
 }
 
 @end
