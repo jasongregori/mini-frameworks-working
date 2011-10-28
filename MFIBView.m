@@ -12,14 +12,6 @@
 
 @implementation MFIBView
 
-- (id)initWithFrame:(CGRect)frame {
-    self = [[self class] mfView];
-    if (!CGRectEqualToRect(frame, CGRectZero)) {
-        self.frame = frame;
-    }
-    return self;
-}
-
 + (id)mfView {
     static char nibKey;
     UINib *nib = objc_getAssociatedObject(self, &nibKey);
@@ -32,6 +24,20 @@
     MFIBView *view = [objects objectAtIndex:0];
     NSAssert1([view isKindOfClass:[self class]], @"%@: +mfView: We didn't get an actual view!", NSStringFromClass(self));
     return view;
+}
+
+#pragma mark - Override these methods so they're more efficient
+
+- (id)initWithFrame:(CGRect)frame {
+    self = [[self class] mfView];
+    if (!CGRectEqualToRect(frame, CGRectZero)) {
+        self.frame = frame;
+    }
+    return self;
+}
+
++ (id)new {
+    return [self mfView];
 }
 
 @end
