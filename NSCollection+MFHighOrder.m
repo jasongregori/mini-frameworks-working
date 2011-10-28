@@ -51,7 +51,7 @@
 - (NSMutableDictionary *)mfDictionaryByRemovingKeysExcept:(id)firstObject, ... {
     NSMutableSet *args = [NSMutableSet set]; va_list vl; va_start(vl, firstObject); id o = firstObject; while (o) { [args addObject:o]; o = va_arg(vl, id); } va_end(vl);
     return [self mfFilteredDictionaryWithTest:^BOOL(id key, id object) {
-        return [args containsObject:object];
+        return [args containsObject:key];
     }];
 }
 
