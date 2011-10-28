@@ -219,7 +219,9 @@
 {
     [super viewDidUnload];
     
-    self.navigationItem.titleView = nil;
+    if (self.navigationItem.titleView == self.__segmentedControl) {
+        self.navigationItem.titleView = nil;
+    }
     self.__segmentedControl = nil;
     self.__viewContainer = nil;
     [self.__loadedSubViews removeAllObjects];
