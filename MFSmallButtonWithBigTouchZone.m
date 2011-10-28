@@ -11,6 +11,10 @@
 @implementation MFSmallButtonWithBigTouchZone
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    if (self.hidden || !self.userInteractionEnabled || self.alpha < 0.01) {
+        return nil;
+    }
+    
     // if point is within 22 pts of center, hit
     if (CGRectContainsPoint(CGRectInset((CGRect){[self convertPoint:self.center fromView:self.superview], CGSizeZero}, -22, -22), point)) {
         return self;
