@@ -133,7 +133,10 @@
 // may be called from any thread or dispatch_queue
 - (void)cancel {
     // we want to make sure this block never gets called again and we release all the vars in it
-    self.block = nil;
+    if (self.block) {
+        // wait for the main thread, this insures that our block will not be called on the main thread after this call because we only ever call it from the main thread
+        [self performSelectorOnMainThread:@selector(setBlock:) withObject:nil waitUntilDone:YES];
+    }
     if (self.connection) {
         [self.connection cancel];
         self.connection = nil;
