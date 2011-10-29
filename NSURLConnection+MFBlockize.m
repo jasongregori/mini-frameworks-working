@@ -37,7 +37,9 @@
         
         // we want the helper to be released since our block was called
         // onDealloc will retain the helper until the next call
-        weakOnDealloc.performOnDeallocBlock = nil;
+        
+        #warning !!!!!! need to look into this monday !!!!!
+//        weakOnDealloc.performOnDeallocBlock = nil;
     }];
 
     if (helper) {
