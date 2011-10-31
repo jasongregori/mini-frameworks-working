@@ -33,13 +33,13 @@
     
     // ## the helper will run the request and call the block
     __NSURLConnection_MFBlockize_Helper *helper = [[__NSURLConnection_MFBlockize_Helper alloc] initWithRequest:request background:background block:^(NSData *data, NSURLResponse *response, NSError *error) {
+        // onDealloc will retain the helper until the next call.
+        // we want onDealloc to release the helper so it won't keep a bunch of unused junk around.
+        // some users will release onDealloc inside the block call, so we should not reference it after the block is called.
+        weakOnDealloc.performOnDeallocBlock = nil;
+
+        // call block
         if (block) { block(data, response, error); }
-        
-        // we want the helper to be released since our block was called
-        // onDealloc will retain the helper until the next call
-        
-        #warning !!!!!! need to look into this monday !!!!!
-//        weakOnDealloc.performOnDeallocBlock = nil;
     }];
 
     if (helper) {
