@@ -89,27 +89,28 @@
 
 @interface __NSURLConnection_MFBlockize_Helper () {
     // always accessed from main thread except on init and dealloc
-    NSMutableData *_data;
-    NSURLResponse *_response;
+    void (^___block)(NSData *data, NSURLResponse *response, NSError *error);
+    NSMutableData *__data;
+    NSURLResponse *__response;
 }
 // potentially accessed from multiple threads (atomic)
-@property (copy) void (^block)(NSData *data, NSURLResponse *response, NSError *error);
 @property (strong) NSURLConnection *connection;
 @property UIBackgroundTaskIdentifier taskID;
 
 // may only be called on main thread
 - (void)__startConnection:(NSURLRequest *)request;
 - (void)__callBlockAndCleanupWithData:(NSData *)data response:(NSURLResponse *)response error:(NSError *)error;
+- (void)__nilBlock;
 - (void)__cleanup;
 @end
 
 @implementation __NSURLConnection_MFBlockize_Helper
-@synthesize block = ___block, connection = __connection, taskID = __taskID;
+@synthesize connection = __connection, taskID = __taskID;
 
 - (id)initWithRequest:(NSURLRequest *)request background:(BOOL)background block:(void (^)(NSData *data, NSURLResponse *response, NSError *error))block {
     if ((self = [super init])) {
-        _data = [NSMutableData data];
-        self.block = block;
+        __data = [NSMutableData data];
+        ___block = block;
         
         // start background task
         __block UIBackgroundTaskIdentifier taskID = UIBackgroundTaskInvalid;
@@ -135,14 +136,16 @@
 // may be called from any thread or dispatch_queue
 - (void)cancel {
     // we want to make sure this block never gets called again and we release all the vars in it
-    if (self.block) {
-        // wait for the main thread, this insures that our block will not be called on the main thread after this call because we only ever call it from the main thread
-        [self performSelectorOnMainThread:@selector(setBlock:) withObject:nil waitUntilDone:YES];
-    }
+    // wait for the main thread, this insures that our block will not be called on the main thread after this call because we only ever call it from the main thread
+    [self performSelectorOnMainThread:@selector(__nilBlock) withObject:nil waitUntilDone:YES];
+
+    // stop the connection
     if (self.connection) {
         [self.connection cancel];
         self.connection = nil;
     }
+    
+    // cleanup
     [self __cleanup];
 }
 
@@ -162,15 +165,16 @@
 
 // may only be called on main thread
 - (void)__callBlockAndCleanupWithData:(NSData *)data response:(NSURLResponse *)response error:(NSError *)error {
-    // it's possible that the block could become nil between the if and the call so get a local copy
-    void (^block)(NSData *data, NSURLResponse *response, NSError *error) = self.block;
-    if (block) {
-        // copy the data so we're sure it won't change on the user
-        block([data copy], response, error);
+    if (___block) {
+        ___block(data, response, error);
         // release the block, it should never be called more than once
-        self.block = nil;
+        ___block = nil;
     }
     [self __cleanup];
+}
+
+- (void)__nilBlock {
+    ___block = nil;
 }
 
 // may be called from any thread or dispatch_queue
@@ -184,16 +188,16 @@
 #pragma mark - NSURLConnection Delegate Methods - these are only called on the main thread
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    _data.length = 0;
-    _response = response;
+    __data.length = 0;
+    __response = response;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    [_data appendData:data];
+    [__data appendData:data];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    [self __callBlockAndCleanupWithData:_data response:_response error:nil];
+    [self __callBlockAndCleanupWithData:__data response:__response error:nil];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
@@ -214,10 +218,8 @@
 }
 
 - (void)dealloc {
-    // it's possible that the block could become nil between the if and the call so get a local copy
-    void (^performOnDeallocBlock)() = self.performOnDeallocBlock;
-    if (performOnDeallocBlock) {
-        performOnDeallocBlock();
+    if (self.performOnDeallocBlock) {
+        self.performOnDeallocBlock();
     }
 }
 
