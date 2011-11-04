@@ -16,9 +16,19 @@
  View blocks are called when it's corresponding index is selected and their view is not loaded.
  View blocks may be called again if a view was gotten rid of due to memory pressure.
  
+ Notes
+ 
+ • You may add other views to the main view if you like
+ 
  */
 
 typedef UIView * (^MFViewBlock)(id segmentedViewController);
+
+typedef enum {
+    kMFSegmentedNavigationTitleViewControl,
+    kMFSegmentedNavigationControlAtTopOfView,
+    kMFSegmentedNoControl,
+} MFSegmentedControlStyle;
 
 @interface MFSegmentedViewController : UIViewController
 
@@ -30,8 +40,9 @@ typedef UIView * (^MFViewBlock)(id segmentedViewController);
 - (id)initWithNamesAndViewBlocksArray:(NSArray *)namesAndViewBlocks;
 
 @property (nonatomic, assign) UIBarStyle barStyle;
-// Defaults to YES
-@property (nonatomic, assign) BOOL showSegmentedControlInNavigationTitleView;
+// This is where the segmented control will be
+// Defaults to kMFSegmentedNavigationTitleViewControl
+@property (nonatomic, assign) MFSegmentedControlStyle controlStyle;
 // Needs to be reset on loadView or viewDidLoad
 - (void)setBackgroundView:(UIView *)backgroundView;
 

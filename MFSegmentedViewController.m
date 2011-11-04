@@ -23,7 +23,7 @@
 @end
 
 @implementation MFSegmentedViewController
-@synthesize names, __loadedSubViews, __viewBlocks, showSegmentedControlInNavigationTitleView;
+@synthesize names, __loadedSubViews, __viewBlocks, controlStyle;
 @synthesize barStyle;
 
 - (id)initWithNamesAndViewBlocks:(NSString *)firstName, ...
@@ -57,7 +57,6 @@
         self.names = kys;
         self.__viewBlocks = vbs;
         self.__loadedSubViews = [NSMutableDictionary dictionary];
-        self.showSegmentedControlInNavigationTitleView = YES;
     }
     return self;
 }
@@ -187,24 +186,26 @@
     
     CGFloat containerTop = 0;
     
-    UISegmentedControl *sc = [[UISegmentedControl alloc] initWithItems:self.names];
-    sc.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    sc.segmentedControlStyle = UISegmentedControlStyleBar;
-    sc.selectedSegmentIndex = self.selectedIndex;
-    sc.frame = CGRectMake(kSegmentedControlMargin, 0, kSegmentedControlWidth, [sc sizeThatFits:CGSizeZero].height);
-    [sc addTarget:self action:@selector(__segmentedControlValueChanged) forControlEvents:UIControlEventValueChanged];
-    self.__segmentedControl = sc;
-    if (self.showSegmentedControlInNavigationTitleView) {
-        self.navigationItem.titleView = sc;
-    }
-    else {
-        UIToolbar *toolbar = [[UIToolbar alloc] init];
-        toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        toolbar.barStyle = self.barStyle;
-        containerTop = 30; //[toolbar sizeThatFits:CGSizeZero].height;
-        toolbar.frame = CGRectMake(0, 0, self.view.bounds.size.width, containerTop);
-        toolbar.items = [NSArray arrayWithObject:[[UIBarButtonItem alloc] initWithCustomView:sc]];
-        [self.view addSubview:toolbar];
+    if (self.controlStyle != kMFSegmentedNoControl) {
+        UISegmentedControl *sc = [[UISegmentedControl alloc] initWithItems:self.names];
+        sc.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        sc.segmentedControlStyle = UISegmentedControlStyleBar;
+        sc.selectedSegmentIndex = self.selectedIndex;
+        sc.frame = CGRectMake(kSegmentedControlMargin, 0, kSegmentedControlWidth, [sc sizeThatFits:CGSizeZero].height);
+        [sc addTarget:self action:@selector(__segmentedControlValueChanged) forControlEvents:UIControlEventValueChanged];
+        self.__segmentedControl = sc;
+        if (self.controlStyle == kMFSegmentedNavigationTitleViewControl) {
+            self.navigationItem.titleView = sc;
+        }
+        else {
+            UIToolbar *toolbar = [[UIToolbar alloc] init];
+            toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+            toolbar.barStyle = self.barStyle;
+            containerTop = 30; //[toolbar sizeThatFits:CGSizeZero].height;
+            toolbar.frame = CGRectMake(0, 0, self.view.bounds.size.width, containerTop);
+            toolbar.items = [NSArray arrayWithObject:[[UIBarButtonItem alloc] initWithCustomView:sc]];
+            [self.view addSubview:toolbar];
+        }
     }
     
     UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, containerTop, self.view.bounds.size.width, self.view.bounds.size.height - containerTop)];
