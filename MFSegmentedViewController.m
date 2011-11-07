@@ -16,7 +16,7 @@
 @property (nonatomic, strong) NSMutableDictionary *__loadedSubViews;
 @property (nonatomic, strong) UISegmentedControl *__segmentedControl;
 @property (nonatomic, strong) NSArray *__viewBlocks;
-@property (nonatomic, strong) UIView *__viewContainer;
+@property (nonatomic, strong) UIView *viewsContainer;
 
 - (void)__layoutSelectedIndex;
 - (void)__segmentedControlValueChanged;
@@ -114,7 +114,7 @@
 
 - (void)setBackgroundView:(UIView *)backgroundView {
     backgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    backgroundView.frame = self.__viewContainer.frame;
+    backgroundView.frame = self.viewsContainer.frame;
     [self.view insertSubview:backgroundView atIndex:0];
 }
 
@@ -152,7 +152,7 @@
 }
 
 #pragma mark - View lifecycle
-@synthesize __segmentedControl, __viewContainer;
+@synthesize __segmentedControl, viewsContainer = __viewsContainer;
 
 - (void)__layoutSelectedIndex
 {
@@ -168,9 +168,9 @@
         [self subViewDidLoad:view atIndex:self.selectedIndex];
     }
     // show
-    view.frame = self.__viewContainer.bounds;
+    view.frame = self.viewsContainer.bounds;
     [self subViewWillAppear:view atIndex:self.selectedIndex];
-    [self.__viewContainer addSubview:view];
+    [self.viewsContainer addSubview:view];
 }
 
 - (void)__segmentedControlValueChanged
@@ -210,7 +210,7 @@
     
     UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, containerTop, self.view.bounds.size.width, self.view.bounds.size.height - containerTop)];
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    self.__viewContainer = container;
+    self.viewsContainer = container;
     [self.view addSubview:container];
     
     [self __layoutSelectedIndex];
@@ -224,7 +224,7 @@
         self.navigationItem.titleView = nil;
     }
     self.__segmentedControl = nil;
-    self.__viewContainer = nil;
+    self.viewsContainer = nil;
     [self.__loadedSubViews removeAllObjects];
 }
 

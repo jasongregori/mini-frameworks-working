@@ -49,6 +49,8 @@ typedef enum {
 // these are returned in the order they are shown in the segmented control
 @property (nonatomic, strong, readonly) NSArray *names;
 
+// the views go in this view, don't mess with it.
+@property (nonatomic, strong, readonly) UIView *viewsContainer;
 @property (nonatomic, assign) NSUInteger selectedIndex;
 // views aren't loaded until they are needed
 // returns NSNotFound returned if not found
