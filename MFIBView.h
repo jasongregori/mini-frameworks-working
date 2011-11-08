@@ -12,7 +12,7 @@
  
  1. Subclass MFIBView
  2. Create a xib file with the same name as the class
- 3. Make the first object in the xib an instance of your cell class
+ 3. Make the first object in the xib an instance of your view class
  
  MFIBView works by replacing self when initWithFrame is called so you can use the usual init methods.
  NB: You cannot put an MFIBView into another IB (yet)
