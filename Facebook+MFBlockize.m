@@ -56,6 +56,12 @@
                 successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
                    failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
     
+    UIApplication *app = [UIApplication sharedApplication];
+    __block UIBackgroundTaskIdentifier taskID = UIBackgroundTaskInvalid;
+    taskID = [app beginBackgroundTaskWithExpirationHandler:^(void) {
+        [app endBackgroundTask:taskID];
+    }];
+    
     __Facebook_MFBlockize_Helper *helper = [[__Facebook_MFBlockize_Helper alloc] init];
     
     FBRequest *request = [self requestWithGraphPath:graphPath andParams:[params mutableCopy] andHttpMethod:httpMethod andDelegate:helper];
@@ -66,12 +72,14 @@
 
     __unsafe_unretained id weakOwner = owner;
     helper.successBlock = ^(NSInteger statusCode, id result) {
-        successBlock(weakOwner, statusCode, result);
+        if (successBlock) { successBlock(weakOwner, statusCode, result); }
         [self mfCancelCallWithOwner:weakOwner object:request];
+        [app endBackgroundTask:taskID];
     };
     helper.failBlock = ^(NSInteger statusCode, NSString *error) {
-        failBlock(weakOwner, statusCode, error);
+        if (failBlock) { failBlock(weakOwner, statusCode, error); }
         [self mfCancelCallWithOwner:weakOwner object:request];
+        [app endBackgroundTask:taskID];
     };
 
     return request;
