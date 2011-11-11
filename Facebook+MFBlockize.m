@@ -186,7 +186,20 @@
 
 - (void)request:(FBRequest *)request didFailWithError:(NSError *)error {
     if (self.failBlock) {
-        NSString *errorString = [[error userInfo] valueForKeyPath:@"error.message"];
+        NSString *errorString;
+        if ([error.domain isEqualToString:NSURLErrorDomain]) {
+            errorString = [error localizedDescription];
+        }
+        else {
+            // probably a facebook error. they have tons, try to find the message
+            errorString = [[error userInfo] valueForKeyPath:@"error.message"];
+            if (!errorString) {
+                errorString = [[error userInfo] valueForKeyPath:@"error_msg"];
+            }
+            if (!errorString) {
+                errorString = [[error userInfo] valueForKeyPath:@"error_reason"];
+            }
+        }
         self.failBlock(self.statusCode, errorString);
     }
 }
