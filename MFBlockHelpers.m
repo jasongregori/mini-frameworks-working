@@ -85,7 +85,6 @@
 - (void)dealloc {    
     [self cancel];
     dispatch_release(self.__timer);
-
 }
 
 - (void)cancel {
