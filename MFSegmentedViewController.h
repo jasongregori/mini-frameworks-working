@@ -56,6 +56,7 @@ typedef enum {
 // returns NSNotFound returned if not found
 - (NSUInteger)indexForLoadedSubView:(UIView *)view;
 - (id)loadedSubViewForIndex:(NSUInteger)index;
+- (id)loadSubViewForIndex:(NSUInteger)index;
 - (NSSet *)loadedSubViews;
 
 // called after a view is loaded. default implementation does nothing.

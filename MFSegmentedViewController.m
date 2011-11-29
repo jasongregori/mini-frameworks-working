@@ -107,6 +107,22 @@
     return [self.__loadedSubViews objectForKey:[NSNumber numberWithUnsignedInteger:index]];
 }
 
+- (id)loadSubViewForIndex:(NSUInteger)index {
+    // see if already loaded
+    UIView *view = [self loadedSubViewForIndex:self.selectedIndex];
+    // load if not already loaded
+    if (!view)
+    {
+        MFViewBlock viewBlock = [self.__viewBlocks objectAtIndex:self.selectedIndex];
+        view = viewBlock(self);
+        view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        [self.__loadedSubViews setObject:view forKey:[NSNumber numberWithInteger:self.selectedIndex]];
+        [self subViewDidLoad:view atIndex:self.selectedIndex];
+        view.frame = self.viewsContainer.bounds;
+    }
+    return view;
+}
+
 - (NSSet *)loadedSubViews
 {
     return [NSSet setWithArray:[self.__loadedSubViews allValues]];
@@ -156,19 +172,9 @@
 
 - (void)__layoutSelectedIndex
 {
-    // see if already loaded
-    UIView *view = [self loadedSubViewForIndex:self.selectedIndex];
-    // load if not already loaded
-    if (!view)
-    {
-        MFViewBlock viewBlock = [self.__viewBlocks objectAtIndex:self.selectedIndex];
-        view = viewBlock(self);
-        view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        [self.__loadedSubViews setObject:view forKey:[NSNumber numberWithInteger:self.selectedIndex]];
-        [self subViewDidLoad:view atIndex:self.selectedIndex];
-    }
+    UIView *view = [self loadSubViewForIndex:self.selectedIndex];
+    view.frame = self.viewsContainer.bounds;        
     // show
-    view.frame = self.viewsContainer.bounds;
     [self subViewWillAppear:view atIndex:self.selectedIndex];
     [self.viewsContainer addSubview:view];
 }
@@ -183,7 +189,7 @@
 - (void)loadView
 {
     [super loadView];
-    
+
     CGFloat containerTop = 0;
     
     if (self.controlStyle != kMFSegmentedNoControl) {
@@ -201,7 +207,7 @@
             UIToolbar *toolbar = [[UIToolbar alloc] init];
             toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
             toolbar.barStyle = self.barStyle;
-            containerTop = 30; //[toolbar sizeThatFits:CGSizeZero].height;
+            containerTop = [toolbar sizeThatFits:CGSizeZero].height;
             toolbar.frame = CGRectMake(0, 0, self.view.bounds.size.width, containerTop);
             toolbar.items = [NSArray arrayWithObject:[[UIBarButtonItem alloc] initWithCustomView:sc]];
             [self.view addSubview:toolbar];
