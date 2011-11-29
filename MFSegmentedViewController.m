@@ -118,7 +118,6 @@
         view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         [self.__loadedSubViews setObject:view forKey:[NSNumber numberWithInteger:self.selectedIndex]];
         [self subViewDidLoad:view atIndex:self.selectedIndex];
-        view.frame = self.viewsContainer.bounds;
     }
     return view;
 }
