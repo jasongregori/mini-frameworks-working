@@ -8,15 +8,6 @@
 
 #import "MFTimeSince.h"
 
-NSString * const MFTimeSinceLocalizationOneSecondKey = @"OneSecond";
-NSString * const MFTimeSinceLocalizationUpToSixtySecondsKey = @"MoreSeconds";
-NSString * const MFTimeSinceLocalizationOneMinuteKey = @"OneMinute";
-NSString * const MFTimeSinceLocalizationUpToSixtyMinutesKey = @"MoreSeconds";
-NSString * const MFTimeSinceLocalizationOneHourKey = @"OneHour";
-NSString * const MFTimeSinceLocalizationUpToTwentyFourHoursKey = @"MoreHours";
-NSString * const MFTimeSinceLocalizationOneDayKey = @"OneDay";
-NSString * const MFTimeSinceLocalizationMoreThanOneDayKey = @"MoreDays";
-
 @interface __MFTimeSince_Localization : NSObject
 @property (nonatomic, copy) NSString *localization;
 @property (nonatomic, assign) NSTimeInterval upto;
