@@ -8,15 +8,6 @@
 
 // @mf: allows you to do cool facebook stuff with blocks
 
-/*
- 
- • The object returned by the method may be used to cancel the fb call.
- • You may ignore the returned object if you will not need the option to cancel.
- • The blocks are retained until the fb call is finished, the fb call is cancelled, or the owner is dealloced.
- • An object is added to the owner as an associated object.
- 
- */
-
 #import <Foundation/Foundation.h>
 
 #import "Facebook.h"
@@ -32,6 +23,20 @@
           failBlock:(void (^)(BOOL userDidCancel))failBlock;
 
 #pragma mark Request
+// retain the object returned, the request is cancelled on dealloc
+- (id)mfRequestWithGraphPath:(NSString *)graphPath
+                   andParams:(NSDictionary *)params
+               andHTTPMethod:(NSString *)httpMethod
+                successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
+                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock;
+/*
+ 
+ • The object returned by the method may be used to cancel the fb call.
+ • You may ignore the returned object if you will not need the option to cancel.
+ • The blocks are retained until the fb call is finished, the fb call is cancelled, or the owner is dealloced.
+ • An object is added to the owner as an associated object.
+ 
+ */
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
                        owner:(id)owner

@@ -43,6 +43,21 @@
 
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
+               andHTTPMethod:(NSString *)httpMethod
+                successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
+                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
+    id request = [NSObject new];
+    [self mfRequestWithGraphPath:graphPath
+                       andParams:params
+                   andHTTPMethod:httpMethod
+                           owner:request
+                    successBlock:successBlock
+                       failBlock:failBlock];
+    return request;
+}
+
+- (id)mfRequestWithGraphPath:(NSString *)graphPath
+                   andParams:(NSDictionary *)params
                        owner:(id)owner
                 successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
                    failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
@@ -64,7 +79,10 @@
     
     __Facebook_MFBlockize_Helper *helper = [[__Facebook_MFBlockize_Helper alloc] init];
     
-    FBRequest *request = [self requestWithGraphPath:graphPath andParams:[params mutableCopy] andHttpMethod:httpMethod andDelegate:helper];
+    FBRequest *request = [self requestWithGraphPath:graphPath
+                                          andParams:(params ? [params mutableCopy] : [NSMutableDictionary dictionary])
+                                      andHttpMethod:httpMethod
+                                        andDelegate:helper];
     // make sure request stays alive as long as we need it
     helper.request = request;
     // make sure helper stays alive as long as we need it
