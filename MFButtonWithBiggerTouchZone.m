@@ -6,9 +6,9 @@
 //  Copyright 2011 Jason Gregori. All rights reserved.
 //
 
-#import "MFSmallButtonWithBigTouchZone.h"
+#import "MFButtonWithBiggerTouchZone.h"
 
-@implementation MFSmallButtonWithBigTouchZone
+@implementation MFButtonWithBiggerTouchZone
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
     if (self.hidden || !self.userInteractionEnabled || self.alpha < 0.01) {

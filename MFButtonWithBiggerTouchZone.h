@@ -14,6 +14,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MFSmallButtonWithBigTouchZone : UIButton
+@interface MFButtonWithBiggerTouchZone : UIButton
 
 @end
