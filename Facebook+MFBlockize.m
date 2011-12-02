@@ -154,7 +154,8 @@
     self.successBlock = successBlock;
     self.failBlock = failBlock;
     
-    [facebook authorize:permissions delegate:self];
+    facebook.sessionDelegate = self;
+    [facebook authorize:permissions];
 }
 
 - (void)fbDidLogin {
