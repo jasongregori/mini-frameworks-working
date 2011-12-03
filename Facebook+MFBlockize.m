@@ -71,6 +71,7 @@
                 successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
                    failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
     
+    #warning move these background calls into the helper because if the helper gets dealloced before finishing, the task will not be ended
     UIApplication *app = [UIApplication sharedApplication];
     __block UIBackgroundTaskIdentifier taskID = UIBackgroundTaskInvalid;
     taskID = [app beginBackgroundTaskWithExpirationHandler:^(void) {
