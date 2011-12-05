@@ -44,15 +44,18 @@
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
                andHTTPMethod:(NSString *)httpMethod
-                successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
-                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
+                successBlock:(void (^)(NSInteger statusCode, id result))successBlock
+                   failBlock:(void (^)(NSInteger statusCode, NSString *error))failBlock {
     id request = [NSObject new];
     [self mfRequestWithGraphPath:graphPath
                        andParams:params
                    andHTTPMethod:httpMethod
                            owner:request
-                    successBlock:successBlock
-                       failBlock:failBlock];
+                    successBlock:^(id weakOwner, NSInteger statusCode, id result) {
+                        if (successBlock) { successBlock(statusCode, result); };
+                    } failBlock:^(id weakOwner, NSInteger statusCode, NSString *error) {
+                        if (failBlock) { failBlock(statusCode, error); };
+                    }];
     return request;
 }
 

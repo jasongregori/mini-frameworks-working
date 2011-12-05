@@ -27,8 +27,8 @@
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
                andHTTPMethod:(NSString *)httpMethod
-                successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
-                   failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock;
+                successBlock:(void (^)(NSInteger statusCode, id result))successBlock
+                   failBlock:(void (^)(NSInteger statusCode, NSString *error))failBlock;
 /*
  
  • The object returned by the method may be used to cancel the fb call.
