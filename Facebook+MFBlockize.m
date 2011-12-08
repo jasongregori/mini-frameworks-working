@@ -18,6 +18,10 @@
         failBlock:(void (^)(BOOL userDidCancel))failBlock;
 @end
 
+@interface __Facebook_MFBlockize_Dialog_Helper : NSObject <FBDialogDelegate>
+@property (nonatomic, copy) void (^successBlock)();
+@end
+
 @interface __Facebook_MFBlockize_Helper : NSObject <FBRequestDelegate>
 // this is used to make sure our call object is not dealloced before we're done with it
 @property (nonatomic, strong) FBRequest *request;
@@ -39,6 +43,21 @@
                                                                       permissions:permissions
                                                                      successBlock:successBlock
                                                                         failBlock:failBlock];
+}
+
+- (void)mfDialog:(NSString *)action
+       andParams:(NSMutableDictionary *)params
+    successBlock:(void (^)())successBlock {
+    static char dialogKey;
+    __Facebook_MFBlockize_Dialog_Helper *h = [__Facebook_MFBlockize_Dialog_Helper new];
+    objc_setAssociatedObject(self, &dialogKey, h, OBJC_ASSOCIATION_RETAIN);
+    h.successBlock = ^{
+        if (successBlock) {
+            successBlock();
+        }
+        objc_setAssociatedObject(self, &dialogKey, nil, OBJC_ASSOCIATION_RETAIN);
+    };
+    [self dialog:action andParams:params andDelegate:h];
 }
 
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
@@ -179,6 +198,17 @@
     self.failBlock = nil;
 }
 
+
+@end
+
+@implementation __Facebook_MFBlockize_Dialog_Helper
+@synthesize successBlock;
+
+- (void)dialogDidComplete:(FBDialog *)dialog {
+    if (successBlock) {
+        successBlock();
+    }
+}
 
 @end
 

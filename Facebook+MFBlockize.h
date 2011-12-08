@@ -22,6 +22,14 @@
        successBlock:(void (^)())successBlock
           failBlock:(void (^)(BOOL userDidCancel))failBlock;
 
+#pragma mark Dialog
+
+// never actually tested!
+// remember they don't actually tell us if it was successful or not
+- (void)mfDialog:(NSString *)action
+       andParams:(NSMutableDictionary *)params
+    successBlock:(void (^)())successBlock;
+
 #pragma mark Request
 // retain the object returned, the request is cancelled on dealloc
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
