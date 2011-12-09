@@ -70,17 +70,41 @@
 
 #pragma mark - images
 
+static void (^__imageCacheBlock)(NSString *url, UIImage *image);
+static UIImage *(^__imageFromCacheBlock)(NSString *url);
+
 + (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block {
+    NSString *immutableURL = [url copy];
+    // check cache
+    if (__imageFromCacheBlock) {
+        UIImage *image = __imageFromCacheBlock(url);
+        if (image) {
+            block(image, nil);
+            return nil;
+        }
+    }
     return [self mfSendRequestForURL:url withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (block) {
             if (data) {
-                block([UIImage imageWithData:data],nil);
+                UIImage *image = [UIImage imageWithData:data];
+                // cache image
+                if (__imageCacheBlock) {
+                    __imageCacheBlock(immutableURL, image);
+                }
+                block(image, nil);
             }
             else {
-                block(nil,error);
+                block(nil, error);
             }
         }
     }];
+}
+
++ (void)mfSetImageCacheBlock:(void (^)(NSString *url, UIImage *image))block {
+    __imageCacheBlock = [block copy];
+}
++ (void)mfSetImageFromCacheBlock:(UIImage *(^)(NSString *url))block {
+    __imageFromCacheBlock = [block copy];
 }
 
 @end

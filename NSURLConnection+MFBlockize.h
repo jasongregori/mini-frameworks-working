@@ -49,4 +49,9 @@
 #pragma mark images
 + (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block;
 
+// The block set with this method is called for every image downloaded. In it, you may cache images.
++ (void)mfSetImageCacheBlock:(void (^)(NSString *url, UIImage *image))block;
+// The block set in this method is called when an image is requested, return it here to avoid redownloading it.
++ (void)mfSetImageFromCacheBlock:(UIImage *(^)(NSString *url))block;
+
 @end
