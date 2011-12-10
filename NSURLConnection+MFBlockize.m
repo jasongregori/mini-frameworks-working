@@ -180,7 +180,9 @@ static UIImage *(^__imageFromCacheBlock)(NSString *url);
 
 // may only be called on main thread
 - (void)__startConnection:(NSURLRequest *)request {
-    self.connection = [NSURLConnection connectionWithRequest:request delegate:self];
+    self.connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
+    [self.connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    [self.connection start];
     
     if (!self.connection) {
         [self __callBlockAndCleanupWithData:nil response:nil error:[NSError errorWithDomain:@"NSURLConnection+MFBlockize" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to start connection" forKey:NSLocalizedDescriptionKey]]];
