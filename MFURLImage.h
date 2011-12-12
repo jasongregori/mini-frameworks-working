@@ -10,8 +10,6 @@
 
 #import "NSURLConnection+MFBlockize.h"
 
-#warning Add caching for MFURLImage!
-
 @interface MFURLImageView : UIImageView
 @property (nonatomic, copy) NSString *url;
 @end

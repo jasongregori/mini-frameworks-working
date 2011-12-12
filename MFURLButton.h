@@ -10,8 +10,6 @@
 
 #import "NSURLConnection+MFBlockize.h"
 
-#warning Add caching for MFURLButton!
-
 @interface MFURLButton : UIButton
 @property (nonatomic, copy) NSString *url;
 @end
