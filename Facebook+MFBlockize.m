@@ -23,9 +23,8 @@
 @end
 
 @interface __Facebook_MFBlockize_Helper : NSObject <FBRequestDelegate>
-// this is used to make sure our call object is not dealloced before we're done with it
+// this is used to make sure our request object is not dealloced before we're done with it
 @property (nonatomic, strong) FBRequest *request;
-@property (nonatomic, assign) NSInteger statusCode;
 @property (nonatomic, copy) void (^successBlock)(NSInteger statusCode, id result);
 @property (nonatomic, copy) void (^failBlock)(NSInteger statusCode, NSString *error);
 @end
@@ -92,14 +91,7 @@
                        owner:(id)owner
                 successBlock:(void (^)(id weakOwner, NSInteger statusCode, id result))successBlock
                    failBlock:(void (^)(id weakOwner, NSInteger statusCode, NSString *error))failBlock {
-    
-    #warning move these background calls into the helper because if the helper gets dealloced before finishing, the task will not be ended
-    UIApplication *app = [UIApplication sharedApplication];
-    __block UIBackgroundTaskIdentifier taskID = UIBackgroundTaskInvalid;
-    taskID = [app beginBackgroundTaskWithExpirationHandler:^(void) {
-        [app endBackgroundTask:taskID];
-    }];
-    
+        
     __Facebook_MFBlockize_Helper *helper = [[__Facebook_MFBlockize_Helper alloc] init];
     
     FBRequest *request = [self requestWithGraphPath:graphPath
@@ -115,18 +107,14 @@
     helper.successBlock = ^(NSInteger statusCode, id result) {
         if (successBlock) { successBlock(weakOwner, statusCode, result); }
         [self mfCancelCallWithOwner:weakOwner object:request];
-        [app endBackgroundTask:taskID];
     };
     helper.failBlock = ^(NSInteger statusCode, NSString *error) {
         if (failBlock) { failBlock(weakOwner, statusCode, error); }
         [self mfCancelCallWithOwner:weakOwner object:request];
-        [app endBackgroundTask:taskID];
     };
 
     return request;
 }
-
-
 
 - (void)mfCancelCallWithOwner:(id)owner object:(id)cancelObject {
     objc_setAssociatedObject(owner, (__bridge void *)cancelObject, nil, OBJC_ASSOCIATION_RETAIN);
@@ -212,12 +200,34 @@
 
 @end
 
+@interface __Facebook_MFBlockize_Helper ()
+@property (nonatomic, assign) NSInteger statusCode;
+@property (atomic, assign) UIBackgroundTaskIdentifier __taskID;
+@end
+
 @implementation __Facebook_MFBlockize_Helper
 @synthesize request, successBlock, failBlock, statusCode;
+@synthesize __taskID;
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        UIApplication *app = [UIApplication sharedApplication];
+        __block UIBackgroundTaskIdentifier taskID = UIBackgroundTaskInvalid;
+        taskID = [app beginBackgroundTaskWithExpirationHandler:^(void) {
+            [app endBackgroundTask:taskID];
+        }];
+        self.__taskID = taskID;
+    }
+    return self;
+}
 
 - (void)dealloc {
+    if (self.__taskID != UIBackgroundTaskInvalid) {
+        [[UIApplication sharedApplication] endBackgroundTask:self.__taskID];
+        self.__taskID = UIBackgroundTaskInvalid;
+    }
     self.request.delegate = nil;
-    
 }
 
 #pragma mark -
