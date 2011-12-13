@@ -11,6 +11,8 @@
 @interface UIView (MFBoundsAndFramesHelper)
 
 @property (nonatomic, assign) CGFloat mfFrameHeight;
+// only positive numbers will be used, put a negative number to ignore that part
+- (void)mfUpdateFrame:(CGRect)updateFrame;
 - (CGSize)mfSizeThatFitsAndIsAtMost:(CGSize)size;
 
 @end
