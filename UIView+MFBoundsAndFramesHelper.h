@@ -10,6 +10,7 @@
 
 @interface UIView (MFBoundsAndFramesHelper)
 
+@property (nonatomic, assign) CGFloat mfFrameHeight;
 - (CGSize)mfSizeThatFitsAndIsAtMost:(CGSize)size;
 
 @end

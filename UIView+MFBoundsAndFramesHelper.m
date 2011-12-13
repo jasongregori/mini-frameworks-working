@@ -10,6 +10,15 @@
 
 @implementation UIView (MFBoundsAndFramesHelper)
 
+- (CGFloat)mfFrameHeight {
+    return self.frame.size.height;
+}
+- (void)setMfFrameHeight:(CGFloat)mfFrameHeight {
+    CGRect frame = self.frame;
+    frame.size.height = mfFrameHeight;
+    self.frame = frame;
+}
+
 - (CGSize)mfSizeThatFitsAndIsAtMost:(CGSize)size {
     CGSize newSize = [self sizeThatFits:size];
     newSize.width = MIN(newSize.width, size.width);
