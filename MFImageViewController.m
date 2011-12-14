@@ -18,9 +18,10 @@
     CGFloat __rotationRestoreScale;
     UIInterfaceOrientation __lastOrientation;
 }
+- (void)__attemptRotation;
 - (void)__layoutLoadingOrImage;
-- (void)__setMaxMinZoomScale;
 - (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer;
+- (void)__setMaxMinZoomScale;
 @end
 
 @interface __MFImageViewController_CenteringScrollView : UIScrollView
@@ -47,6 +48,17 @@
 - (void)reset {
     if ([self isViewLoaded]) {
         [self __layoutLoadingOrImage];
+    }
+}
+
+#pragma mark -
+
+- (void)__attemptRotation {
+    if ([[UIViewController class] respondsToSelector:@selector(attemptRotationToDeviceOrientation)]
+        && !__scrollview.dragging
+        && !__scrollview.zooming
+        && !__scrollview.decelerating) {
+        [UIViewController attemptRotationToDeviceOrientation];
     }
 }
 
@@ -165,7 +177,7 @@
 #pragma mark - rotation
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
-    return YES;
+    return (!__scrollview.dragging && !__scrollview.zooming && !__scrollview.decelerating);
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
@@ -197,6 +209,20 @@
 }
 
 #pragma mark - UIScrollviewDelegate
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self __attemptRotation];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        [self __attemptRotation];
+    }
+}
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale {
+    [self __attemptRotation];
+}
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView {
     return NO;
