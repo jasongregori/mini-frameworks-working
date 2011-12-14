@@ -124,6 +124,11 @@
     }
 }
 
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation 
+{
+    return YES;
+}
+
 #pragma mark - UIScrollviewDelegate
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
