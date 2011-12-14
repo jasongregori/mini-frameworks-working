@@ -76,6 +76,7 @@
         
         // reset imageview
         __imageView.image = self.image;
+        __imageView.bounds = (CGRect) { CGPointZero, self.image.size };
         __scrollview.contentSize = self.image.size;
 
         [self __setMaxMinZoomScale];
