@@ -18,6 +18,9 @@
     CGFloat __rotationRestoreScale;
     UIInterfaceOrientation __lastOrientation;
 }
+// status bar and navigation bar
+@property (nonatomic, copy) void (^__statusBarAndNaviationBarResetBlock)();
+
 - (void)__attemptRotation;
 - (void)__layoutLoadingOrImage;
 - (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer;
@@ -29,6 +32,7 @@
 
 @implementation MFImageViewController
 @synthesize image = __image;
+@synthesize __statusBarAndNaviationBarResetBlock;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -168,9 +172,65 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    //===== save status bar and navigation bar style
+    UIStatusBarStyle oldStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
+    UINavigationBar *nb = self.navigationController.navigationBar;
+    BOOL oldNavBarTranslucent = nb.translucent;
+    UIBarStyle oldNavBarStyle = nb.barStyle;
+    UIColor *oldNavBarTint = nb.tintColor;
+    BOOL nbCustomImages = [nb respondsToSelector:@selector(backgroundImageForBarMetrics:)];
+    UIImage *oldBackgroundImageDefault, *oldBackgroundImageLandscapePhone;
+    if (nbCustomImages) {
+        oldBackgroundImageDefault = [nb backgroundImageForBarMetrics:UIBarMetricsDefault];
+        oldBackgroundImageLandscapePhone = [nb backgroundImageForBarMetrics:UIBarMetricsLandscapePhone];
+    }
+    self.__statusBarAndNaviationBarResetBlock = ^{
+        [[UIApplication sharedApplication] setStatusBarStyle:oldStatusBarStyle animated:YES];
+        nb.translucent = oldNavBarTranslucent;
+        nb.barStyle = oldNavBarStyle;
+        nb.tintColor = oldNavBarTint;
+        if (nbCustomImages) {
+            [nb setBackgroundImage:oldBackgroundImageDefault forBarMetrics:UIBarMetricsDefault];
+            [nb setBackgroundImage:oldBackgroundImageLandscapePhone forBarMetrics:UIBarMetricsLandscapePhone];
+        }
+        
+        // animate
+        CATransition *a = [CATransition animation];
+        [a setDuration:0.2];
+        [a setType:kCATransitionFade];
+        [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+        [[nb layer] addAnimation:a forKey:kCATransitionFade];
+    };
+    
+    //===== change status bar and navigation bar style
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
+    nb.translucent = YES;
+    nb.barStyle = UIBarStyleBlack;
+    nb.tintColor = nil;
+    if (nbCustomImages) {
+        [nb setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
+        [nb setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
+    }
+
+    // animate
+    CATransition *a = [CATransition animation];
+    [a setDuration:0.2];
+    [a setType:kCATransitionFade];
+    [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+    [[nb layer] addAnimation:a forKey:kCATransitionFade];
+    
     if (self.interfaceOrientation != __lastOrientation) {
         [self reset];
         __lastOrientation = self.interfaceOrientation;
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    if (self.__statusBarAndNaviationBarResetBlock) {
+        self.__statusBarAndNaviationBarResetBlock();
+        self.__statusBarAndNaviationBarResetBlock = nil;
     }
 }
 
