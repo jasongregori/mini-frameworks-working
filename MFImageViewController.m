@@ -186,6 +186,10 @@
 
 #pragma mark - UIScrollviewDelegate
 
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView {
+    return NO;
+}
+
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
     return __imageView;
 }
