@@ -19,6 +19,7 @@
 }
 - (void)__layoutLoadingOrImage;
 - (void)__setMaxMinZoomScale;
+- (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer;
 @end
 
 @interface __MFImageViewController_CenteringScrollView : UIScrollView
@@ -88,6 +89,18 @@
     }
 }
 
+- (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        if (__scrollview.zoomScale < (__scrollview.maximumZoomScale + __scrollview.minimumZoomScale)/2.0) {
+            [__scrollview zoomToRect:(CGRect){ [gestureRecognizer locationInView:__imageView], CGSizeZero}
+                            animated:YES];
+        }
+        else {
+            [__scrollview setZoomScale:__scrollview.minimumZoomScale animated:YES];
+        }
+    }
+}
+
 #pragma mark - View lifecycle
 
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
@@ -116,6 +129,10 @@
     sv.showsVerticalScrollIndicator = NO;
     [self.view addSubview:sv];
     __scrollview = sv;
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(__scrollviewDoubleTapped:)];
+    tapGestureRecognizer.numberOfTapsRequired = 2;
+    [__scrollview addGestureRecognizer:tapGestureRecognizer];
     
     UIImageView *iv = [UIImageView new];
     iv.backgroundColor = [UIColor blackColor];
