@@ -16,6 +16,7 @@
     // rotation
     CGPoint __rotationRestorePoint;
     CGFloat __rotationRestoreScale;
+    UIInterfaceOrientation __lastOrientation;
 }
 - (void)__layoutLoadingOrImage;
 - (void)__setMaxMinZoomScale;
@@ -152,6 +153,15 @@
     __imageView = nil;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    if (self.interfaceOrientation != __lastOrientation) {
+        [self reset];
+        __lastOrientation = self.interfaceOrientation;
+    }
+}
+
 #pragma mark - rotation
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
@@ -159,6 +169,8 @@
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    __lastOrientation = toInterfaceOrientation;
+    
     // this is the point on the image view that is at the center of the screen
     __rotationRestorePoint = [__scrollview convertPoint:CGPointMake(CGRectGetMidX(__scrollview.bounds), CGRectGetMidY(__scrollview.bounds)) toView:__imageView];
 
