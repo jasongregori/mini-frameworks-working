@@ -219,6 +219,7 @@
     [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
     [[nb layer] addAnimation:a forKey:kCATransitionFade];
     
+    //===== fix interface orientation
     if (self.interfaceOrientation != __lastOrientation) {
         [self reset];
         __lastOrientation = self.interfaceOrientation;
