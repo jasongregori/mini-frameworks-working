@@ -20,10 +20,13 @@
 }
 // status bar and navigation bar
 @property (nonatomic, copy) void (^__statusBarAndNaviationBarResetBlock)();
+@property (nonatomic, assign) BOOL __barsHidden;
 
 - (void)__attemptRotation;
 - (void)__layoutLoadingOrImage;
 - (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer;
+- (void)__scrollviewSingleTapped:(UITapGestureRecognizer *)gestureRecognizer;
+- (void)__setBarsHidden:(BOOL)hidden animated:(BOOL)animated;
 - (void)__setMaxMinZoomScale;
 @end
 
@@ -31,6 +34,7 @@
 @end
 
 @implementation MFImageViewController
+@synthesize __barsHidden;
 @synthesize image = __image;
 @synthesize __statusBarAndNaviationBarResetBlock;
 
@@ -118,6 +122,40 @@
     }
 }
 
+#pragma mark - Hidding Bars
+
+- (void)__scrollviewSingleTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    [self __setBarsHidden:!self.__barsHidden animated:YES];
+}
+
+- (void)set__barsHidden:(BOOL)barsHidden {
+    [self __setBarsHidden:barsHidden animated:NO];
+}
+
+- (void)__setBarsHidden:(BOOL)hidden animated:(BOOL)animated {
+    if (__barsHidden != hidden) {
+        __barsHidden = hidden;
+        
+        [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:UIStatusBarAnimationFade];
+        
+//        [UIView transitionWithView:self.navigationController.navigationBar
+//                          duration:1
+//                           options:(UIViewAnimationOptionAllowUserInteraction |
+//                                    UIViewAnimationOptionBeginFromCurrentState |
+//                                    UIViewAnimationOptionCurveEaseInOut |
+//                                    UIViewAnimationOptionTransitionCrossDissolve)
+//                        animations:^{
+//                            self.navigationController.navigationBar.hidden = hidden;
+//                        } completion:nil];
+        self.navigationController.navigationBar.alpha = hidden ? 0 : 1;
+        CATransition *a = [CATransition animation];
+        [a setDuration:0.2];
+        [a setType:kCATransitionFade];
+        [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+        [[self.navigationController.navigationBar layer] addAnimation:a forKey:kCATransitionFade];
+    }
+}
+
 #pragma mark - View lifecycle
 
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
@@ -147,9 +185,15 @@
     [self.view addSubview:sv];
     __scrollview = sv;
     
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(__scrollviewDoubleTapped:)];
-    tapGestureRecognizer.numberOfTapsRequired = 2;
-    [__scrollview addGestureRecognizer:tapGestureRecognizer];
+    // double tap
+    UITapGestureRecognizer *doubleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(__scrollviewDoubleTapped:)];
+    doubleTapGestureRecognizer.numberOfTapsRequired = 2;
+    [__scrollview addGestureRecognizer:doubleTapGestureRecognizer];
+    
+    // single tap
+    UITapGestureRecognizer *singleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(__scrollviewSingleTapped:)];
+    [singleTapGestureRecognizer requireGestureRecognizerToFail:doubleTapGestureRecognizer];
+    [__scrollview addGestureRecognizer:singleTapGestureRecognizer];
     
     UIImageView *iv = [UIImageView new];
     iv.backgroundColor = [UIColor blackColor];
