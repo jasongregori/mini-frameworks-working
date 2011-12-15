@@ -9,6 +9,7 @@
 #import "MFImageViewController.h"
 
 @interface MFImageViewController () <UIScrollViewDelegate> {
+    // subviews
     UIActivityIndicatorView *__activityIndicatorView;
     UIImageView *__imageView;
     UIScrollView *__scrollview;
@@ -17,6 +18,8 @@
     CGPoint __rotationRestorePoint;
     CGFloat __rotationRestoreScale;
     UIInterfaceOrientation __lastOrientation;
+    
+    BOOL __showing;
 }
 // status bar and navigation bar
 @property (nonatomic, copy) void (^__statusBarAndNaviationBarResetBlock)();
@@ -133,26 +136,33 @@
 }
 
 - (void)__setBarsHidden:(BOOL)hidden animated:(BOOL)animated {
-    if (__barsHidden != hidden) {
+    // dont allow a hide when we arent showing. this prevents a possible hide which is terrible the user can do by releasing the back button right after tapping the screen
+    if (__barsHidden != hidden && (__showing || !hidden)) {
         __barsHidden = hidden;
         
-        [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:UIStatusBarAnimationFade];
+        [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:animated ? UIStatusBarAnimationFade : UIStatusBarAnimationNone];
         
-//        [UIView transitionWithView:self.navigationController.navigationBar
-//                          duration:1
-//                           options:(UIViewAnimationOptionAllowUserInteraction |
-//                                    UIViewAnimationOptionBeginFromCurrentState |
-//                                    UIViewAnimationOptionCurveEaseInOut |
-//                                    UIViewAnimationOptionTransitionCrossDissolve)
-//                        animations:^{
-//                            self.navigationController.navigationBar.hidden = hidden;
-//                        } completion:nil];
+        if (!hidden) {
+            self.navigationController.navigationBar.alpha = 0;
+            self.navigationController.navigationBarHidden = NO;
+        }
         self.navigationController.navigationBar.alpha = hidden ? 0 : 1;
-        CATransition *a = [CATransition animation];
-        [a setDuration:0.2];
-        [a setType:kCATransitionFade];
-        [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-        [[self.navigationController.navigationBar layer] addAnimation:a forKey:kCATransitionFade];
+        
+        if (animated) {
+            CATransition *a = [CATransition animation];
+            [a setDelegate:self];
+            [a setDuration:0.3];
+            [a setType:kCATransitionFade];
+            [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+            [[self.navigationController.navigationBar layer] addAnimation:a forKey:kCATransitionFade];
+        }
+    }
+}
+
+// if we dont do this, and the phone rotates, the nav bar moves up under the status bar
+- (void)animationDidStop:(CAAnimation *)theAnimation finished:(BOOL)flag {
+    if (flag && __barsHidden) {
+        self.navigationController.navigationBarHidden = YES;
     }
 }
 
@@ -269,9 +279,19 @@
         __lastOrientation = self.interfaceOrientation;
     }
 }
+        
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    __showing = YES;
+}
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    
+    __showing = NO;
+    
+    self.__barsHidden = NO;
     
     if (self.__statusBarAndNaviationBarResetBlock) {
         self.__statusBarAndNaviationBarResetBlock();
