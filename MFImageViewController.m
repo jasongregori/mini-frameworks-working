@@ -181,7 +181,7 @@
                                      | UIViewAnimationOptionBeginFromCurrentState
                                      | UIViewAnimationOptionCurveEaseIn)
                          animations:^ {
-                             __toolbar.alpha = hidden ? 0 : 1;
+                             __toolbar.alpha = (hidden || !__toolbar.items) ? 0 : 1;
                          }
                          completion:nil];
     }
