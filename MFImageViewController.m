@@ -275,39 +275,41 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    //===== save status bar and navigation bar style
-    // status bar
-    UIStatusBarStyle oldStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-    // nav bar
     UINavigationController *nc = self.navigationController;
     UINavigationBar *nb = nc.navigationBar;
-    BOOL oldNavBarTranslucent = nb.translucent;
-    UIBarStyle oldNavBarStyle = nb.barStyle;
-    UIColor *oldNavBarTint = nb.tintColor;
     BOOL nbCustomImages = [nb respondsToSelector:@selector(backgroundImageForBarMetrics:)];
-    UIImage *oldBackgroundImageDefault, *oldBackgroundImageLandscapePhone;
-    if (nbCustomImages) {
-        oldBackgroundImageDefault = [nb backgroundImageForBarMetrics:UIBarMetricsDefault];
-        oldBackgroundImageLandscapePhone = [nb backgroundImageForBarMetrics:UIBarMetricsLandscapePhone];
-    }
-    self.__statusBarAndNaviationBarResetBlock = ^{
+    if (!self.__statusBarAndNaviationBarResetBlock) {
+        //===== save status bar and navigation bar style
         // status bar
-        [[UIApplication sharedApplication] setStatusBarStyle:oldStatusBarStyle animated:YES];
+        UIStatusBarStyle oldStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
         // nav bar
-        nb.translucent = oldNavBarTranslucent;
-        nb.barStyle = oldNavBarStyle;
-        nb.tintColor = oldNavBarTint;
+        BOOL oldNavBarTranslucent = nb.translucent;
+        UIBarStyle oldNavBarStyle = nb.barStyle;
+        UIColor *oldNavBarTint = nb.tintColor;
+        UIImage *oldBackgroundImageDefault, *oldBackgroundImageLandscapePhone;
         if (nbCustomImages) {
-            [nb setBackgroundImage:oldBackgroundImageDefault forBarMetrics:UIBarMetricsDefault];
-            [nb setBackgroundImage:oldBackgroundImageLandscapePhone forBarMetrics:UIBarMetricsLandscapePhone];
+            oldBackgroundImageDefault = [nb backgroundImageForBarMetrics:UIBarMetricsDefault];
+            oldBackgroundImageLandscapePhone = [nb backgroundImageForBarMetrics:UIBarMetricsLandscapePhone];
         }
-        // animate
-        CATransition *a = [CATransition animation];
-        [a setDuration:0.2];
-        [a setType:kCATransitionFade];
-        [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
-        [[nb layer] addAnimation:a forKey:kCATransitionFade];
-    };
+        self.__statusBarAndNaviationBarResetBlock = ^{
+            // status bar
+            [[UIApplication sharedApplication] setStatusBarStyle:oldStatusBarStyle animated:YES];
+            // nav bar
+            nb.translucent = oldNavBarTranslucent;
+            nb.barStyle = oldNavBarStyle;
+            nb.tintColor = oldNavBarTint;
+            if (nbCustomImages) {
+                [nb setBackgroundImage:oldBackgroundImageDefault forBarMetrics:UIBarMetricsDefault];
+                [nb setBackgroundImage:oldBackgroundImageLandscapePhone forBarMetrics:UIBarMetricsLandscapePhone];
+            }
+            // animate
+            CATransition *a = [CATransition animation];
+            [a setDuration:0.2];
+            [a setType:kCATransitionFade];
+            [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+            [[nb layer] addAnimation:a forKey:kCATransitionFade];
+        };
+    }
     
     //===== change status bar and navigation bar style
     // status
@@ -352,7 +354,6 @@
     
     if (self.__statusBarAndNaviationBarResetBlock) {
         self.__statusBarAndNaviationBarResetBlock();
-        self.__statusBarAndNaviationBarResetBlock = nil;
     }
 }
 
