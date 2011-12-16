@@ -313,7 +313,12 @@
     
     //===== change status bar and navigation bar style
     // status
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
+    double delayInSeconds = 0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        // do this stuff just a tad later, otherwise some vcs (like UIImagePickerController might flip change things right after the calls)
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
+    });
     // nav bar
     nb.translucent = YES;
     nb.barStyle = UIBarStyleBlack;
