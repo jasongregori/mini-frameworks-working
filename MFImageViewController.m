@@ -8,6 +8,9 @@
 
 #import "MFImageViewController.h"
 
+#define kToolbarHeightPortrait 44
+#define kToolbarHeightLandscape 32
+
 @interface MFImageViewController () <UIScrollViewDelegate> {
     // subviews
     UIActivityIndicatorView *__activityIndicatorView;
@@ -19,6 +22,9 @@
     CGFloat __rotationRestoreScale;
     UIInterfaceOrientation __lastOrientation;
     
+    // toolbar
+    UIToolbar *__toolbar;
+    
     BOOL __showing;
 }
 // status bar and navigation bar
@@ -27,6 +33,7 @@
 
 - (void)__attemptRotation;
 - (void)__layoutLoadingOrImage;
+- (void)__layoutToolbar;
 - (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer;
 - (void)__scrollviewSingleTapped:(UITapGestureRecognizer *)gestureRecognizer;
 - (void)__setBarsHidden:(BOOL)hidden animated:(BOOL)animated;
@@ -113,6 +120,14 @@
     }
 }
 
+- (void)__layoutToolbar {
+    CGFloat height = (UIInterfaceOrientationIsPortrait(self.interfaceOrientation)
+                      ? kToolbarHeightPortrait
+                      : kToolbarHeightLandscape);
+    __toolbar.frame = CGRectMake(0, self.view.bounds.size.height - height, self.view.bounds.size.width, height);
+    __toolbar.alpha = (__toolbar.items && !__barsHidden) ? 1 : 0;
+}
+
 - (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         if (__scrollview.zoomScale < (__scrollview.maximumZoomScale + __scrollview.minimumZoomScale)/2.0) {
@@ -140,14 +155,16 @@
     if (__barsHidden != hidden && (__showing || !hidden)) {
         __barsHidden = hidden;
         
+        // status bar
         [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:animated ? UIStatusBarAnimationFade : UIStatusBarAnimationNone];
         
+        // nav bar
         if (!hidden) {
             self.navigationController.navigationBar.alpha = 0;
             self.navigationController.navigationBarHidden = NO;
         }
         self.navigationController.navigationBar.alpha = hidden ? 0 : 1;
-        
+        // nav bar animation
         if (animated) {
             CATransition *a = [CATransition animation];
             [a setDelegate:self];
@@ -156,6 +173,17 @@
             [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
             [[self.navigationController.navigationBar layer] addAnimation:a forKey:kCATransitionFade];
         }
+        
+        // toolbar
+        [UIView animateWithDuration:animated ? 0.3 : 0
+                              delay:0
+                            options:(UIViewAnimationOptionAllowUserInteraction
+                                     | UIViewAnimationOptionBeginFromCurrentState
+                                     | UIViewAnimationOptionCurveEaseIn)
+                         animations:^ {
+                             __toolbar.alpha = hidden ? 0 : 1;
+                         }
+                         completion:nil];
     }
 }
 
@@ -164,6 +192,15 @@
     if (flag && __barsHidden) {
         self.navigationController.navigationBarHidden = YES;
     }
+}
+
+#pragma mark - UIViewController
+
+- (void)setToolbarItems:(NSArray *)toolbarItems animated:(BOOL)animated {
+    [super setToolbarItems:toolbarItems animated:animated];
+    
+    [__toolbar setItems:toolbarItems animated:animated];
+    [self __layoutToolbar];
 }
 
 #pragma mark - View lifecycle
@@ -212,6 +249,18 @@
     [__scrollview addSubview:iv];
     __imageView = iv;
     
+    // toolbar
+    UIToolbar *tb = [UIToolbar new];
+    [tb sizeToFit];
+    tb.autoresizingMask = (UIViewAutoresizingFlexibleTopMargin
+                           | UIViewAutoresizingFlexibleWidth);
+    tb.barStyle = UIBarStyleBlack;
+    tb.items = self.toolbarItems;
+    tb.translucent = YES;
+    [self.view addSubview:tb];
+    __toolbar = tb;
+    [self __layoutToolbar];
+    
     [self __layoutLoadingOrImage];
 }
 
@@ -227,8 +276,11 @@
     [super viewWillAppear:animated];
     
     //===== save status bar and navigation bar style
+    // status bar
     UIStatusBarStyle oldStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-    UINavigationBar *nb = self.navigationController.navigationBar;
+    // nav bar
+    UINavigationController *nc = self.navigationController;
+    UINavigationBar *nb = nc.navigationBar;
     BOOL oldNavBarTranslucent = nb.translucent;
     UIBarStyle oldNavBarStyle = nb.barStyle;
     UIColor *oldNavBarTint = nb.tintColor;
@@ -239,7 +291,9 @@
         oldBackgroundImageLandscapePhone = [nb backgroundImageForBarMetrics:UIBarMetricsLandscapePhone];
     }
     self.__statusBarAndNaviationBarResetBlock = ^{
+        // status bar
         [[UIApplication sharedApplication] setStatusBarStyle:oldStatusBarStyle animated:YES];
+        // nav bar
         nb.translucent = oldNavBarTranslucent;
         nb.barStyle = oldNavBarStyle;
         nb.tintColor = oldNavBarTint;
@@ -247,7 +301,6 @@
             [nb setBackgroundImage:oldBackgroundImageDefault forBarMetrics:UIBarMetricsDefault];
             [nb setBackgroundImage:oldBackgroundImageLandscapePhone forBarMetrics:UIBarMetricsLandscapePhone];
         }
-        
         // animate
         CATransition *a = [CATransition animation];
         [a setDuration:0.2];
@@ -257,7 +310,9 @@
     };
     
     //===== change status bar and navigation bar style
+    // status
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
+    // nav bar
     nb.translucent = YES;
     nb.barStyle = UIBarStyleBlack;
     nb.tintColor = nil;
@@ -265,13 +320,15 @@
         [nb setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
         [nb setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
     }
-
     // animate
     CATransition *a = [CATransition animation];
     [a setDuration:0.2];
     [a setType:kCATransitionFade];
     [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
     [[nb layer] addAnimation:a forKey:kCATransitionFade];
+    
+    // tool bar
+    [self __layoutToolbar];
     
     //===== fix interface orientation
     if (self.interfaceOrientation != __lastOrientation) {
@@ -331,6 +388,9 @@
     offset.x = MAX(0, MIN(offset.x, __scrollview.contentSize.width - __scrollview.bounds.size.width));
     offset.y = MAX(0, MIN(offset.y, __scrollview.contentSize.height - __scrollview.bounds.size.height));
     __scrollview.contentOffset = offset;
+    
+    // toolbar
+    [self __layoutToolbar];
 }
 
 #pragma mark - UIScrollviewDelegate
