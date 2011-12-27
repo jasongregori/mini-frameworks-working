@@ -40,7 +40,8 @@
 - (void)__setMaxMinZoomScale;
 @end
 
-@interface __MFImageViewController_CenteringScrollView : UIScrollView
+@interface __MFImageViewController_Scrollview : UIScrollView
+@property (nonatomic, copy) void (^setFrameBlock)();
 @end
 
 @implementation MFImageViewController
@@ -207,6 +208,8 @@
 
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView {
+    __unsafe_unretained MFImageViewController *weakself = self;
+    
     [super loadView];
     self.view.backgroundColor = [UIColor blackColor];
 
@@ -218,7 +221,7 @@
     [self.view addSubview:aiv];
     __activityIndicatorView = aiv;
     
-    UIScrollView *sv = [[__MFImageViewController_CenteringScrollView alloc] initWithFrame:self.view.bounds];
+    __MFImageViewController_Scrollview *sv = [[__MFImageViewController_Scrollview alloc] initWithFrame:self.view.bounds];
     sv.alwaysBounceHorizontal = YES;
     sv.alwaysBounceVertical = YES;
     sv.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -226,7 +229,17 @@
     sv.bouncesZoom = YES;
     sv.decelerationRate = UIScrollViewDecelerationRateFast;
     sv.delegate = self;
-    sv.maximumZoomScale = 1;
+    #warning when we set the scale set it so the image is full screen if thats close to min
+    #warning set a max scale and dont let it go over that
+    sv.setFrameBlock = ^{
+        [weakself __setMaxMinZoomScale];
+        if (weakself->__scrollview.zoomScale < weakself->__scrollview.minimumZoomScale) {
+            weakself->__scrollview.zoomScale = weakself->__scrollview.minimumZoomScale;
+        }
+        else if (weakself->__scrollview.zoomScale > weakself->__scrollview.maximumZoomScale) {
+            weakself->__scrollview.zoomScale = weakself->__scrollview.maximumZoomScale;
+        }
+    };
     sv.showsHorizontalScrollIndicator = NO;
     sv.showsVerticalScrollIndicator = NO;
     [self.view addSubview:sv];
@@ -382,7 +395,7 @@
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    [self __setMaxMinZoomScale];
+    // max min zoom scale will be set when the scrollview's frame changes
     
     __scrollview.zoomScale = MIN(__scrollview.maximumZoomScale, MAX(__rotationRestoreScale, __scrollview.minimumZoomScale));
     
@@ -425,7 +438,17 @@
 
 @end
 
-@implementation __MFImageViewController_CenteringScrollView
+@implementation __MFImageViewController_Scrollview
+@synthesize setFrameBlock;
+
+- (void)setFrame:(CGRect)frame {
+    BOOL frameChanged = !CGRectEqualToRect(frame, self.frame);
+    [super setFrame:frame];
+    
+    if (frameChanged && self.setFrameBlock) {
+        self.setFrameBlock(self);
+    }
+}
 
 - (void)layoutSubviews 
 {
