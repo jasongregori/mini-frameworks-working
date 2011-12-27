@@ -260,8 +260,8 @@
     __activityIndicatorView = aiv;
     
     __MFImageViewController_Scrollview *sv = [[__MFImageViewController_Scrollview alloc] initWithFrame:self.view.bounds];
-    sv.alwaysBounceHorizontal = YES;
-    sv.alwaysBounceVertical = YES;
+    sv.alwaysBounceHorizontal = NO;
+    sv.alwaysBounceVertical = NO;
     sv.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     sv.bounces = YES;
     sv.bouncesZoom = YES;
