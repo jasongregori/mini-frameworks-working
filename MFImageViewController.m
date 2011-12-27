@@ -17,6 +17,9 @@
     UIImageView *__imageView;
     UIScrollView *__scrollview;
     
+    // scale
+    float __minFullScreenScale;
+    
     // rotation
     CGPoint __rotationRestorePoint;
     CGFloat __rotationRestoreScale;
@@ -83,17 +86,28 @@
 
 - (void)__setMaxMinZoomScale {
     // calculate min/max scale
-    CGFloat xScale = __scrollview.bounds.size.width / self.image.size.width;
-    CGFloat yScale = __scrollview.bounds.size.height / self.image.size.height;
-    CGFloat minScale = (self.image
-                        ? MIN(xScale, yScale)
-                        : 1.0/3.0);
-    
-    // max scale is 1, adjust for screen resolution
-    CGFloat maxScale = 3.0*minScale;
-    
-    __scrollview.maximumZoomScale = maxScale;
-    __scrollview.minimumZoomScale = minScale;
+    if (self.image) {
+        CGFloat xScale = __scrollview.bounds.size.width / self.image.size.width;
+        CGFloat yScale = __scrollview.bounds.size.height / self.image.size.height;
+        CGFloat minScale = MIN(xScale, yScale);
+        // __minFullScreenScale is the min scale that would make the image fullscreen
+        __minFullScreenScale = MAX(xScale, yScale);
+        if (__minFullScreenScale/minScale > 1.2) {
+            // if __minFullScreenScale is too zoomed in, set it to minscale
+            __minFullScreenScale = minScale;
+        }
+        
+        // max scale is 1, adjust for screen resolution
+        CGFloat maxScale = 3.0*minScale;
+        
+        __scrollview.maximumZoomScale = maxScale;
+        __scrollview.minimumZoomScale = minScale;
+    }
+    else {
+        __minFullScreenScale = 1;
+        __scrollview.maximumZoomScale = 1;
+        __scrollview.minimumZoomScale = 1;
+    }
 }
 
 - (void)__layoutLoadingOrImage {
@@ -111,7 +125,7 @@
 
         [self __setMaxMinZoomScale];
         
-        __scrollview.zoomScale = __scrollview.minimumZoomScale;
+        __scrollview.zoomScale = __minFullScreenScale;
     }
     else {
         [__activityIndicatorView startAnimating];
@@ -129,12 +143,31 @@
 
 - (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-        if (__scrollview.zoomScale < (__scrollview.maximumZoomScale + __scrollview.minimumZoomScale)/2.0) {
+        if (__scrollview.zoomScale < __minFullScreenScale + FLT_EPSILON
+            && __scrollview.zoomScale > __minFullScreenScale - FLT_EPSILON) {
+            // the zoom scale is about __minFullScreenScale, zoom in all the way
             [__scrollview zoomToRect:(CGRect){ [gestureRecognizer locationInView:__imageView], CGSizeZero}
                             animated:YES];
         }
+        // zoom back to min full screen
+        else if (__minFullScreenScale > __scrollview.minimumZoomScale + FLT_EPSILON) {
+            // we want it to be centered
+            CGRect rect;
+            CGFloat xScale = __scrollview.bounds.size.width / self.image.size.width;
+            CGFloat yScale = __scrollview.bounds.size.height / self.image.size.height;
+            if (xScale < yScale) {
+                // width will stick out
+                rect = CGRectMake(self.image.size.width/2.0, 0, 0, self.image.size.height);
+            }
+            else {
+                // height will stick out
+                rect = CGRectMake(0, self.image.size.height/2.0, self.image.size.width, 0);
+            }
+            [__scrollview zoomToRect:rect animated:YES];
+        }
         else {
-            [__scrollview setZoomScale:__scrollview.minimumZoomScale animated:YES];
+            // just go to the minimum
+            [__scrollview setZoomScale:__minFullScreenScale animated:YES];
         }
     }
 }
@@ -227,13 +260,11 @@
     sv.bouncesZoom = YES;
     sv.decelerationRate = UIScrollViewDecelerationRateFast;
     sv.delegate = self;
-    #warning when we set the scale set it so the image is full screen if thats close to min
-    #warning set a max scale and dont let it go over that
     sv.setFrameBlock = ^{
         [weakself __setMaxMinZoomScale];
         if (weakself->__scrollview.minimumZoomScale > 0
-            && weakself->__scrollview.zoomScale < weakself->__scrollview.minimumZoomScale) {
-            weakself->__scrollview.zoomScale = weakself->__scrollview.minimumZoomScale;
+            && weakself->__scrollview.zoomScale < weakself->__minFullScreenScale) {
+            weakself->__scrollview.zoomScale = weakself->__minFullScreenScale;
         }
         else if (weakself->__scrollview.maximumZoomScale > 0
                  && weakself->__scrollview.zoomScale > weakself->__scrollview.maximumZoomScale) {
@@ -389,7 +420,7 @@
 
     __rotationRestoreScale = __scrollview.zoomScale;
     // set scale to zero if we are at the minimum (so we know to go to the minimum after rotation)
-    if (__rotationRestoreScale <= __scrollview.minimumZoomScale + FLT_EPSILON) {
+    if (__rotationRestoreScale <= __minFullScreenScale + FLT_EPSILON) {
         __rotationRestoreScale = 0;
     }
 }
@@ -397,7 +428,7 @@
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     // max min zoom scale will be set when the scrollview's frame changes
     
-    __scrollview.zoomScale = MIN(__scrollview.maximumZoomScale, MAX(__rotationRestoreScale, __scrollview.minimumZoomScale));
+    __scrollview.zoomScale = MIN(__scrollview.maximumZoomScale, MAX(__rotationRestoreScale, __minFullScreenScale));
     
     // this is the point in scrollview that is the point that was the center of the screen before
     CGPoint boundsCenter = [__scrollview convertPoint:__rotationRestorePoint fromView:__imageView];
