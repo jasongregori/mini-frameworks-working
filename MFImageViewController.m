@@ -85,7 +85,9 @@
     // calculate min/max scale
     CGFloat xScale = __scrollview.bounds.size.width / self.image.size.width;
     CGFloat yScale = __scrollview.bounds.size.height / self.image.size.height;
-    CGFloat minScale = MIN(xScale, yScale);
+    CGFloat minScale = (self.image
+                        ? MIN(xScale, yScale)
+                        : 1.0/3.0);
     
     // max scale is 1, adjust for screen resolution
     CGFloat maxScale = 3.0*minScale;
@@ -229,10 +231,12 @@
     #warning set a max scale and dont let it go over that
     sv.setFrameBlock = ^{
         [weakself __setMaxMinZoomScale];
-        if (weakself->__scrollview.zoomScale < weakself->__scrollview.minimumZoomScale) {
+        if (weakself->__scrollview.minimumZoomScale > 0
+            && weakself->__scrollview.zoomScale < weakself->__scrollview.minimumZoomScale) {
             weakself->__scrollview.zoomScale = weakself->__scrollview.minimumZoomScale;
         }
-        else if (weakself->__scrollview.zoomScale > weakself->__scrollview.maximumZoomScale) {
+        else if (weakself->__scrollview.maximumZoomScale > 0
+                 && weakself->__scrollview.zoomScale > weakself->__scrollview.maximumZoomScale) {
             weakself->__scrollview.zoomScale = weakself->__scrollview.maximumZoomScale;
         }
     };
