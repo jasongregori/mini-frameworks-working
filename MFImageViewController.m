@@ -88,11 +88,7 @@
     CGFloat minScale = MIN(xScale, yScale);
     
     // max scale is 1, adjust for screen resolution
-    CGFloat maxScale = 1.0 / [[UIScreen mainScreen] scale];
-    
-    if (minScale > maxScale) {
-        minScale = maxScale;
-    }
+    CGFloat maxScale = 3.0*minScale;
     
     __scrollview.maximumZoomScale = maxScale;
     __scrollview.minimumZoomScale = minScale;
