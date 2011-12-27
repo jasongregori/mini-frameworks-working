@@ -41,6 +41,7 @@
 - (void)__scrollviewSingleTapped:(UITapGestureRecognizer *)gestureRecognizer;
 - (void)__setBarsHidden:(BOOL)hidden animated:(BOOL)animated;
 - (void)__setMaxMinZoomScale;
+- (void)__zoomToMin:(BOOL)animated;
 @end
 
 @interface __MFImageViewController_Scrollview : UIScrollView
@@ -120,12 +121,12 @@
         
         // reset imageview
         __imageView.image = self.image;
-        __imageView.bounds = (CGRect) { CGPointZero, self.image.size };
+        __imageView.frame = (CGRect) { CGPointZero, self.image.size };
         __scrollview.contentSize = self.image.size;
 
         [self __setMaxMinZoomScale];
         
-        __scrollview.zoomScale = __minFullScreenScale;
+        [self __zoomToMin:NO];
     }
     else {
         [__activityIndicatorView startAnimating];
@@ -149,26 +150,32 @@
             [__scrollview zoomToRect:(CGRect){ [gestureRecognizer locationInView:__imageView], CGSizeZero}
                             animated:YES];
         }
-        // zoom back to min full screen
-        else if (__minFullScreenScale > __scrollview.minimumZoomScale + FLT_EPSILON) {
-            // we want it to be centered
-            CGRect rect;
-            CGFloat xScale = __scrollview.bounds.size.width / self.image.size.width;
-            CGFloat yScale = __scrollview.bounds.size.height / self.image.size.height;
-            if (xScale < yScale) {
-                // width will stick out
-                rect = CGRectMake(self.image.size.width/2.0, 0, 0, self.image.size.height);
-            }
-            else {
-                // height will stick out
-                rect = CGRectMake(0, self.image.size.height/2.0, self.image.size.width, 0);
-            }
-            [__scrollview zoomToRect:rect animated:YES];
+        else {
+            // zoom back to min full screen
+            [self __zoomToMin:YES];
+        }
+    }
+}
+
+- (void)__zoomToMin:(BOOL)animated {
+    if (__minFullScreenScale > __scrollview.minimumZoomScale + FLT_EPSILON) {
+        // we want it to be centered
+        CGRect rect;
+        CGFloat xScale = __scrollview.bounds.size.width / self.image.size.width;
+        CGFloat yScale = __scrollview.bounds.size.height / self.image.size.height;
+        if (xScale < yScale) {
+            // width will stick out
+            rect = CGRectMake(self.image.size.width/2.0, 0, 0, self.image.size.height);
         }
         else {
-            // just go to the minimum
-            [__scrollview setZoomScale:__minFullScreenScale animated:YES];
+            // height will stick out
+            rect = CGRectMake(0, self.image.size.height/2.0, self.image.size.width, 0);
         }
+        [__scrollview zoomToRect:rect animated:animated];
+    }
+    else {
+        // just go to the minimum
+        [__scrollview setZoomScale:__minFullScreenScale animated:animated];
     }
 }
 
@@ -263,8 +270,9 @@
     sv.setFrameBlock = ^{
         [weakself __setMaxMinZoomScale];
         if (weakself->__scrollview.minimumZoomScale > 0
-            && weakself->__scrollview.zoomScale < weakself->__minFullScreenScale) {
-            weakself->__scrollview.zoomScale = weakself->__minFullScreenScale;
+            && weakself->__scrollview.zoomScale <= weakself->__minFullScreenScale + FLT_EPSILON) {
+            // we need to reset even if its already zoomed out so it centers
+            [weakself __zoomToMin:NO];
         }
         else if (weakself->__scrollview.maximumZoomScale > 0
                  && weakself->__scrollview.zoomScale > weakself->__scrollview.maximumZoomScale) {
@@ -494,13 +502,15 @@
     // center horizontally
     if (frameToCenter.size.width < boundsSize.width)
         frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
-    else
+    // dont let the view scroll off the screen
+    else if (frameToCenter.origin.x > 0)
         frameToCenter.origin.x = 0;
     
     // center vertically
     if (frameToCenter.size.height < boundsSize.height)
         frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
-    else
+    // dont let the view scroll off the screen
+    else if (frameToCenter.origin.y > 0)
         frameToCenter.origin.y = 0;
     
     view.frame = frameToCenter;
