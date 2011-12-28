@@ -516,10 +516,6 @@
     else if (frameToCenter.origin.y > 0)
         frameToCenter.origin.y = 0;
     
-//    CGPoint center = CGPointMake(self.contentSize.width/2.0, self.contentSize.height/2.0);
-    
-    
-    
     view.frame = frameToCenter;
 }
 
