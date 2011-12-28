@@ -120,9 +120,10 @@
         __scrollview.zoomScale = 1;
         
         // reset imageview
-        __imageView.image = self.image;
-        __imageView.frame = (CGRect) { CGPointZero, self.image.size };
         __scrollview.contentSize = self.image.size;
+        __imageView.image = self.image;
+        __imageView.bounds = (CGRect) { CGPointZero, self.image.size };
+        __imageView.center = CGPointMake(self.image.size.width/2.0, self.image.size.height/2.0);
 
         [self __setMaxMinZoomScale];
         
@@ -512,6 +513,10 @@
     // dont let the view scroll off the screen
     else if (frameToCenter.origin.y > 0)
         frameToCenter.origin.y = 0;
+    
+//    CGPoint center = CGPointMake(self.contentSize.width/2.0, self.contentSize.height/2.0);
+    
+    
     
     view.frame = frameToCenter;
 }
