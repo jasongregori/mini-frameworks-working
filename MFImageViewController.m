@@ -123,7 +123,9 @@
         __scrollview.contentSize = self.image.size;
         __imageView.image = self.image;
         __imageView.bounds = (CGRect) { CGPointZero, self.image.size };
-        __imageView.center = CGPointMake(self.image.size.width/2.0, self.image.size.height/2.0);
+        // to center the image, you must use the frame even though there is might be a transform on the view
+        // the reason is: the center doesn't take the transform into account so to make the view go to the right 
+        __imageView.center = CGPointMake(__imageView.frame.size.width/2.0, __imageView.frame.size.height/2.0);
 
         [self __setMaxMinZoomScale];
         
