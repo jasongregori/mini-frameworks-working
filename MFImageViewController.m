@@ -483,10 +483,17 @@
 @implementation __MFImageViewController_Scrollview
 @synthesize setFrameBlock;
 
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated {
+    // i never call this with animation set to YES
+    // there is a bug that this is called sometimes that results in the offset being set incorrectly because the animation happens in stages (after other correct values have been set)
+    // so do not animate
+    [super setContentOffset:contentOffset animated:NO];
+}
+
 - (void)setFrame:(CGRect)frame {
     BOOL frameChanged = !CGRectEqualToRect(frame, self.frame);
     [super setFrame:frame];
-    
+
     if (frameChanged && self.setFrameBlock) {
         self.setFrameBlock(self);
     }
