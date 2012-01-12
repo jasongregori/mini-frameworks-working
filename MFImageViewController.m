@@ -44,6 +44,7 @@
 - (void)__scrollviewSingleTapped:(UITapGestureRecognizer *)gestureRecognizer;
 - (void)__setChromeHidden:(BOOL)hidden animated:(BOOL)animated;
 - (void)__setMaxMinZoomScale;
+- (void)__willResignActive;
 - (void)__zoomToMin:(BOOL)animated;
 @end
 
@@ -177,6 +178,10 @@
             [self __zoomToMin:YES];
         }
     }
+}
+
+- (void)__willResignActive {
+    self.__chromeHidden = NO;
 }
 
 - (void)__zoomToMin:(BOOL)animated {
@@ -437,13 +442,22 @@
         
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
+        
     __showing = YES;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(__willResignActive)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationWillResignActiveNotification
+                                                  object:nil];
+
     __showing = NO;
     
     self.__chromeHidden = NO;
