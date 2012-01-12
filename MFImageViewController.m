@@ -35,14 +35,14 @@
 }
 // status bar and navigation bar
 @property (nonatomic, copy) void (^__statusBarAndNaviationBarResetBlock)();
-@property (nonatomic, assign) BOOL __barsHidden;
+@property (nonatomic, assign) BOOL __chromeHidden;
 
 - (void)__attemptRotation;
 - (void)__layoutLoadingOrImage;
 - (void)__layoutToolbar;
 - (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer;
 - (void)__scrollviewSingleTapped:(UITapGestureRecognizer *)gestureRecognizer;
-- (void)__setBarsHidden:(BOOL)hidden animated:(BOOL)animated;
+- (void)__setChromeHidden:(BOOL)hidden animated:(BOOL)animated;
 - (void)__setMaxMinZoomScale;
 - (void)__zoomToMin:(BOOL)animated;
 @end
@@ -52,7 +52,7 @@
 @end
 
 @implementation MFImageViewController
-@synthesize __barsHidden;
+@synthesize __chromeHidden;
 @synthesize image = __image;
 @synthesize __statusBarAndNaviationBarResetBlock;
 @synthesize subview = _subview;
@@ -160,7 +160,7 @@
                       ? kToolbarHeightPortrait
                       : kToolbarHeightLandscape);
     __toolbar.frame = CGRectMake(0, self.view.bounds.size.height - height, self.view.bounds.size.width, height);
-    __toolbar.alpha = (__toolbar.items && !__barsHidden) ? 1 : 0;
+    __toolbar.alpha = (__toolbar.items && !__chromeHidden) ? 1 : 0;
 }
 
 - (void)__scrollviewDoubleTapped:(UITapGestureRecognizer *)gestureRecognizer {
@@ -203,17 +203,17 @@
 #pragma mark - Hidding Bars
 
 - (void)__scrollviewSingleTapped:(UITapGestureRecognizer *)gestureRecognizer {
-    [self __setBarsHidden:!self.__barsHidden animated:YES];
+    [self __setChromeHidden:!self.__chromeHidden animated:YES];
 }
 
-- (void)set__barsHidden:(BOOL)barsHidden {
-    [self __setBarsHidden:barsHidden animated:NO];
+- (void)set__chromeHidden:(BOOL)chromeHidden {
+    [self __setChromeHidden:chromeHidden animated:NO];
 }
 
-- (void)__setBarsHidden:(BOOL)hidden animated:(BOOL)animated {
+- (void)__setChromeHidden:(BOOL)hidden animated:(BOOL)animated {
     // dont allow a hide when we arent showing. this prevents a possible hide which is terrible the user can do by releasing the back button right after tapping the screen
-    if (__barsHidden != hidden && (__showing || !hidden)) {
-        __barsHidden = hidden;
+    if (__chromeHidden != hidden && (__showing || !hidden)) {
+        __chromeHidden = hidden;
         
         // status bar
         [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:animated ? UIStatusBarAnimationFade : UIStatusBarAnimationNone];
@@ -264,7 +264,7 @@
 
 // if we dont do this, and the phone rotates, the nav bar moves up under the status bar
 - (void)animationDidStop:(CAAnimation *)theAnimation finished:(BOOL)flag {
-    if (flag && __barsHidden) {
+    if (flag && __chromeHidden) {
         self.navigationController.navigationBarHidden = YES;
     }
 }
@@ -448,7 +448,7 @@
     
     __showing = NO;
     
-    self.__barsHidden = NO;
+    self.__chromeHidden = NO;
     
     if (self.__statusBarAndNaviationBarResetBlock) {
         self.__statusBarAndNaviationBarResetBlock();
