@@ -52,6 +52,7 @@
 @synthesize __barsHidden;
 @synthesize image = __image;
 @synthesize __statusBarAndNaviationBarResetBlock;
+@synthesize subview = _subview;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -71,6 +72,22 @@
 - (void)reset {
     if ([self isViewLoaded]) {
         [self __layoutLoadingOrImage];
+    }
+}
+
+- (void)setSubview:(UIView *)subview {
+    if (subview != _subview) {
+        [_subview removeFromSuperview];
+        
+        _subview = subview;
+        
+        _subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _subview.userInteractionEnabled = NO;
+        
+        if ([self isViewLoaded]) {
+            _subview.frame = self.view.bounds;
+            [self.view insertSubview:_subview aboveSubview:__scrollview];
+        }
     }
 }
 
@@ -216,6 +233,21 @@
             [[self.navigationController.navigationBar layer] addAnimation:a forKey:kCATransitionFade];
         }
         
+        // subview
+        if (self.subview) {
+            // i can try UIViewGroupOpacity
+            // or i can try the transition
+            // note: how do i let you touch through the view without blocking all touches to the view?
+//            [UIView transitionWithView:<#(UIView *)#> duration:<#(NSTimeInterval)#> options:<#(UIViewAnimationOptions)#> animations:<#^(void)animations#> completion:<#^(BOOL finished)completion#>
+            [UIView animateWithDuration:animated ? 0.2 : 0
+                                  delay:0
+                                options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                             animations:^ {
+                                 self.subview.alpha = hidden ? 0 : 1;
+                             }
+                             completion:nil];
+        }
+        
         // toolbar
         [UIView animateWithDuration:animated ? 0.3 : 0
                               delay:0
@@ -303,6 +335,11 @@
     iv.opaque = YES;
     [__scrollview addSubview:iv];
     __imageView = iv;
+    
+    if (_subview) {
+        _subview.frame = self.view.bounds;
+        [self.view insertSubview:_subview aboveSubview:__scrollview];
+    }
     
     // toolbar
     UIToolbar *tb = [UIToolbar new];
