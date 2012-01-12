@@ -82,6 +82,7 @@
     if (!_subview) {
         
         _subview = [[__MFImageViewController_Subview alloc] initWithFrame:CGRectMake(0, 0, 320, 480)];
+        _subview.alpha = __chromeHidden ? 0 : 1;
         _subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
         if ([self isViewLoaded]) {
