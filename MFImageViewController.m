@@ -11,6 +11,9 @@
 #define kToolbarHeightPortrait 44
 #define kToolbarHeightLandscape 32
 
+@interface __MFImageViewController_Subview : UIView
+@end
+
 @interface MFImageViewController () <UIScrollViewDelegate> {
     // subviews
     UIActivityIndicatorView *__activityIndicatorView;
@@ -75,20 +78,18 @@
     }
 }
 
-- (void)setSubview:(UIView *)subview {
-    if (subview != _subview) {
-        [_subview removeFromSuperview];
+- (UIView *)subview {
+    if (!_subview) {
         
-        _subview = subview;
-        
+        _subview = [[__MFImageViewController_Subview alloc] initWithFrame:CGRectMake(0, 0, 320, 480)];
         _subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        _subview.userInteractionEnabled = NO;
         
         if ([self isViewLoaded]) {
             _subview.frame = self.view.bounds;
             [self.view insertSubview:_subview aboveSubview:__scrollview];
         }
     }
+    return _subview;
 }
 
 #pragma mark -
@@ -561,6 +562,15 @@
         frameToCenter.origin.y = 0;
     
     view.frame = frameToCenter;
+}
+
+@end
+
+@implementation __MFImageViewController_Subview
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *view = [super hitTest:point withEvent:event];
+    return view == self ? nil : view;
 }
 
 @end
