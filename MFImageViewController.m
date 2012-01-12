@@ -237,27 +237,14 @@
         
         // subview
         if (_subview) {
-            // i can try UIViewGroupOpacity
-            // or i can try the transition
-            // note: how do i let you touch through the view without blocking all touches to the view?
-            [UIView transitionWithView:_subview
-                              duration:animated ? 0.3 : 0
-                               options:(UIViewAnimationOptionAllowUserInteraction
-                                        | UIViewAnimationOptionBeginFromCurrentState
-                                        | UIViewAnimationCurveEaseIn
-                                        | UIViewAnimationOptionTransitionCrossDissolve)
-                            animations:^{
-                                _subview.alpha = hidden ? 0 : 1;
-                            } completion:nil];
-//            [UIView animateWithDuration:animated ? 0.3 : 0
-//                                  delay:0
-//                                options:(UIViewAnimationOptionAllowUserInteraction
-//                                         | UIViewAnimationOptionBeginFromCurrentState
-//                                         | UIViewAnimationCurveEaseIn)
-//                             animations:^ {
-//                                 self.subview.alpha = hidden ? 0 : 1;
-//                             }
-//                             completion:nil];
+            _subview.alpha = hidden ? 0 : 1;
+            if (animated) {
+                CATransition *a = [CATransition animation];
+                [a setDuration:0.3];
+                [a setType:kCATransitionFade];
+                [a setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+                [[_subview layer] addAnimation:a forKey:kCATransitionFade];
+            }
         }
         
         // toolbar
