@@ -240,9 +240,11 @@
             // or i can try the transition
             // note: how do i let you touch through the view without blocking all touches to the view?
 //            [UIView transitionWithView:<#(UIView *)#> duration:<#(NSTimeInterval)#> options:<#(UIViewAnimationOptions)#> animations:<#^(void)animations#> completion:<#^(BOOL finished)completion#>
-            [UIView animateWithDuration:animated ? 0.2 : 0
+            [UIView animateWithDuration:animated ? 0.3 : 0
                                   delay:0
-                                options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                                options:(UIViewAnimationOptionAllowUserInteraction
+                                         | UIViewAnimationOptionBeginFromCurrentState
+                                         | UIViewAnimationCurveEaseIn)
                              animations:^ {
                                  self.subview.alpha = hidden ? 0 : 1;
                              }
