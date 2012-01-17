@@ -9,7 +9,6 @@
 #import "MFViewParagraph.h"
 
 typedef enum {
-    kStartStep,
     kReadyNewSubviews,
     kHideOldViews,
     kRemoveOldViews,
@@ -19,11 +18,12 @@ typedef enum {
 
 @interface MFViewParagraph () {
     MFViewParagraphStep _currentStep;
+    NSArray *_changeToSubviews;
     NSArray *_oldSubviews;
 }
 - (void)__MFViewParagraphSharedInit;
-- (void)__changeStep:(MFViewParagraphStep)step;
-- (CGFloat)__layoutRowOfViews:(NSArray *)rowOfViews forWidth:(CGFloat)width;
+- (BOOL)__changeStep:(MFViewParagraphStep)step;
+- (CGFloat)__layoutRowOfViews:(NSArray *)rowOfViews forWidth:(CGFloat)width startingYOrigin:(CGFloat)y;
 @end
 
 @implementation MFViewParagraph
@@ -49,10 +49,10 @@ typedef enum {
     return self;
 }
 
-- (void)__changeStep:(MFViewParagraphStep)step {
+- (BOOL)__changeStep:(MFViewParagraphStep)step {
     BOOL pass = NO;
-    if (step == kStartStep) {
-        pass = _currentStep == kShowNewViews;
+    if (step == kReadyNewSubviews) {
+        pass = YES;
     }
     else {
         pass = _currentStep == step - 1;
@@ -60,16 +60,18 @@ typedef enum {
     
     if (pass) {
         _currentStep = step;
+        return YES;
     }
-    else {
-        [NSException raise:@"MFViewParagraphStepException"
-                    format:@"You skipped a step!"];
-    }
+    return NO;
 }
 
 - (void)readyNewSubviews:(NSArray *)subviews {
-    [self __changeStep:kReadyNewSubviews];
-    
+    if (![self __changeStep:kReadyNewSubviews]) {
+        return;
+    }
+
+    _changeToSubviews = subviews;
+
     NSArray *newSubviews = [subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (%@ CONTAINS self)", self.subviews]];
     
     // add but hide new views
@@ -82,7 +84,9 @@ typedef enum {
 }
 
 - (void)hideOldViews {
-    [self __changeStep:kHideOldViews];
+    if (![self __changeStep:kHideOldViews]) {
+        return;
+    }
     
     [_oldSubviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [obj setAlpha:0];
@@ -90,14 +94,16 @@ typedef enum {
 }
 
 - (void)removeOldViews {
-    [self __changeStep:kRemoveOldViews];
+    if (![self __changeStep:kRemoveOldViews]) {
+        return;
+    }
     
     [_oldSubviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     _oldSubviews = nil;
 }
 
 // returns the height of this row
-- (CGFloat)__layoutRowOfViews:(NSArray *)rowOfViews forWidth:(CGFloat)width {
+- (CGFloat)__layoutRowOfViews:(NSArray *)rowOfViews forWidth:(CGFloat)width startingYOrigin:(CGFloat)y {
     CGFloat height = 0;
     CGFloat viewsTotalWidth = 0;
     
@@ -128,7 +134,7 @@ typedef enum {
         CGRect frame = view.frame;
         frame.origin.x = x;
         x += frame.size.width;
-        frame.origin.y = floor((height - frame.size.height)/2.0);
+        frame.origin.y = y + floor((height - frame.size.height)/2.0);
         view.frame = frame;
     }
     
@@ -136,36 +142,41 @@ typedef enum {
 }
 
 - (CGFloat)layoutNewViews:(CGFloat)maxWidth {
-    [self __changeStep:kLayoutNewViews];
+    if (![self __changeStep:kLayoutNewViews]) {
+        return 0;
+    }
     
     CGFloat y = 0;
     
     NSMutableArray *rowOfViews = [NSMutableArray array];
     CGFloat rowWidth = 0;
     
-    NSUInteger i, count = [self.subviews count];
+    NSUInteger i, count = [_changeToSubviews count];
     for (i = 0; i < count; i++) {
-        UIView *view = [self.subviews objectAtIndex:i];
-        if (rowWidth + view.bounds.size.width > maxWidth) {
-            y += [self __layoutRowOfViews:rowOfViews forWidth:maxWidth];
+        UIView *view = [_changeToSubviews objectAtIndex:i];
+        if (rowWidth + view.frame.size.width > maxWidth) {
+            y += [self __layoutRowOfViews:rowOfViews forWidth:maxWidth startingYOrigin:y];
             rowWidth = 0;
             [rowOfViews removeAllObjects];
         }
         [rowOfViews addObject:view];
+        rowWidth += view.frame.size.width;
     }
-    y += [self __layoutRowOfViews:rowOfViews forWidth:maxWidth];
+    y += [self __layoutRowOfViews:rowOfViews forWidth:maxWidth startingYOrigin:y];
         
     return y;
 }
 
 - (void)showNewViews {
-    [self __changeStep:kShowNewViews];
+    if (![self __changeStep:kShowNewViews]) {
+        return;
+    }
     
-    [self.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    [_changeToSubviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [obj setAlpha:1];
     }];
     
-    [self __changeStep:kStartStep];
+    _changeToSubviews = nil;
 }
 
 @end

@@ -22,7 +22,7 @@
 @property (nonatomic, assign) NSUInteger lineSpacing; // space between lines
 @property (nonatomic, assign) UITextAlignment alignment;
 
-// These steps must be made in order, you may not skip.
+// These steps must be made in order, you may not skip. You may start over at anytime though.
 - (void)readyNewSubviews:(NSArray *)subviews;
 - (void)hideOldViews;
 - (void)removeOldViews;
