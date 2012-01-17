@@ -163,6 +163,10 @@ typedef enum {
         rowWidth += view.frame.size.width;
     }
     y += [self __layoutRowOfViews:rowOfViews forWidth:maxWidth startingYOrigin:y];
+    
+    if (y > self.lineSpacing) {
+        y -= self.lineSpacing;
+    }
         
     return y;
 }
