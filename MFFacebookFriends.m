@@ -23,7 +23,7 @@ static BOOL __cacheCleared;
 static NSMutableArray *__friends;
 static BOOL __friendsAreLoaded;
 static NSCountedSet *__friendsLoadBlocks;
-static id __friendsRequest;
+static FBRequest *__friendsRequest;
 static NSDate *__lastRefreshedDate;
 
 + (NSDate *)lastRefreshedDate {
@@ -54,6 +54,9 @@ static NSDate *__lastRefreshedDate;
     }
     
     if (!__friendsRequest) {
+        __friendsRequest = [Facebook 
+        
+        
         __friendsRequest = [[ZAZabbiAPI api] requestWithPath:@"friends"
                                                          params:nil
                                                           block:^(id result, NSString *error) {

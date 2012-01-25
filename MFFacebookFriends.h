@@ -16,6 +16,10 @@
  
  */
 
+#error How am i going to know which Facebook to use?
+// maybe just setFacebook:?
+// another option is a category but that seems like a lot of work
+
 @interface MFFacebookFriends : NSObject
 
 + (NSDate *)lastRefreshedDate;
