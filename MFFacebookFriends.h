@@ -15,8 +15,9 @@
  
  - Use the category method to get the mfFriends instance.
  - Friends are always returned alphabetized according to the user's contact settings.
- - By default, information gathered for each friend are is_app_user, first_name, last_name, uid, pic_square, and name.
-   You can change it by setting `informationToGather`. See https://developers.facebook.com/docs/reference/fql/user/ for keys.
+ - By default the first_name, last_name, and uid are gathered for each friend.
+   You can add more information to gather by setting `informationToGather` (it defaults to is_app_user, pic_square, and name).
+   See https://developers.facebook.com/docs/reference/fql/user/ for keys.
  
  */
 

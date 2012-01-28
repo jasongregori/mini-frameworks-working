@@ -45,9 +45,30 @@
 
 @end
 
+@implementation NSDictionary (__MFFacebookFriends_Friend)
+- (NSString *)__MFFacebookFriends_SortByFirstNameString {
+    return [[[self objectsForKeys:[NSArray arrayWithObjects:@"first_name", @"last_name", nil] notFoundMarker:@""]
+             componentsJoinedByString:@" "]
+            stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+}
+- (NSString *)__MFFacebookFriends_SortByLastNameString {
+    return [[[self objectsForKeys:[NSArray arrayWithObjects:@"last_name", @"first_name", nil] notFoundMarker:@""]
+             componentsJoinedByString:@" "]
+            stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+}
+@end
+
 @implementation MFFacebookFriends
 @synthesize facebook;
 @synthesize informationToGather;
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        self.informationToGather = [NSArray arrayWithObjects:@"is_app_user", @"pic_square", @"name", nil];
+    }
+    return self;
+}
 
 - (NSDate *)lastRefreshedDate {
     return __lastRefreshedDate;
@@ -77,50 +98,14 @@
     }
     
     if (!__friendsRequest) {
-        NSString *fql = [NSString stringWithFormat:@"SELECT %@ FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me())",
+        NSString *fql = [NSString stringWithFormat:@"SELECT first_name, last_name, uid %@ FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me())",
                          ([self.informationToGather count]
                           ? [self.informationToGather componentsJoinedByString:@", "]
-                          : @"is_app_user, first_name, last_name, uid, name, pic_square")];
+                          : @"")];
         __friendsRequest = [self.facebook requestWithGraphPath:@"fql"
                                                      andParams:[NSDictionary dictionaryWithObject:fql
                                                                                            forKey:@"q"]
                                                    andDelegate:self];
-        
-        
-        __friendsRequest = [[ZAZabbiAPI api] requestWithPath:@"friends"
-                                                         params:nil
-                                                          block:^(id result, NSString *error) {
-                                                              // make sure we get an array back
-                                                              if (![result isKindOfClass:[NSArray class]]
-                                                                  || [result count] == 0) {
-                                                                  result = nil;
-                                                              }
-                                                              // sort the friends
-                                                              BOOL sortByFirstName = ABPersonGetSortOrdering() == kABPersonSortByFirstName;
-                                                              NSArray *friends = [result sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-                                                                  if (sortByFirstName) {
-                                                                      return [[obj1 zaExpressionCreatorSortStringForFirstName]
-                                                                              localizedCompare:
-                                                                              [obj2 zaExpressionCreatorSortStringForFirstName]];
-                                                                  }
-                                                                  return [[obj1 zaExpressionCreatorSortStringForLastName]
-                                                                          localizedCompare:
-                                                                          [obj2 zaExpressionCreatorSortStringForLastName]];
-                                                              }];
-                                                              
-                                                              if (!__cacheCleared) {
-                                                                  // if the cache is cleared dont cache these
-                                                                  __friends = [friends mutableCopy];
-                                                                  __friendsAreLoaded = YES;
-                                                                  __lastRefreshedDate = [NSDate date];
-                                                              }
-                                                              for (void (^loadBlock)(NSArray *friends, NSString *error) in __friendsLoadBlocks) {
-                                                                  loadBlock(friends, error);
-                                                              }
-                                                              [__friendsLoadBlocks removeAllObjects];
-                                                              
-                                                              __friendsRequest = nil;
-                                                          }];    
     }
     
     if (loadBlock) {
@@ -152,13 +137,13 @@
     BOOL sortByFirstName = ABPersonGetSortOrdering() == kABPersonSortByFirstName;
     NSArray *friends = [result sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         if (sortByFirstName) {
-            return [[obj1 zaExpressionCreatorSortStringForFirstName]
+            return [[obj1 __MFFacebookFriends_SortByFirstNameString]
                     localizedCompare:
-                    [obj2 zaExpressionCreatorSortStringForFirstName]];
+                    [obj2 __MFFacebookFriends_SortByFirstNameString]];
         }
-        return [[obj1 zaExpressionCreatorSortStringForLastName]
+        return [[obj1 __MFFacebookFriends_SortByLastNameString]
                 localizedCompare:
-                [obj2 zaExpressionCreatorSortStringForLastName]];
+                [obj2 __MFFacebookFriends_SortByLastNameString]];
     }];
     
     if (!__cacheCleared) {
@@ -177,7 +162,7 @@
 
 - (void)request:(FBRequest *)request didFailWithError:(NSError *)error {
     for (void (^loadBlock)(NSArray *friends, NSString *error) in __friendsLoadBlocks) {
-        loadBlock(nil, error);
+        loadBlock(nil, [error localizedDescription]);
     }
     [__friendsLoadBlocks removeAllObjects];
     
