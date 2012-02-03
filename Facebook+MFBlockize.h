@@ -14,8 +14,6 @@
 
 @interface Facebook (MFBlockize)
 
-+ (id <FBSessionDelegate>)mfGlobalSessionDelegate;
-
 #pragma mark Login
 /*
     - once you use these methods you may not change the sessionDelegate of the facebook object

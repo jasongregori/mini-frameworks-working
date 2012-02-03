@@ -11,9 +11,9 @@
 #import <objc/runtime.h>
 
 @interface __Facebook_MFBlockize_GlobalSessionDelegate : NSObject <FBSessionDelegate>
++ (__Facebook_MFBlockize_GlobalSessionDelegate *)sessionDelegateFor:(Facebook *)facebook;
 @property (nonatomic, copy) void (^didLogoutBlock)();
 @property (nonatomic, copy) void (^didExtendTokenBlock)(NSString *accessToken, NSDate *expiresAt);
-+ (__Facebook_MFBlockize_GlobalSessionDelegate *)sharedSessionDelegate;
 - (void)authorize:(Facebook *)facebook
       permissions:(NSArray *)permissions
      successBlock:(void (^)())successBlock
@@ -33,27 +33,23 @@
 
 @implementation Facebook (MFBlockize)
 
-+ (id <FBSessionDelegate>)mfGlobalSessionDelegate {
-    return [__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate];
-}
-
 #pragma mark - Login
 
 - (void)mfAuthorize:(NSArray *)permissions
        successBlock:(void (^)())successBlock
           failBlock:(void (^)(BOOL userDidCancel))failBlock {
-    [[__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate] authorize:self
+    [[__Facebook_MFBlockize_GlobalSessionDelegate sessionDelegateFor:self] authorize:self
                                                                        permissions:permissions
                                                                       successBlock:successBlock
                                                                          failBlock:failBlock];
 }
 
 - (void)mfSetDidLogoutBlock:(void (^)())block {
-    [[__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate] setDidLogoutBlock:block];
+    [[__Facebook_MFBlockize_GlobalSessionDelegate sessionDelegateFor:self] setDidLogoutBlock:block];
 }
 
 - (void)mfSetDidExtendTokenBlock:(void (^)(NSString *accessToken, NSDate *expiresAt))block {
-    [[__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate] setDidExtendTokenBlock:block];
+    [[__Facebook_MFBlockize_GlobalSessionDelegate sessionDelegateFor:self] setDidExtendTokenBlock:block];
 }
 
 #pragma mark - Dialogs
@@ -149,13 +145,14 @@
 @synthesize successBlock = __successBlock, failBlock = __failBlock;
 @synthesize didLogoutBlock, didExtendTokenBlock;
 
-+ (__Facebook_MFBlockize_GlobalSessionDelegate *)sharedSessionDelegate {
-    static __Facebook_MFBlockize_GlobalSessionDelegate *d = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        d = [[__Facebook_MFBlockize_GlobalSessionDelegate alloc] init];
-    });
-    return d;
++ (__Facebook_MFBlockize_GlobalSessionDelegate *)sessionDelegateFor:(Facebook *)facebook {
+    static char associationKey;
+    __Facebook_MFBlockize_GlobalSessionDelegate *helper = objc_getAssociatedObject(facebook, &associationKey);
+    if (!helper) {
+        helper = [[__Facebook_MFBlockize_GlobalSessionDelegate alloc] init];
+        objc_setAssociatedObject(facebook, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return helper;
 }
 
 - (id)init {
@@ -164,14 +161,19 @@
         // if the app starts up and we were in the middle of a login
         // and the user did not use the login or cancel buttons but just switched back to us
         // we need to cancel!
+        __unsafe_unretained __Facebook_MFBlockize_GlobalSessionDelegate *weakself = self;
         [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
                                                           object:nil
                                                            queue:[NSOperationQueue mainQueue]
                                                       usingBlock:^(NSNotification *n) {
-                                                          [self fbDidNotLogin:YES];
+                                                          [weakself fbDidNotLogin:YES];
                                                       }];
     }
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)authorize:(Facebook *)facebook
