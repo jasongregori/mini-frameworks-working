@@ -11,6 +11,8 @@
 #import <objc/runtime.h>
 
 @interface __Facebook_MFBlockize_GlobalSessionDelegate : NSObject <FBSessionDelegate>
+@property (nonatomic, copy) void (^didLogoutBlock)();
+@property (nonatomic, copy) void (^didExtendTokenBlock)(NSString *accessToken, NSDate *expiresAt);
 + (__Facebook_MFBlockize_GlobalSessionDelegate *)sharedSessionDelegate;
 - (void)authorize:(Facebook *)facebook
       permissions:(NSArray *)permissions
@@ -35,14 +37,26 @@
     return [__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate];
 }
 
+#pragma mark - Login
+
 - (void)mfAuthorize:(NSArray *)permissions
        successBlock:(void (^)())successBlock
           failBlock:(void (^)(BOOL userDidCancel))failBlock {
-    [[__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate]authorize:self
-                                                                      permissions:permissions
-                                                                     successBlock:successBlock
-                                                                        failBlock:failBlock];
+    [[__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate] authorize:self
+                                                                       permissions:permissions
+                                                                      successBlock:successBlock
+                                                                         failBlock:failBlock];
 }
+
+- (void)mfSetDidLogoutBlock:(void (^)())block {
+    [[__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate] setDidLogoutBlock:block];
+}
+
+- (void)mfSetDidExtendTokenBlock:(void (^)(NSString *accessToken, NSDate *expiresAt))block {
+    [[__Facebook_MFBlockize_GlobalSessionDelegate sharedSessionDelegate] setDidExtendTokenBlock:block];
+}
+
+#pragma mark - Dialogs
 
 - (void)mfDialog:(NSString *)action
        andParams:(NSMutableDictionary *)params
@@ -58,6 +72,8 @@
     };
     [self dialog:action andParams:params andDelegate:h];
 }
+
+#pragma mark - Requests
 
 - (id)mfRequestWithGraphPath:(NSString *)graphPath
                    andParams:(NSDictionary *)params
@@ -131,6 +147,7 @@
 
 @implementation __Facebook_MFBlockize_GlobalSessionDelegate
 @synthesize successBlock = __successBlock, failBlock = __failBlock;
+@synthesize didLogoutBlock, didExtendTokenBlock;
 
 + (__Facebook_MFBlockize_GlobalSessionDelegate *)sharedSessionDelegate {
     static __Facebook_MFBlockize_GlobalSessionDelegate *d = nil;
@@ -186,6 +203,18 @@
     self.failBlock = nil;
 }
 
+- (void)fbDidLogout {
+    if (self.didLogoutBlock) {
+        self.didLogoutBlock();
+    }
+}
+
+- (void)fbDidExtendToken:(NSString*)accessToken
+               expiresAt:(NSDate*)expiresAt {
+    if (self.didExtendTokenBlock) {
+        self.didExtendTokenBlock(accessToken, expiresAt);
+    }
+}
 
 @end
 
