@@ -32,7 +32,8 @@
 
 - (NSDate *)lastRefreshedDate;
 
-// this method will give you the cached friends. if they aren't loaded, this will load them.
+// this method will get the users' friends.
+// we use the cache if possible and forceRefresh is NO, otherwise this method will download them.
 // retain the object returned, if you release the object, your block will not be called.
 - (id)getFriends:(BOOL)forceRefresh block:(void (^)(NSArray *friends, NSString *error))block;
 
