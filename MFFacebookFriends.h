@@ -34,10 +34,7 @@
 
 // this method will give you the cached friends. if they aren't loaded, this will load them.
 // retain the object returned, if you release the object, your block will not be called.
-- (id)getFriends:(void (^)(NSArray *friends, NSString *error))block;
-// this method will reload friends even if they are cached.
-// retain the object returned, if you release the object, your block will not be called.
-- (id)refreshFriends:(void (^)(NSArray *friends, NSString *error))block;
+- (id)getFriends:(BOOL)forceRefresh block:(void (^)(NSArray *friends, NSString *error))block;
 
 // this will clear the cached friends. current requests will still finish but their results will not be cached.
 - (void)clearCachedFriends;

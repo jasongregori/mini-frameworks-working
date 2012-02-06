@@ -66,6 +66,7 @@
     self = [super init];
     if (self) {
         self.informationToGather = [NSArray arrayWithObjects:@"is_app_user", @"pic_square", @"name", nil];
+        __friendsLoadBlocks = [NSCountedSet set];
     }
     return self;
 }
@@ -74,21 +75,13 @@
     return __lastRefreshedDate;
 }
 
-- (id)getFriends:(void (^)(NSArray *friends, NSString *error))block {
-    if (__friendsAreLoaded) {
+- (id)getFriends:(BOOL)forceRefresh block:(void (^)(NSArray *friends, NSString *error))block {
+    if (!forceRefresh && __friendsAreLoaded) {
         if (block) {
             block(__friends, nil);
         }
         return nil;
     }
-    return [self refreshFriends:block];
-}
-
-- (id)refreshFriends:(void (^)(NSArray *friends, NSString *error))block {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        __friendsLoadBlocks = [NSCountedSet set];
-    });
     
     __cacheCleared = NO;
     
