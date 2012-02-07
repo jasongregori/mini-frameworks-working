@@ -14,13 +14,16 @@
 
 @interface Facebook (MFBlockize)
 
-+ (id <FBSessionDelegate>)mfGlobalSessionDelegate;
-
 #pragma mark Login
-// you cannot cancel this
+/*
+    - once you use these methods you may not change the sessionDelegate of the facebook object
+    - you cannot cancel this
+ */
 - (void)mfAuthorize:(NSArray *)permissions
        successBlock:(void (^)())successBlock
           failBlock:(void (^)(BOOL userDidCancel))failBlock;
+- (void)mfSetDidLogoutBlock:(void (^)())block;
+- (void)mfSetDidExtendTokenBlock:(void (^)(NSString *accessToken, NSDate *expiresAt))block;
 
 #pragma mark Dialog
 
