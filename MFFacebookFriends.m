@@ -83,8 +83,8 @@
                           ? [self.informationToGather componentsJoinedByString:@", "]
                           : @"")];
         __friendsRequest = [self.facebook requestWithGraphPath:@"fql"
-                                                     andParams:[NSDictionary dictionaryWithObject:fql
-                                                                                           forKey:@"q"]
+                                                     andParams:[NSMutableDictionary dictionaryWithObject:fql
+                                                                                                  forKey:@"q"]
                                                    andDelegate:self];
     }
     
