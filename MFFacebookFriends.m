@@ -45,19 +45,6 @@
 
 @end
 
-@implementation NSDictionary (__MFFacebookFriends_Friend)
-- (NSString *)__MFFacebookFriends_SortByFirstNameString {
-    return [[[self objectsForKeys:[NSArray arrayWithObjects:@"first_name", @"last_name", nil] notFoundMarker:@""]
-             componentsJoinedByString:@" "]
-            stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-}
-- (NSString *)__MFFacebookFriends_SortByLastNameString {
-    return [[[self objectsForKeys:[NSArray arrayWithObjects:@"last_name", @"first_name", nil] notFoundMarker:@""]
-             componentsJoinedByString:@" "]
-            stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-}
-@end
-
 @implementation MFFacebookFriends
 @synthesize facebook;
 @synthesize informationToGather;
@@ -126,18 +113,11 @@
         || [result count] == 0) {
         result = nil;
     }
-    // sort the friends
-    BOOL sortByFirstName = ABPersonGetSortOrdering() == kABPersonSortByFirstName;
-    NSArray *friends = [result sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        if (sortByFirstName) {
-            return [[obj1 __MFFacebookFriends_SortByFirstNameString]
-                    localizedCompare:
-                    [obj2 __MFFacebookFriends_SortByFirstNameString]];
-        }
-        return [[obj1 __MFFacebookFriends_SortByLastNameString]
-                localizedCompare:
-                [obj2 __MFFacebookFriends_SortByLastNameString]];
-    }];
+    // sort the friends    
+    NSArray *friends = [result sortedArrayUsingSelector:
+                        (ABPersonGetSortOrdering() == kABPersonSortByFirstName
+                         ? @selector(mfFacebookFriendCompareByFirstName:)
+                         : @selector(mfFacebookFriendCompareByLastName:))];
     
     if (!__cacheCleared) {
         // if the cache is cleared dont cache these
@@ -162,6 +142,30 @@
     __friendsRequest = nil;
 }
 
+@end
+
+
+#pragma mark - MFFacebookFriend NSDictionary
+
+@implementation MFFacebookFriend
+- (NSComparisonResult)mfFacebookFriendCompareByFirstName:(MFFacebookFriend *)aFriend {
+    return [[self mfFacebookFriendSortStringFirstName] localizedCaseInsensitiveCompare:
+            [aFriend mfFacebookFriendSortStringFirstName]];
+}
+- (NSString *)mfFacebookFriendSortStringFirstName {
+    return [[[self objectsForKeys:[NSArray arrayWithObjects:@"first_name", @"last_name", nil] notFoundMarker:@""]
+             componentsJoinedByString:@" "]
+            stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+}
+- (NSComparisonResult)mfFacebookFriendCompareByLastName:(MFFacebookFriend *)aFriend {
+    return [[self mfFacebookFriendSortStringLastName] localizedCaseInsensitiveCompare:
+            [aFriend mfFacebookFriendSortStringLastName]];
+}
+- (NSString *)mfFacebookFriendSortStringLastName {
+    return [[[self objectsForKeys:[NSArray arrayWithObjects:@"last_name", @"first_name", nil] notFoundMarker:@""]
+             componentsJoinedByString:@" "]
+            stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+}
 @end
 
 

@@ -41,3 +41,13 @@
 - (void)clearCachedFriends;
 
 @end
+
+/*
+ These methods are here to help you sort the friends.
+ */
+@interface MFFacebookFriend : NSDictionary
+- (NSComparisonResult)mfFacebookFriendCompareByFirstName:(MFFacebookFriend *)aFriend;
+- (NSString *)mfFacebookFriendSortStringFirstName;
+- (NSComparisonResult)mfFacebookFriendCompareByLastName:(MFFacebookFriend *)aFriend;
+- (NSString *)mfFacebookFriendSortStringLastName;
+@end
