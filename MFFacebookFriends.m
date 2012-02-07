@@ -78,9 +78,9 @@
     }
     
     if (!__friendsRequest) {
-        NSString *fql = [NSString stringWithFormat:@"SELECT first_name, last_name, uid %@ FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me())",
+        NSString *fql = [NSString stringWithFormat:@"SELECT first_name, last_name, uid%@ FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me())",
                          ([self.informationToGather count]
-                          ? [self.informationToGather componentsJoinedByString:@", "]
+                          ? [@", " stringByAppendingString:[self.informationToGather componentsJoinedByString:@", "]]
                           : @"")];
         __friendsRequest = [self.facebook requestWithGraphPath:@"fql"
                                                      andParams:[NSMutableDictionary dictionaryWithObject:fql
