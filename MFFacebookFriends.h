@@ -45,9 +45,9 @@
 /*
  These methods are here to help you sort the friends.
  */
-@interface MFFacebookFriend : NSDictionary
-- (NSComparisonResult)mfFacebookFriendCompareByFirstName:(MFFacebookFriend *)aFriend;
+@interface NSDictionary (MFFacebookFriend)
+- (NSComparisonResult)mfFacebookFriendCompareByFirstName:(NSDictionary *)aFriend;
 - (NSString *)mfFacebookFriendSortStringFirstName;
-- (NSComparisonResult)mfFacebookFriendCompareByLastName:(MFFacebookFriend *)aFriend;
+- (NSComparisonResult)mfFacebookFriendCompareByLastName:(NSDictionary *)aFriend;
 - (NSString *)mfFacebookFriendSortStringLastName;
 @end

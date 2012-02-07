@@ -147,8 +147,8 @@
 
 #pragma mark - MFFacebookFriend NSDictionary
 
-@implementation MFFacebookFriend
-- (NSComparisonResult)mfFacebookFriendCompareByFirstName:(MFFacebookFriend *)aFriend {
+@implementation NSDictionary (MFFacebookFriend)
+- (NSComparisonResult)mfFacebookFriendCompareByFirstName:(NSDictionary *)aFriend {
     return [[self mfFacebookFriendSortStringFirstName] localizedCaseInsensitiveCompare:
             [aFriend mfFacebookFriendSortStringFirstName]];
 }
@@ -157,7 +157,7 @@
              componentsJoinedByString:@" "]
             stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
-- (NSComparisonResult)mfFacebookFriendCompareByLastName:(MFFacebookFriend *)aFriend {
+- (NSComparisonResult)mfFacebookFriendCompareByLastName:(NSDictionary *)aFriend {
     return [[self mfFacebookFriendSortStringLastName] localizedCaseInsensitiveCompare:
             [aFriend mfFacebookFriendSortStringLastName]];
 }
