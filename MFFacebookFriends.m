@@ -109,6 +109,11 @@
 
 - (void)request:(FBRequest *)request didLoad:(id)result {
     // make sure we get an array back
+    if (![result isKindOfClass:[NSDictionary class]]
+        || [result count] == 0) {
+        result = nil;
+    }
+    result = [result valueForKey:@"data"];
     if (![result isKindOfClass:[NSArray class]]
         || [result count] == 0) {
         result = nil;
