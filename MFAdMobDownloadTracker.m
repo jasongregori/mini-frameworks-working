@@ -28,7 +28,7 @@
         
         unsigned char digest[16];
         NSData *isuData = [isu dataUsingEncoding:NSASCIIStringEncoding];
-        CC_MD5([isuData bytes], MIN(16, [isuData length]), digest);
+        CC_MD5([isuData bytes], [isuData length], digest);
         
         NSString *hashedISU = [[NSString stringWithFormat: @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                                 digest[0], digest[1], 
