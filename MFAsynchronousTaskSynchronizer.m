@@ -94,6 +94,11 @@
         // remove task returned object
         [_taskReturnedObjects removeObjectForKey:taskID];
     }
+    
+    _taskIDs = nil;
+    _completedTaskIDs = nil;
+    _cancelBlocks = nil;
+    _taskReturnedObjects = nil;
 }
 
 - (void)__taskFinished:(NSNumber *)taskID {
@@ -108,6 +113,10 @@
             _completionBlock();
             _completionBlock = nil;
         }
+        _taskIDs = nil;
+        _completedTaskIDs = nil;
+        _cancelBlocks = nil;
+        _taskReturnedObjects = nil;
     }
 }
 
