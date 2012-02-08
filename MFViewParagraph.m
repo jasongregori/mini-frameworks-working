@@ -164,7 +164,7 @@ typedef enum {
     }
     y += [self __layoutRowOfViews:rowOfViews forWidth:maxWidth startingYOrigin:y];
     
-    if (y > self.lineSpacing) {
+    if (y > 0) {
         y -= self.lineSpacing;
     }
         

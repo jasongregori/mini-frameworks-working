@@ -19,7 +19,7 @@
 #import <UIKit/UIKit.h>
 
 @interface MFViewParagraph : UIView
-@property (nonatomic, assign) NSUInteger lineSpacing; // space between lines
+@property (nonatomic, assign) NSInteger lineSpacing; // space between lines
 @property (nonatomic, assign) UITextAlignment alignment;
 
 // These steps must be made in order, you may not skip. You may start over at anytime though.
