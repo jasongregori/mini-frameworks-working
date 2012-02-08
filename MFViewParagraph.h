@@ -19,6 +19,7 @@
 #import <UIKit/UIKit.h>
 
 @interface MFViewParagraph : UIView
+@property (nonatomic, assign) UIEdgeInsets insets;
 @property (nonatomic, assign) NSInteger lineSpacing; // space between lines
 @property (nonatomic, assign) UITextAlignment alignment;
 

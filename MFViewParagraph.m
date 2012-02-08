@@ -27,7 +27,7 @@ typedef enum {
 @end
 
 @implementation MFViewParagraph
-@synthesize lineSpacing, alignment;
+@synthesize insets, lineSpacing, alignment;
 
 - (void)__MFViewParagraphSharedInit {
     self.autoresizesSubviews = NO;
@@ -128,6 +128,7 @@ typedef enum {
             x = 0;
             break;
     }
+    x += self.insets.left;
     
     // layout the row
     for (UIView *view in rowOfViews) {
@@ -146,7 +147,8 @@ typedef enum {
         return 0;
     }
     
-    CGFloat y = 0;
+    maxWidth -= self.insets.left + self.insets.right;
+    CGFloat y = self.insets.top;
     
     NSMutableArray *rowOfViews = [NSMutableArray array];
     CGFloat rowWidth = 0;
@@ -164,9 +166,11 @@ typedef enum {
     }
     y += [self __layoutRowOfViews:rowOfViews forWidth:maxWidth startingYOrigin:y];
     
-    if (y > 0) {
+    if (y > self.insets.top) {
         y -= self.lineSpacing;
     }
+    
+    y += self.insets.bottom;
         
     return y;
 }
