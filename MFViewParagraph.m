@@ -183,4 +183,15 @@ typedef enum {
     _changeToSubviews = nil;
 }
 
+- (void)resetWithNewSubviews:(NSArray *)subviews andSizeToFit:(CGFloat)width {
+    [self readyNewSubviews:subviews];
+    [self hideOldViews];
+    [self removeOldViews];
+    CGRect frame = self.frame;
+    frame.size.width = width;
+    frame.size.height = [self layoutNewViews:width];
+    self.frame = frame;
+    [self showNewViews];
+}
+
 @end

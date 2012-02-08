@@ -29,4 +29,7 @@
 - (CGFloat)layoutNewViews:(CGFloat)maxWidth; // returns the height required to fit all these views
 - (void)showNewViews;
 
+// You can call this method if you don't need to animate and just want to layout the new subviews
+- (void)resetWithNewSubviews:(NSArray *)subviews andSizeToFit:(CGFloat)width;
+
 @end
