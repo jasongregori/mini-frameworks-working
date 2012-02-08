@@ -14,5 +14,6 @@
 // only positive numbers will be used, put a negative number to ignore that part
 - (void)mfUpdateFrame:(CGRect)updateFrame;
 - (CGSize)mfSizeThatFitsAndIsAtMost:(CGSize)size;
+- (void)mfSizeToFit:(CGSize)size;
 
 @end

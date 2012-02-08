@@ -44,4 +44,10 @@
     return newSize;
 }
 
+- (void)mfSizeToFit:(CGSize)size {
+    CGRect frame = self.frame;
+    frame.size = [self mfSizeThatFitsAndIsAtMost:size];
+    self.frame = frame;
+}
+
 @end
