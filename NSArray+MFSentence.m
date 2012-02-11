@@ -13,7 +13,7 @@
 
 - (NSString *)mfSentence {
     return [self mfSentenceWithWordsConnector:NSLocalizedStringFromTable(@", ", @"NSArray+MFSentence", @"Sentence Words Connector")
-                            twoWordsConnector:NSLocalizedStringFromTable(@" and ", @"NSArray+MFSentence", @"Sentence Two Words Connector")
+                            twoWordsConnector:NSLocalizedStringFromTable(@" & ", @"NSArray+MFSentence", @"Sentence Two Words Connector")
                             lastWordConnector:NSLocalizedStringFromTable(@", and ", @"NSArray+MFSentence", @"Sentence Last Word Connector")];
 }
 
