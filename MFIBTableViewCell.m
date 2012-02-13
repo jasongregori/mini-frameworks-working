@@ -12,7 +12,18 @@
 
 @implementation MFIBTableViewCell
 
-// TODO: replace initWithFrame: so it throws an error
++ (id)new {
+    return [self cell];
+}
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (reuseIdentifier) {
+        [NSException raise:@"MFIBTableViewCell init Exception"
+                    format:@"You cannot set the reuseIdentifier of an MFIBTableViewCell. Please use `+cell` to create an instance."];
+        return nil;
+    }
+    return [[self class] cell];
+}
 
 + (id)cell {
     static char nibKey;
