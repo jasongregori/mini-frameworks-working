@@ -8,7 +8,39 @@
 
 #import "MFITunesAffiliateLinks.h"
 
+#define kDGM @"dgm"
+#define kLinkShareAmericas @"linkshare americas"
+#define kLinkShareJapan @"linkshare japan"
+#define kTradeDoublerBrazil @"trade doubler brazil"
+#define kTradeDoublerEurope @"trade doubler europe"
+
+@interface MFITunesAffiliateLinks ()
++ (NSDictionary *)__affiliateNetworksToCountries;
+@end
+
 @implementation MFITunesAffiliateLinks
+
+// the list of itunes affiliate networks and countries were retreived Feb 14, 2012 from this site: http://en.wikipedia.org/wiki/ITunes_Store#Internationalization
++ (NSDictionary *)__affiliateNetworksToCountries {
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            
+            [NSSet setWithObjects:@"au", @"nz", nil],
+            kDGM,
+            
+            [NSSet setWithObjects:@"ca", @"mx", @"us", nil],
+            kLinkShareAmericas,
+            
+            [NSSet setWithObjects:@"jp", nil],
+            kLinkShareJapan,
+            
+            [NSSet setWithObjects:@"br", nil],
+            kTradeDoublerBrazil,
+            
+            [NSSet setWithObjects:@"at", @"be", @"bg", @"ch", @"cy", @"cz", @"de", @"dk", @"ee", @"es", @"fi", @"fr", @"gb", @"gr", @"hu", @"ie", @"it", @"lt", @"lu", @"lv", @"mt", @"nl", @"no", @"pl", @"pt", @"ro", @"se", @"si", @"sk", nil],
+            kTradeDoublerEurope,
+            
+            nil];
+}
 
 static NSDictionary *_linkShareParams;
 + (void)setLinkShareSiteID:(NSString *)siteID {
@@ -61,15 +93,31 @@ static NSDictionary *_linkShareParams;
     return url;
 }
 
+// the list of music countries was retreived Feb 14, 2010 from http://en.wikipedia.org/wiki/ITunes_Store#Internationalization
 + (BOOL)localeSupportsITunesMusic {
-//    return [[NSSet setWithObjects:
-//             
-//             , nil
-    return YES;
+    static BOOL supports = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString *country = [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
+        supports = [[NSSet setWithObjects:@"AR", @"AT", @"AU", @"BE", @"BG", @"BO", @"BR", @"CA", @"CH", @"CL", @"CO", @"CR", @"CY", @"CZ", @"DE", @"DK", @"DO", @"EC", @"EE", @"ES", @"FI", @"FR", @"GB", @"GR", @"GT", @"HN", @"HU", @"IE", @"IT", @"JP", @"LT", @"LU", @"LV", @"MT", @"MX", @"NI", @"NL", @"NO", @"NZ", @"PA", @"PE", @"PL", @"PT", @"PY", @"RO", @"SE", @"SI", @"SK", @"SV", @"US", @"VE", nil]
+                    containsObject:country];
+    });
+    return supports;
 }
 
 + (BOOL)localeSupportsAffiliateLinks {
-    return YES;
+    static BOOL supports = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString *country = [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
+        [[self __affiliateNetworksToCountries] enumerateKeysAndObjectsUsingBlock:^(NSString *affiliateNetwork, NSSet *countries, BOOL *stop) {
+            if ([countries containsObject:country]) {
+                *stop = YES;
+                supports = YES;
+            }
+        }];
+    });
+    return supports;
 }
 
 @end
