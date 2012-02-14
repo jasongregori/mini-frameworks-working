@@ -61,4 +61,15 @@ static NSDictionary *_linkShareParams;
     return url;
 }
 
++ (BOOL)localeSupportsITunesMusic {
+//    return [[NSSet setWithObjects:
+//             
+//             , nil
+    return YES;
+}
+
++ (BOOL)localeSupportsAffiliateLinks {
+    return YES;
+}
+
 @end

@@ -29,4 +29,8 @@
 
 + (NSString *)generateAffiliateLink:(NSString *)url;
 
+// These methods tell you if something is supported in the user's local
++ (BOOL)localeSupportsITunesMusic;
++ (BOOL)localeSupportsAffiliateLinks;
+
 @end
