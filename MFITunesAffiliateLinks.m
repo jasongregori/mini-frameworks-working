@@ -63,10 +63,7 @@ static NSMutableDictionary *_affiliateNetworksToParams;
 
 + (void)setDGMAffiliateToken:(NSString *)affiliateToken {
     if (affiliateToken) {
-        [_affiliateNetworksToParams setObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                               affiliateToken, @"affToken",
-                                               @"1002", @"partnerId",
-                                               nil]
+        [_affiliateNetworksToParams setObject:[NSString stringWithFormat:@"partnerId=1002&affToken=%@", affiliateToken]
                                        forKey:kDGM];
     }
     else {
@@ -76,10 +73,7 @@ static NSMutableDictionary *_affiliateNetworksToParams;
 
 + (void)setLinkShareAmericasSiteID:(NSString *)siteID {
     if (siteID) {
-        [_affiliateNetworksToParams setObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                               @"30", @"partnerId",
-                                               siteID, @"siteID",
-                                               nil]
+        [_affiliateNetworksToParams setObject:[NSString stringWithFormat:@"partnerId=30&siteID=%@", siteID]
                                        forKey:kLinkShareAmericas];
     }
     else {
@@ -106,7 +100,7 @@ static NSMutableDictionary *_affiliateNetworksToParams;
     }
     
     //===== affiliate params
-    __block NSDictionary *params;
+    __block NSString *params;
     [[self __affiliateNetworksToCountries] enumerateKeysAndObjectsUsingBlock:^(NSString *affiliateNetwork, NSSet *countries, BOOL *stop) {
         if ([countries containsObject:countryCode]) {
             params = [_affiliateNetworksToParams objectForKey:affiliateNetwork];
@@ -115,11 +109,7 @@ static NSMutableDictionary *_affiliateNetworksToParams;
     }];
     
     if (params) {
-        NSMutableArray *pairs = [NSMutableArray array];
-        [params enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-            [pairs addObject:[NSString stringWithFormat:@"%@=%@", key, obj]];
-        }];
-        url = [NSString stringWithFormat:@"%@%@%@", url, ([url rangeOfString:@"?"].location == NSNotFound ? @"?" : @"&"), [pairs componentsJoinedByString:@"&"]];
+        url = [NSString stringWithFormat:@"%@%@%@", url, ([url rangeOfString:@"?"].location == NSNotFound ? @"?" : @"&"), params];
     }
     
     return url;
