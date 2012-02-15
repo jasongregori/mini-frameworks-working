@@ -99,7 +99,7 @@ static NSDictionary *_linkShareParams;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSString *country = [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
-        supports = [[NSSet setWithObjects:@"AR", @"AT", @"AU", @"BE", @"BG", @"BO", @"BR", @"CA", @"CH", @"CL", @"CO", @"CR", @"CY", @"CZ", @"DE", @"DK", @"DO", @"EC", @"EE", @"ES", @"FI", @"FR", @"GB", @"GR", @"GT", @"HN", @"HU", @"IE", @"IT", @"JP", @"LT", @"LU", @"LV", @"MT", @"MX", @"NI", @"NL", @"NO", @"NZ", @"PA", @"PE", @"PL", @"PT", @"PY", @"RO", @"SE", @"SI", @"SK", @"SV", @"US", @"VE", nil]
+        supports = [[NSSet setWithObjects:@"ar", @"at", @"au", @"be", @"bg", @"bo", @"br", @"ca", @"ch", @"cl", @"co", @"cr", @"cy", @"cz", @"de", @"dk", @"do", @"ec", @"ee", @"es", @"fi", @"fr", @"gb", @"gr", @"gt", @"hn", @"hu", @"ie", @"it", @"jp", @"lt", @"lu", @"lv", @"mt", @"mx", @"ni", @"nl", @"no", @"nz", @"pa", @"pe", @"pl", @"pt", @"py", @"ro", @"se", @"si", @"sk", @"sv", @"us", @"ve", nil]
                     containsObject:country];
     });
     return supports;
