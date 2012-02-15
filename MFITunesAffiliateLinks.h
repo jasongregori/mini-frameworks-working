@@ -28,6 +28,7 @@
 
 + (void)setDGMAffiliateToken:(NSString *)affiliateToken;
 + (void)setLinkShareAmericasSiteID:(NSString *)siteID;
++ (void)setTradeDoublerBrazilTDUID:(NSString *)tduid andAffID:(NSString *)affId;
 
 + (NSString *)generateAffiliateLink:(NSString *)url;
 

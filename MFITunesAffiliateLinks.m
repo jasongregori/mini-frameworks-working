@@ -55,8 +55,8 @@ static NSMutableDictionary *_affiliateNetworksToParams;
 }
 
 + (NSString *)__countryCode {
-    return [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
-//    return @"au";
+//    return [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
+    return @"br";
 }
 
 #pragma mark - Affiliate Params
@@ -78,6 +78,16 @@ static NSMutableDictionary *_affiliateNetworksToParams;
     }
     else {
         [_affiliateNetworksToParams removeObjectForKey:kLinkShareAmericas];
+    }
+}
+
++ (void)setTradeDoublerBrazilTDUID:(NSString *)tduid andAffID:(NSString *)affId {
+    if (tduid && affId) {
+        [_affiliateNetworksToParams setObject:[NSString stringWithFormat:@"partnerId=2003&tduid=%@&affId=%@", tduid, affId]
+                                       forKey:kTradeDoublerBrazil];
+    }
+    else {
+        [_affiliateNetworksToParams removeObjectForKey:kTradeDoublerBrazil];
     }
 }
 
