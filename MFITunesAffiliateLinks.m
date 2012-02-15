@@ -16,6 +16,7 @@
 
 @interface MFITunesAffiliateLinks ()
 + (NSDictionary *)__affiliateNetworksToCountries;
++ (NSString *)__countryCode;
 @end
 
 @implementation MFITunesAffiliateLinks
@@ -42,6 +43,10 @@
             nil];
 }
 
++ (NSString *)__countryCode {
+    return [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
+}
+
 static NSDictionary *_linkShareParams;
 + (void)setLinkShareSiteID:(NSString *)siteID {
     if (siteID) {
@@ -60,7 +65,7 @@ static NSDictionary *_linkShareParams;
 }
 
 + (NSString *)generateAffiliateLink:(NSString *)url {
-    NSString *countryCode = [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
+    NSString *countryCode = [self __countryCode];
     
     //===== reroute to this users country
     // regex explanation: "itunes.apple.com" followed by (and matched) '/' + an optional (two letters + '/')
@@ -76,9 +81,10 @@ static NSDictionary *_linkShareParams;
     }
     
     //===== affiliate params
+    NSDictionary *affiliateNetworks = [self __affiliateNetworksToCountries];
     NSDictionary *params;
-    // link share
-    if ([[NSSet setWithObjects:@"ca", @"us", @"mx", nil] containsObject:countryCode]) {
+    // link share americas
+    if ([[affiliateNetworks objectForKey:kLinkShareAmericas] containsObject:countryCode]) {
         params = _linkShareParams;
     }
     

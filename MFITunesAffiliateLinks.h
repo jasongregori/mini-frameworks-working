@@ -18,6 +18,8 @@
  
  See here on how all this works: http://www.apple.com/itunes/affiliates/resources/documentation/linking-to-the-itunes-music-store.html#CleanLinks
  
+ TODO: get actual location to find country instead of using NSLocale
+ 
  */
 
 #import <Foundation/Foundation.h>
