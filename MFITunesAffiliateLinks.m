@@ -55,8 +55,8 @@ static NSMutableDictionary *_affiliateNetworksToParams;
 }
 
 + (NSString *)__countryCode {
-//    return [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
-    return @"br";
+    return [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
+//    return @"br";
 }
 
 #pragma mark - Affiliate Params
