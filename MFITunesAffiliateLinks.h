@@ -26,6 +26,7 @@
 
 @interface MFITunesAffiliateLinks : NSObject
 
++ (void)setDGMAffiliateToken:(NSString *)affiliateToken;
 + (void)setLinkShareAmericasSiteID:(NSString *)siteID;
 
 + (NSString *)generateAffiliateLink:(NSString *)url;

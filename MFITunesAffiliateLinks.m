@@ -61,6 +61,19 @@ static NSMutableDictionary *_affiliateNetworksToParams;
 
 #pragma mark - Affiliate Params
 
++ (void)setDGMAffiliateToken:(NSString *)affiliateToken {
+    if (affiliateToken) {
+        [_affiliateNetworksToParams setObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                                               affiliateToken, @"affToken",
+                                               @"1002", @"partnerId",
+                                               nil]
+                                       forKey:kDGM];
+    }
+    else {
+        [_affiliateNetworksToParams removeObjectForKey:kDGM];
+    }
+}
+
 + (void)setLinkShareAmericasSiteID:(NSString *)siteID {
     if (siteID) {
         [_affiliateNetworksToParams setObject:[NSDictionary dictionaryWithObjectsAndKeys:
