@@ -21,6 +21,17 @@
 
 @implementation MFITunesAffiliateLinks
 
+static NSMutableDictionary *_affiliateNetworksToParams;
++ (void)initialize {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _affiliateNetworksToParams = [NSMutableDictionary dictionary];
+    });
+}
+
+
+#pragma mark - Static Information
+
 // the list of itunes affiliate networks and countries were retreived Feb 14, 2012 from this site: http://en.wikipedia.org/wiki/ITunes_Store#Internationalization
 + (NSDictionary *)__affiliateNetworksToCountries {
     return [NSDictionary dictionaryWithObjectsAndKeys:
@@ -45,24 +56,25 @@
 
 + (NSString *)__countryCode {
     return [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
+//    return @"au";
 }
 
-static NSDictionary *_linkShareParams;
-+ (void)setLinkShareSiteID:(NSString *)siteID {
+#pragma mark - Affiliate Params
+
++ (void)setLinkShareAmericasSiteID:(NSString *)siteID {
     if (siteID) {
-        _linkShareParams = [NSDictionary dictionaryWithObjectsAndKeys:
-                            @"30", @"partnerId",
-                            siteID, @"siteID",
-                            nil];
+        [_affiliateNetworksToParams setObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                                               @"30", @"partnerId",
+                                               siteID, @"siteID",
+                                               nil]
+                                       forKey:kLinkShareAmericas];
     }
     else {
-        _linkShareParams = nil;
+        [_affiliateNetworksToParams removeObjectForKey:kLinkShareAmericas];
     }
 }
 
-+ (NSString *)linkShareSiteID {
-    return [_linkShareParams valueForKey:@"siteID"];
-}
+#pragma mark - Generate Links
 
 + (NSString *)generateAffiliateLink:(NSString *)url {
     NSString *countryCode = [self __countryCode];
@@ -81,12 +93,13 @@ static NSDictionary *_linkShareParams;
     }
     
     //===== affiliate params
-    NSDictionary *affiliateNetworks = [self __affiliateNetworksToCountries];
-    NSDictionary *params;
-    // link share americas
-    if ([[affiliateNetworks objectForKey:kLinkShareAmericas] containsObject:countryCode]) {
-        params = _linkShareParams;
-    }
+    __block NSDictionary *params;
+    [[self __affiliateNetworksToCountries] enumerateKeysAndObjectsUsingBlock:^(NSString *affiliateNetwork, NSSet *countries, BOOL *stop) {
+        if ([countries containsObject:countryCode]) {
+            params = [_affiliateNetworksToParams objectForKey:affiliateNetwork];
+            *stop = YES;
+        }
+    }];
     
     if (params) {
         NSMutableArray *pairs = [NSMutableArray array];
@@ -98,6 +111,8 @@ static NSDictionary *_linkShareParams;
     
     return url;
 }
+
+#pragma mark - Locale Support
 
 // the list of music countries was retreived Feb 14, 2010 from http://en.wikipedia.org/wiki/ITunes_Store#Internationalization
 + (BOOL)localeSupportsITunesMusic {

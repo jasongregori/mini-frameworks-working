@@ -26,8 +26,7 @@
 
 @interface MFITunesAffiliateLinks : NSObject
 
-+ (void)setLinkShareSiteID:(NSString *)siteID;
-+ (NSString *)linkShareSiteID;
++ (void)setLinkShareAmericasSiteID:(NSString *)siteID;
 
 + (NSString *)generateAffiliateLink:(NSString *)url;
 
