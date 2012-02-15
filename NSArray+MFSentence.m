@@ -12,9 +12,9 @@
 @implementation NSArray (MFSentence)
 
 - (NSString *)mfSentence {
-    return [self mfSentenceWithWordsConnector:NSLocalizedStringFromTable(@", ", @"NSArray+MFSentence", @"Sentence Words Connector")
-                            twoWordsConnector:NSLocalizedStringFromTable(@" & ", @"NSArray+MFSentence", @"Sentence Two Words Connector")
-                            lastWordConnector:NSLocalizedStringFromTable(@", and ", @"NSArray+MFSentence", @"Sentence Last Word Connector")];
+    return [self mfSentenceWithWordsConnector:NSLocalizedStringFromTable(@", ", @"NSArray+MFSentence", @"The string to use for connecting words in a list together in a sentence. When there more than 2 words, this connects all the words except the last two: \"John{, }Jason{, }Bob, and Carl\"")
+                            twoWordsConnector:NSLocalizedStringFromTable(@" & ", @"NSArray+MFSentence", @"The string to use for connecting two words in a list together in a sentence: \"John{ & }Jason\"")
+                            lastWordConnector:NSLocalizedStringFromTable(@", and ", @"NSArray+MFSentence", @"The string to use for connecting words in a list together in a sentence. When there more than 2 words, this connects the last two: \"John, Jason, Bob{, and }Carl\"")];
 }
 
 - (NSString *)mfSentenceWithWordsConnector:(NSString *)wordsConnector
