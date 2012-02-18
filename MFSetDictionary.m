@@ -71,4 +71,8 @@
     [(NSSet *)[_dictionary objectForKey:key] enumerateObjectsUsingBlock:block];
 }
 
+- (NSString *)description {
+    return [_dictionary description];
+}
+
 @end
