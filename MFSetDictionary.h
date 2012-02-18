@@ -11,12 +11,11 @@
 @interface MFSetDictionary : NSObject
 - (void)addObject:(id)object forKey:(id)key; // keys must conform to the NSCopying protocol
 - (void)removeObject:(id)object forKey:(id)key;
+- (id)popObjectForKey:(id)key;
 
 - (NSSet *)allObjectsForKey:(id)key;
 - (NSUInteger)countForKey:(id)key;
 - (void)removeAllObjectsForKey:(id)key;
 
 - (void)enumerateObjectsForKey:(id)key usingBlock:(void (^)(id obj, BOOL *stop))block;
-
-- (id)popObjectForKey:(id)key;
 @end

@@ -42,6 +42,19 @@
     }
 }
 
+- (id)popObjectForKey:(id)key {
+    id object;
+    NSMutableSet *set = [_dictionary objectForKey:key];
+    if (set) {
+        object = [set anyObject];
+        [set removeObject:object];
+        if (![set count]) {
+            [_dictionary removeObjectForKey:key];
+        }
+    }
+    return object;
+}
+
 - (NSSet *)allObjectsForKey:(id)key {
     return [_dictionary objectForKey:key];
 }
@@ -56,10 +69,6 @@
 
 - (void)enumerateObjectsForKey:(id)key usingBlock:(void (^)(id obj, BOOL *stop))block {
     [(NSSet *)[_dictionary objectForKey:key] enumerateObjectsUsingBlock:block];
-}
-
-- (id)popObjectForKey:(id)key {
-    id object = [
 }
 
 @end
