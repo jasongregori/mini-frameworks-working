@@ -17,4 +17,6 @@
 - (void)removeAllObjectsForKey:(id)key;
 
 - (void)enumerateObjectsForKey:(id)key usingBlock:(void (^)(id obj, BOOL *stop))block;
+
+- (id)popObjectForKey:(id)key;
 @end

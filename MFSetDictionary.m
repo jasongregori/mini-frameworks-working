@@ -58,4 +58,8 @@
     [(NSSet *)[_dictionary objectForKey:key] enumerateObjectsUsingBlock:block];
 }
 
+- (id)popObjectForKey:(id)key {
+    id object = [
+}
+
 @end
