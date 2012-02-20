@@ -23,11 +23,11 @@
         self.connectionRef = nil;
         [self setImage:nil forState:UIControlStateNormal];
         if (__url) {
-            __unsafe_unretained MFURLButton *weakSelf = self;
+            __unsafe_unretained MFURLButton *weakself = self;
             self.connectionRef = [NSURLConnection mfGetImage:url
                                                    withBlock:^(UIImage *image, NSError *error) {
-                                                       [self setImage:image forState:UIControlStateNormal];
-                                                       weakSelf.connectionRef = nil;
+                                                       [weakself setImage:image forState:UIControlStateNormal];
+                                                       weakself.connectionRef = nil;
                                                    }];
         }
     }
