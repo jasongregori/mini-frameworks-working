@@ -23,11 +23,11 @@
         self.connectionRef = nil;
         self.image = nil;
         if (__url) {
-            __unsafe_unretained MFURLImageView *weakSelf = self;
+            __unsafe_unretained MFURLImageView *weakself = self;
             self.connectionRef = [NSURLConnection mfGetImage:url
                                                    withBlock:^(UIImage *image, NSError *error) {
-                                                       weakSelf.image = image;
-                                                       weakSelf.connectionRef = nil;
+                                                       weakself.image = image;
+                                                       weakself.connectionRef = nil;
                                                    }];
         }
     }
