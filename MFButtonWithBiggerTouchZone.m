@@ -16,8 +16,9 @@
     }
     
     // if point is within 22 pts of center, hit
-    if (CGRectContainsPoint(self.bounds, point)
-        || CGRectContainsPoint(CGRectInset((CGRect){[self convertPoint:self.center fromView:self.superview], CGSizeZero}, -22, -22), point)) {
+    CGRect minimumTouchBounds = CGRectInset((CGRect){[self convertPoint:self.center fromView:self.superview], CGSizeZero}, -22, -22);
+    CGRect unionBounds = CGRectUnion(self.bounds, minimumTouchBounds);
+    if (CGRectContainsPoint(unionBounds, point)) {
         return self;
     }
     return nil;
