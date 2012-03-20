@@ -12,7 +12,7 @@
 #define kSegmentedControlWidth (320 - 2 * kSegmentedControlMargin)
 
 @interface MFSegmentedViewController ()
-@property (nonatomic, strong, readwrite) NSArray *names;
+@property (nonatomic, strong, readwrite) NSArray *namesOrImages;
 @property (nonatomic, strong) NSMutableDictionary *__loadedSubViews;
 @property (nonatomic, strong) UISegmentedControl *__segmentedControl;
 @property (nonatomic, strong) NSArray *__viewBlocks;
@@ -23,15 +23,15 @@
 @end
 
 @implementation MFSegmentedViewController
-@synthesize names, __loadedSubViews, __viewBlocks, controlStyle;
+@synthesize namesOrImages, __loadedSubViews, __viewBlocks, controlStyle;
 @synthesize barStyle;
 
-- (id)initWithNamesAndViewBlocks:(NSString *)firstName, ...
+- (id)initWithNamesAndViewBlocks:(id)firstNameOrImage, ...
 {
     NSMutableArray *namesAndViewBlocksArray = [NSMutableArray array];
     va_list args;
-    va_start(args, firstName);
-    for (id arg = firstName; arg != nil; arg = va_arg(args, id))
+    va_start(args, firstNameOrImage);
+    for (id arg = firstNameOrImage; arg != nil; arg = va_arg(args, id))
     {
         [namesAndViewBlocksArray addObject:arg];
     }
@@ -54,7 +54,7 @@
             [vbs addObject:[[namesAndViewBlocks objectAtIndex:i+1] copy]];
         }
         
-        self.names = kys;
+        self.namesOrImages = kys;
         self.__viewBlocks = vbs;
         self.__loadedSubViews = [NSMutableDictionary dictionary];
     }
@@ -192,7 +192,7 @@
     CGFloat containerTop = 0;
     
     if (self.controlStyle != kMFSegmentedNoControl) {
-        UISegmentedControl *sc = [[UISegmentedControl alloc] initWithItems:self.names];
+        UISegmentedControl *sc = [[UISegmentedControl alloc] initWithItems:self.namesOrImages];
         sc.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         sc.segmentedControlStyle = UISegmentedControlStyleBar;
         sc.selectedSegmentIndex = self.selectedIndex;

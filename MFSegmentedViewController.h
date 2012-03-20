@@ -33,8 +33,9 @@ typedef enum {
 @interface MFSegmentedViewController : UIViewController
 
 // pass a nil terminated list of names and view blocks
-//- (id)initWithNamesAndViewBlocks:(NSString *)firstName, (MFViewBlock)firstViewBlock, ...;
-- (id)initWithNamesAndViewBlocks:(NSString *)firstName, ...
+// names can be UIImages...
+//- (id)initWithNamesAndViewBlocks:(id)firstName, (MFViewBlock)firstViewBlock, ...;
+- (id)initWithNamesAndViewBlocks:(id)firstNameOrImage, ...
     NS_REQUIRES_NIL_TERMINATION;
 // designated initializer
 - (id)initWithNamesAndViewBlocksArray:(NSArray *)namesAndViewBlocks;
@@ -47,7 +48,7 @@ typedef enum {
 - (void)setBackgroundView:(UIView *)backgroundView;
 
 // these are returned in the order they are shown in the segmented control
-@property (nonatomic, strong, readonly) NSArray *names;
+@property (nonatomic, strong, readonly) NSArray *namesOrImages;
 
 // the views go in this view, don't mess with it.
 @property (nonatomic, strong, readonly) UIView *viewsContainer;
