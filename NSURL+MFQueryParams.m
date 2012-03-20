@@ -19,6 +19,9 @@ static inline NSString *escapeString(NSString *string) {
 }
 
 + (NSString *)mfURLStringWithString:(NSString *)url andParams:(NSDictionary *)params {
+    if ([params count] == 0) {
+        return url;
+    }
     NSMutableArray *pairs = [NSMutableArray array];
     for (NSString *key in params) {
         [pairs addObject:[NSString stringWithFormat:@"%@=%@", escapeString(key), escapeString([[params objectForKey:key] description])]];
