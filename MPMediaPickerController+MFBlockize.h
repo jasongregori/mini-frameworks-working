@@ -9,9 +9,11 @@
 #import <MediaPlayer/MediaPlayer.h>
 
 @interface MPMediaPickerController (MFBlockize)
-+ (id)mfAnotherWithDidPickBlock:(void (^)(MPMediaItemCollection *collection))didPickBlock
-                    cancelBlock:(void (^)())cancelBlock;
++ (id)mfAnotherWithDidPickBlock:(void (^)(MPMediaPickerController *controller, MPMediaItemCollection *collection))didPickBlock
+                    cancelBlock:(void (^)(MPMediaPickerController *controller))cancelBlock;
 + (id)mfAnotherWithMediaTypes:(MPMediaType)mediaTypes
-                 didPickBlock:(void (^)(MPMediaItemCollection *collection))didPickBlock
-                  cancelBlock:(void (^)())cancelBlock;
+                 didPickBlock:(void (^)(MPMediaPickerController *controller, MPMediaItemCollection *collection))didPickBlock
+                  cancelBlock:(void (^)(MPMediaPickerController *controller))cancelBlock;
+- (void)mfSetDidPickBlock:(void (^)(MPMediaPickerController *controller, MPMediaItemCollection *collection))didPickBlock
+           andCancelBlock:(void (^)(MPMediaPickerController *controller))cancelBlock;
 @end
