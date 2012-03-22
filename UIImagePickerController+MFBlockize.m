@@ -35,7 +35,6 @@
     static char associationKey;
     objc_setAssociatedObject(self, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
-
 @end
 
 @implementation __UIImagePickerController_MFBlockize_Helper
@@ -45,12 +44,16 @@
     if (self.didPickBlock) {
         self.didPickBlock(info);
     }
+    self.didPickBlock = nil;
+    self.cancelBlock = nil;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     if (self.cancelBlock) {
         self.cancelBlock();
     }
+    self.didPickBlock = nil;
+    self.cancelBlock = nil;
 }
 
 @end
