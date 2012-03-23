@@ -32,7 +32,9 @@ static const char __encodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
     int indexsize = 6; // this is the size of the indexes that go into the encoding table
     NSAssert(bytesize >= indexsize, @"MFBase64: We assume bytesize >= indexsize and apparently thats not the case here. You're on your own!");
 
-    int strlen = ceil((double)length * (double)bytesize / (double)indexsize);
+    int totalBits = length * bytesize;
+    // total bits must be divisible by 24 (we add padding if we have less than that)
+    int strlen = ceil((double)totalBits/24.0)*24/6;
     char *str = (char *)malloc(strlen * sizeof(char));
 
     int tindex = 0; // table index
