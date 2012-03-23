@@ -49,7 +49,7 @@ static const char __encodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
             tailBitsToCapture = bytesize - bBitsCaptured - headBitsToCapture;
             // this is the number of bits to take from this byte and combine with the last captured bits
             // combine these bits with the last captured bits
-            tindex |= (byte << bBitsCaptured) >> (bytesize - headBitsToCapture);
+            tindex = (tindex << headBitsToCapture) | ((byte << bBitsCaptured) >> (bytesize - headBitsToCapture));
             // we must have a full index here because indexsize < bytesize
             str[sindex++] = __encodingTable[tindex & 63];
             tbitsCaptured = 0;
@@ -58,13 +58,14 @@ static const char __encodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
 
         // capture the remaining bits
         if (tailBitsToCapture > 0) {
-            tindex = byte << (indexsize - tailBitsToCapture);            
+            tindex = byte;
             tbitsCaptured = tailBitsToCapture;
         }
     }
     // there could be a partial letter here
     if (tbitsCaptured > 0) {
         str[sindex++] = __encodingTable[tindex & 63];
+        tindex = tindex << (indexsize - tbitsCaptured);
     }
     // padding
     while (sindex < strlen) {
