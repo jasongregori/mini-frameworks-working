@@ -10,21 +10,27 @@
 
 #import "limits.h"
 
+@interface MFBase64 ()
++ (NSString *)__encodeData:(NSData *)data withEncodingTable:(const char *)encodingTable;
+@end
+
 @implementation MFBase64
 
 + (NSString *)encodeString:(NSString *)string {
     return [self encodeData:[string dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
-+ (NSString *)encodeDataURLSafe:(NSData *)data {
-    NSString *s = [self encodeData:data];
-    return [[s stringByReplacingOccurrencesOfString:@"+" withString:@"-"]
-            stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
-    
++ (NSString *)encodeData:(NSData *)data {
+    static const char encodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    return [self __encodeData:data withEncodingTable:encodingTable];
 }
 
-static const char __encodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-+ (NSString *)encodeData:(NSData *)data {
++ (NSString *)encodeDataURLSafe:(NSData *)data {
+    static const char encodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    return [self __encodeData:data withEncodingTable:encodingTable];
+}
+
++ (NSString *)__encodeData:(NSData *)data withEncodingTable:(const char *)encodingTable {
     const char *bytes = [data bytes];
     NSUInteger length = [data length];
     
@@ -53,7 +59,7 @@ static const char __encodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
             // combine these bits with the last captured bits
             tindex = (tindex << headBitsToCapture) | ((byte << bBitsCaptured) >> (bytesize - headBitsToCapture));
             // we must have a full index here because indexsize < bytesize
-            str[sindex++] = __encodingTable[tindex & 63];
+            str[sindex++] = encodingTable[tindex & 63];
             tbitsCaptured = 0;
             bBitsCaptured += headBitsToCapture;
         } while (tailBitsToCapture >= indexsize);
@@ -66,8 +72,8 @@ static const char __encodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
     }
     // there could be a partial letter here
     if (tbitsCaptured > 0) {
-        str[sindex++] = __encodingTable[tindex & 63];
         tindex = tindex << (indexsize - tbitsCaptured);
+        str[sindex++] = encodingTable[tindex & 63];
     }
     // padding
     while (sindex < strlen) {
