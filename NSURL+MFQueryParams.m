@@ -23,7 +23,7 @@ static inline NSString *escapeString(NSString *string) {
         return url;
     }
     NSMutableArray *pairs = [NSMutableArray array];
-    for (NSString *key in params) {
+    for (NSString *key in [params keysSortedByValueUsingSelector:@selector(compare:)]) {
         [pairs addObject:[NSString stringWithFormat:@"%@=%@", escapeString(key), escapeString([[params objectForKey:key] description])]];
     }
     return [NSString stringWithFormat:@"%@%@%@", url, ([url rangeOfString:@"?"].location == NSNotFound ? @"?" : @"&"), [pairs componentsJoinedByString:@"&"]];
