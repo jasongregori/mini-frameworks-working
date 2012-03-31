@@ -40,6 +40,25 @@
     return [self initWithNamesAndViewBlocksArray:namesAndViewBlocksArray];
 }
 
+- (id)initWithNames:(id)firstNameOrImage, ...
+{
+    NSMutableArray *namesAndViewBlocksArray = [NSMutableArray array];
+    va_list args;
+    va_start(args, firstNameOrImage);
+    NSUInteger index = 0;
+    for (id arg = firstNameOrImage; arg != nil; arg = va_arg(args, id))
+    {
+        [namesAndViewBlocksArray addObject:arg];
+        [namesAndViewBlocksArray addObject:^UIView *(MFSegmentedViewController *c) {
+            return [c loadViewForIndex:index];
+        }];
+        index++;
+    }
+    va_end(args);
+    
+    return [self initWithNamesAndViewBlocksArray:namesAndViewBlocksArray];
+}
+
 - (id)initWithNamesAndViewBlocksArray:(NSArray *)namesAndViewBlocks
 {
     self = [super initWithNibName:nil bundle:nil];

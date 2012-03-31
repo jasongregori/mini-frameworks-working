@@ -37,6 +37,8 @@ typedef enum {
 //- (id)initWithNamesAndViewBlocks:(id)firstName, (MFViewBlock)firstViewBlock, ...;
 - (id)initWithNamesAndViewBlocks:(id)firstNameOrImage, ...
     NS_REQUIRES_NIL_TERMINATION;
+// if you prefer to load your views using -loadViewForIndex:
+- (id)initWithNames:(id)firstNameOrImage, ... NS_REQUIRES_NIL_TERMINATION;
 // designated initializer
 - (id)initWithNamesAndViewBlocksArray:(NSArray *)namesAndViewBlocks;
 
@@ -49,6 +51,8 @@ typedef enum {
 
 // these are returned in the order they are shown in the segmented control
 @property (nonatomic, strong, readonly) NSArray *namesOrImages;
+// use this if you dont want to pass in view blocks
+- (UIView *)loadViewForIndex:(NSUInteger)index;
 
 // the views go in this view, don't mess with it.
 @property (nonatomic, strong, readonly) UIView *viewsContainer;
