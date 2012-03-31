@@ -38,7 +38,7 @@ typedef enum {
 - (id)initWithNamesAndViewBlocks:(id)firstNameOrImage, ...
     NS_REQUIRES_NIL_TERMINATION;
 // if you prefer to load your views using -loadViewForIndex:
-- (id)initWithNames:(id)firstNameOrImage, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initWithNames:(NSArray *)namesOrImages;
 // designated initializer
 - (id)initWithNamesAndViewBlocksArray:(NSArray *)namesAndViewBlocks;
 

@@ -23,7 +23,7 @@
 @end
 
 @implementation MFSegmentedViewController
-@synthesize namesOrImages, __loadedSubViews, __viewBlocks, controlStyle;
+@synthesize namesOrImages = _namesOrImages, __loadedSubViews, __viewBlocks, controlStyle;
 @synthesize barStyle;
 
 - (id)initWithNamesAndViewBlocks:(id)firstNameOrImage, ...
@@ -40,22 +40,16 @@
     return [self initWithNamesAndViewBlocksArray:namesAndViewBlocksArray];
 }
 
-- (id)initWithNames:(id)firstNameOrImage, ...
-{
+- (id)initWithNames:(NSArray *)namesOrImages {
     NSMutableArray *namesAndViewBlocksArray = [NSMutableArray array];
-    va_list args;
-    va_start(args, firstNameOrImage);
     NSUInteger index = 0;
-    for (id arg = firstNameOrImage; arg != nil; arg = va_arg(args, id))
-    {
-        [namesAndViewBlocksArray addObject:arg];
+    for (id nameOrImage in namesOrImages) {
+        [namesAndViewBlocksArray addObject:nameOrImage];
         [namesAndViewBlocksArray addObject:^UIView *(MFSegmentedViewController *c) {
             return [c loadViewForIndex:index];
         }];
         index++;
     }
-    va_end(args);
-    
     return [self initWithNamesAndViewBlocksArray:namesAndViewBlocksArray];
 }
 
@@ -111,6 +105,11 @@
 
 #pragma mark - Public
 @synthesize selectedIndex;
+
+- (UIView *)loadViewForIndex:(NSUInteger)index {
+    [NSException raise:@"MFSegmentedViewControllerException" format:@"If you don't pass in view blocks, you must override -loadViewForIndex:"];
+    return nil;
+}
 
 - (NSUInteger)indexForLoadedSubView:(UIView *)view
 {
