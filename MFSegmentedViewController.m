@@ -162,7 +162,11 @@
             // set segmented control
             self.__segmentedControl.selectedSegmentIndex = i;
             // remove current view (if applicable)
-            [[self loadedSubViewForIndex:oldSelectedIndex] removeFromSuperview];
+            UIView *oldSelectedView = [self loadedSubViewForIndex:oldSelectedIndex];
+            if (oldSelectedView) {
+                [self subViewWillBeDeselected:oldSelectedView atIndex:oldSelectedIndex];
+                [oldSelectedView removeFromSuperview];
+            }
             
             [self __layoutSelectedIndex];
         }
@@ -184,6 +188,14 @@
     
 }
 
+- (void)subViewWillBeDeselected:(UIView *)view atIndex:(NSUInteger)index {
+    
+}
+
+- (void)subViewWillBeSelected:(UIView *)view atIndex:(NSUInteger)index {
+
+}
+
 #pragma mark - View lifecycle
 @synthesize __segmentedControl, viewsContainer = __viewsContainer;
 
@@ -193,6 +205,7 @@
     view.frame = self.viewsContainer.bounds;        
     // show
     [self subViewWillAppear:view atIndex:self.selectedIndex];
+    [self subViewWillBeSelected:view atIndex:self.selectedIndex];
     [self.viewsContainer addSubview:view];
 }
 
@@ -248,6 +261,7 @@
     }
     self.__segmentedControl = nil;
     self.viewsContainer = nil;
+    [self subViewWillBeDeselected:[self loadedSubViewForIndex:self.selectedIndex] atIndex:self.selectedIndex];
     [self.__loadedSubViews removeAllObjects];
 }
 

@@ -69,6 +69,8 @@ typedef enum {
 // called after a view is shown (either by the SegVC being shown or the user selected another view)
 - (void)subViewWillAppear:(UIView *)view atIndex:(NSUInteger)index;
 - (void)subViewDidAppear:(UIView *)view atIndex:(NSUInteger)index;
+- (void)subViewWillBeDeselected:(UIView *)view atIndex:(NSUInteger)index;
+- (void)subViewWillBeSelected:(UIView *)view atIndex:(NSUInteger)index;
 
 @end
 
