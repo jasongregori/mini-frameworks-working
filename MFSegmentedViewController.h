@@ -47,6 +47,7 @@ typedef enum {
 // Defaults to kMFSegmentedNavigationTitleViewControl
 @property (nonatomic, assign) MFSegmentedControlStyle controlStyle;
 // Needs to be reset on loadView or viewDidLoad
+@property (nonatomic, strong) UIView *headerView;
 - (void)setBackgroundView:(UIView *)backgroundView;
 
 // these are returned in the order they are shown in the segmented control

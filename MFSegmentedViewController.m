@@ -11,7 +11,9 @@
 #define kSegmentedControlMargin 6
 #define kSegmentedControlWidth (320 - 2 * kSegmentedControlMargin)
 
-@interface MFSegmentedViewController ()
+@interface MFSegmentedViewController () {
+    UIToolbar *_toolbar;
+}
 @property (nonatomic, strong, readwrite) NSArray *namesOrImages;
 @property (nonatomic, strong) NSMutableDictionary *__loadedSubViews;
 @property (nonatomic, strong) UISegmentedControl *__segmentedControl;
@@ -20,11 +22,13 @@
 
 - (void)__layoutSelectedIndex;
 - (void)__segmentedControlValueChanged;
+- (void)__layoutViewsContainer;
 @end
 
 @implementation MFSegmentedViewController
 @synthesize namesOrImages = _namesOrImages, __loadedSubViews, __viewBlocks, controlStyle;
 @synthesize barStyle;
+@synthesize headerView = _headerView;
 
 - (id)initWithNamesAndViewBlocks:(id)firstNameOrImage, ...
 {
@@ -196,6 +200,33 @@
 
 }
 
+- (void)setHeaderView:(UIView *)headerView {
+    if (headerView != _headerView) {
+        [_headerView removeFromSuperview];
+        _headerView = headerView;
+        
+        if ([self isViewLoaded]) {
+            [self __layoutViewsContainer];
+        }
+    }
+}
+
+- (void)__layoutViewsContainer {
+    CGFloat topSpace = _toolbar.frame.size.height;
+    
+    if (self.headerView) {
+        CGRect frame = self.headerView.frame;
+        frame.origin.y = topSpace;
+        self.headerView.frame = frame;
+        
+        [self.view addSubview:self.headerView];
+        
+        topSpace += self.headerView.frame.size.height;
+    }
+    
+    self.viewsContainer.frame = CGRectMake(0, topSpace, self.view.bounds.size.width, self.view.bounds.size.height - topSpace);
+}
+
 #pragma mark - View lifecycle
 @synthesize __segmentedControl, viewsContainer = __viewsContainer;
 
@@ -241,12 +272,14 @@
             toolbar.frame = CGRectMake(0, 0, self.view.bounds.size.width, containerTop);
             toolbar.items = [NSArray arrayWithObject:[[UIBarButtonItem alloc] initWithCustomView:sc]];
             [self.view addSubview:toolbar];
+            _toolbar = toolbar;
         }
     }
     
-    UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, containerTop, self.view.bounds.size.width, self.view.bounds.size.height - containerTop)];
+    UIView *container = [UIView new];
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     self.viewsContainer = container;
+    [self __layoutViewsContainer];
     [self.view addSubview:container];
     
     [self __layoutSelectedIndex];
@@ -263,6 +296,7 @@
     self.viewsContainer = nil;
     [self subViewWillBeDeselected:[self loadedSubViewForIndex:self.selectedIndex] atIndex:self.selectedIndex];
     [self.__loadedSubViews removeAllObjects];
+    _toolbar = nil;
 }
 
 - (void)viewWillAppear:(BOOL)animated
