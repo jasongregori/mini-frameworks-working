@@ -43,6 +43,24 @@
     }]];
 }
 
+- (id)mfPopObjectPassingTest:(BOOL (^)(id obj))test {
+    NSUInteger index = [self indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        return test(obj);
+    }];
+    if (index != NSNotFound) {
+        id obj = [self objectAtIndex:index];
+        [self removeObjectAtIndex:index];
+        return obj;
+    }
+    return nil;
+}
+
+- (id)mfPopObjectUsingPredicate:(NSPredicate *)predicate {
+    return [self mfPopObjectPassingTest:^BOOL(id obj) {
+        return [predicate evaluateWithObject:obj];
+    }];
+}
+
 @end
 
 
@@ -88,6 +106,12 @@
             [self removeObjectForKey:key];
         }
     }];
+}
+
+- (id)mfPopObjectForKey:(id)key {
+    id obj = [self objectForKey:key];
+    [self removeObjectForKey:key];
+    return obj;
 }
 
 @end

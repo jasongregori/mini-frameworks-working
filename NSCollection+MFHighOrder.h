@@ -20,6 +20,8 @@
 @interface NSMutableArray (MFHighOrder)
 
 - (void)mfFilterWithTest:(BOOL (^)(id obj))test;
+- (id)mfPopObjectPassingTest:(BOOL (^)(id obj))test;
+- (id)mfPopObjectUsingPredicate:(NSPredicate *)predicate;
 
 @end
 
@@ -36,5 +38,6 @@
 @interface NSMutableDictionary (MFHighOrder)
 
 - (void)mfFilterWithTest:(BOOL (^)(id key, id object))test;
+- (id)mfPopObjectForKey:(id)key;
 
 @end
