@@ -13,6 +13,9 @@
 @interface NSArray (MFSentence)
 
 - (NSString *)mfSentence;
+// If a string is an attributed string, word attributes does not
+- (NSAttributedString *)mfAttributedSentenceWithWordAttributes:(NSDictionary *)wordAttributes
+                                           connectorAttributes:(NSDictionary *)connectorAttributes;
 
 /*
  wordsConnector - The string used to join the elements in a array with three or more elements.
@@ -22,5 +25,10 @@
 - (NSString *)mfSentenceWithWordsConnector:(NSString *)wordsConnector
                          twoWordsConnector:(NSString *)twoWordsConnector
                          lastWordConnector:(NSString *)lastWordConnector;
+- (NSAttributedString *)mfAttributedSentenceWithWordsConnector:(NSString *)wordsConnector
+                                             twoWordsConnector:(NSString *)twoWordsConnector
+                                             lastWordConnector:(NSString *)lastWordConnector
+                                                wordAttributes:(NSDictionary *)wordAttributes
+                                           connectorAttributes:(NSDictionary *)connectorAttributes;
 
 @end
