@@ -58,6 +58,7 @@ typedef enum {
 // the views go in this view, don't mess with it.
 @property (nonatomic, strong, readonly) UIView *viewsContainer;
 @property (nonatomic, assign) NSUInteger selectedIndex;
+@property (nonatomic, readonly) UIView *selectedLoadedView;
 // views aren't loaded until they are needed
 // returns NSNotFound returned if not found
 - (NSUInteger)indexForLoadedSubView:(UIView *)view;

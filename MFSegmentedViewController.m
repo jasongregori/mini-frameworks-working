@@ -110,6 +110,10 @@
 #pragma mark - Public
 @synthesize selectedIndex;
 
+- (UIView *)selectedLoadedView {
+    return [self loadedSubViewForIndex:self.selectedIndex];
+}
+
 - (UIView *)loadViewForIndex:(NSUInteger)index {
     [NSException raise:@"MFSegmentedViewControllerException" format:@"If you don't pass in view blocks, you must override -loadViewForIndex:"];
     return nil;
