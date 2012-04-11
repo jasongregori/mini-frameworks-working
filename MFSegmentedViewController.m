@@ -259,7 +259,6 @@
     
     if (self.controlStyle != kMFSegmentedNoControl) {
         UISegmentedControl *sc = [[UISegmentedControl alloc] initWithItems:self.namesOrImages];
-        sc.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         sc.segmentedControlStyle = UISegmentedControlStyleBar;
         sc.selectedSegmentIndex = self.selectedIndex;
         sc.frame = CGRectMake(kSegmentedControlMargin, 0, kSegmentedControlWidth, [sc sizeThatFits:CGSizeZero].height);
