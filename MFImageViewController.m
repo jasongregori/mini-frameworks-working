@@ -94,6 +94,10 @@
     return _subview;
 }
 
++ (UIView *)viewThatAllowsTouchesToPassThroughIt:(CGRect)frame {
+    return [[__MFImageViewController_Subview alloc] initWithFrame:frame];
+}
+
 #pragma mark -
 
 - (void)__attemptRotation {

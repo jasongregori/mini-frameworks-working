@@ -15,4 +15,5 @@
 // it is created when you call this method
 // this is a special view in that it allows touches to it's subviews but passes through touches to itself
 @property (nonatomic, strong, readonly) UIView *subview;
++ (UIView *)viewThatAllowsTouchesToPassThroughIt:(CGRect)frame;
 @end
