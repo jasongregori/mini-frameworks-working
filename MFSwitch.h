@@ -10,13 +10,18 @@
 
 /*
  
- - objects are compared using -isEqual:
- - if case objects are arrays or sets, we'll double check if the object is in it using -doesContain:
+ The switch is a simple method that takes an switch-object and a nil terminated list.
+ The list contains alternating pairs of a case-object and a return-object.
+ If the switch-object matches a case-object, return-object is returned.
+ If the list ends with a dangling single object it is assumed to be the "default" return-object and is returned if there are no matches.
+ nil is returned if there are no matches.
  
- - cases is a nil terminated list of objects and blocks
- - the blocks take no arguments
- - the list must alternate between object and block until the last item
- - at the end of the list you may put a default block (without an object before it)
+ - compare-objects are compared using -isEqual:
+ - if a compare-object is an array or set, we'll double check if the object is in it using -doesContain:
+
+ 
+ 
+ 
 
  example:
  
@@ -40,8 +45,15 @@
 
 @interface MFSwitch : NSObject
 
-+ (void)switch:(id)object cases:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
-// the blocks passed into here must return an object
-+ (id)returnSwitch:(id)object cases:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
+// you may pass any types of objects for return-objects, the matching one is returned
++ (id)objectSwitch:(id)object cases:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
+
+// return-objects must be blocks that take no arguments and return nothing
+// runs the matching block
++ (void)blockSwitch:(id)object cases:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
+
+// return-objects must be blocks that take no arguments and return id
+// the matching block will be run and the return object returned
++ (id)blockReturnSwitch:(id)object cases:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end

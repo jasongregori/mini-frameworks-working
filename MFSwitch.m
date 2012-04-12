@@ -10,75 +10,62 @@
 
 @implementation MFSwitch
 
-+ (void)switch:(id)object cases:(id)firstObject, ... {
-    va_list vl;
-    va_start(vl, firstObject);
-    id obj = firstObject;
-    while (obj) {
-        void (^block)() = va_arg(vl, void (^)());
-        
-        if (obj && block) {
-            // check for collections
-            if ([obj isKindOfClass:[NSArray class]]
-                || [obj isKindOfClass:[NSSet class]]) {
-                if ([(NSArray *)obj containsObject:object]) {
-                    block();
-                    break;
-                }
-            }
-            // otherwise check if equal
-            if ([object isEqual:obj]) {
-                block();
-                break;
-            }
-        }
-        else {
-            // if there is an obj but no block, obj must be the default block
-            block = (void (^)())obj;
-            block();
-            break;
-        }
-        
-        obj = va_arg(vl, id);
-    }
-    va_end(vl);
-}
-
-+ (id)returnSwitch:(id)object cases:(id)firstObject, ... {
++ (id)objectSwitch:(id)object casesArray:(NSArray *)cases {
     id ret = nil;
-    va_list vl;
-    va_start(vl, firstObject);
-    id obj = firstObject;
-    while (obj) {
-        id (^block)() = va_arg(vl, id (^)());
+    
+    NSEnumerator *enumerator = [cases objectEnumerator];
+    
+    id caseObj = [enumerator nextObject];
+    while (caseObj) {
+        id retObj = [enumerator nextObject];
         
-        if (obj && block) {
+        if (caseObj && retObj) {
             // check for collections
-            if ([obj isKindOfClass:[NSArray class]]
-                || [obj isKindOfClass:[NSSet class]]) {
-                if ([(NSArray *)obj containsObject:object]) {
-                    ret = block();
+            if ([caseObj isKindOfClass:[NSArray class]]
+                || [caseObj isKindOfClass:[NSSet class]]) {
+                if ([(NSArray *)caseObj containsObject:object]) {
+                    ret = retObj;
                     break;
                 }
             }
             // otherwise check if equal
-            if ([object isEqual:obj]) {
-                ret = block();
+            if ([object isEqual:caseObj]) {
+                ret = retObj;
                 break;
             }
         }
         else {
-            // if there is an obj but no block, obj must be the default block
-            block = (id (^)())obj;
-            ret = block();
+            // if there is an obj but no block, obj must be the default object
+            ret = caseObj;
             break;
         }
         
-        obj = va_arg(vl, id);
+        caseObj = [enumerator nextObject];
     }
-    va_end(vl);
     
     return ret;
+}
+
++ (id)objectSwitch:(id)object cases:(id)firstObject, ... {
+    NSMutableArray *args = [NSMutableArray array]; va_list vl; va_start(vl, firstObject); id o = firstObject; while (o) { [args addObject:o]; o = va_arg(vl, id); } va_end(vl);
+    return [self objectSwitch:object casesArray:args];
+}
+
++ (void)blockSwitch:(id)object cases:(id)firstObject, ... {
+    NSMutableArray *args = [NSMutableArray array]; va_list vl; va_start(vl, firstObject); id o = firstObject; while (o) { [args addObject:o]; o = va_arg(vl, id); } va_end(vl);
+    void (^block)() = [self objectSwitch:object casesArray:args];
+    if (block) {
+        block();
+    }
+}
+
++ (id)blockReturnSwitch:(id)object cases:(id)firstObject, ... {
+    NSMutableArray *args = [NSMutableArray array]; va_list vl; va_start(vl, firstObject); id o = firstObject; while (o) { [args addObject:o]; o = va_arg(vl, id); } va_end(vl);
+    id (^block)() = [self objectSwitch:object casesArray:args];
+    if (block) {
+        return block();
+    }
+    return nil;
 }
 
 @end
