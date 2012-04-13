@@ -23,21 +23,32 @@
  
  
 
- example:
+ examples:
  
     __block NSUInteger value;
-    [MFSwitch switch:@"asdf"
-     cases:@"test", ^{
-         value = 2;
-     }, @"asdf", ^{
-         value = 5;
-     }, [NSSet setWithObjects:@"ety", @"hrtynh", @"as", nil], ^{
-         value = 9;
-     }, ^{
-         // default block
-         value = 100;
-     }
-     nil];
+    [MFSwitch blockSwitch:@"asdf"
+                    cases:@"test", ^{
+                        value = 2;
+                    }, @"234", ^{
+                        value = 5;
+                    }, [NSSet setWithObjects:@"asdf", @"hrtynh", @"as", nil], ^{
+                        value = 9;
+                    }, ^{
+                        // default block
+                        value = 100;
+                    }, nil];
+    
+    UIView *view = [MFSwitch blockReturnSwitch:@"button"
+                                         cases:@"green", ^{
+                                             UIView *v = [UIView new];
+                                             v.backgroundColor = [UIColor greenColor];
+                                             return v;
+                                         }, @"button", ^{
+                                             return [UIButton buttonWithType:UIButtonTypeCustom];
+                                         }, ^{
+                                             // default
+                                             return [UIView new];
+                                         }, nil];
  
  */
 
