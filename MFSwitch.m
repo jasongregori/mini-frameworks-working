@@ -10,58 +10,57 @@
 
 @implementation MFSwitch
 
-+ (id)objectSwitch:(id)object casesArray:(NSArray *)cases {
-    id ret = nil;
-    
-    NSEnumerator *enumerator = [cases objectEnumerator];
-    
-    id caseObj = [enumerator nextObject];
++ (id)objectSwitch:(id)object firstItemInList:(id)firstObject restOfList:(va_list)vl {
+    // at first we passed an array instead of a va_list
+    // this resulted in crashes because the array was retained and autoreleased after this scope and stack blocks were retained out of this scope
+    id caseObj = firstObject;
     while (caseObj) {
-        id retObj = [enumerator nextObject];
+        id retObj = va_arg(vl, id (^)());
         
         if (caseObj && retObj) {
             // check for collections
             if ([caseObj isKindOfClass:[NSArray class]]
                 || [caseObj isKindOfClass:[NSSet class]]) {
                 if ([(NSArray *)caseObj containsObject:object]) {
-                    ret = retObj;
-                    break;
+                    return retObj;
                 }
             }
             // otherwise check if equal
             if ([object isEqual:caseObj]) {
-                ret = retObj;
-                break;
+                return retObj;
             }
         }
         else {
-            // if there is an obj but no block, obj must be the default object
-            ret = caseObj;
-            break;
+            // if there is a caseObj but no retObj, caseObj must be the default object
+            return caseObj;
         }
         
-        caseObj = [enumerator nextObject];
+        caseObj = va_arg(vl, id);
     }
     
-    return ret;
+    return nil;
 }
 
 + (id)objectSwitch:(id)object cases:(id)firstObject, ... {
-    NSMutableArray *args = [NSMutableArray array]; va_list vl; va_start(vl, firstObject); id o = firstObject; while (o) { [args addObject:o]; o = va_arg(vl, id); } va_end(vl);
-    return [self objectSwitch:object casesArray:args];
+    va_list vl; va_start(vl, firstObject);
+    id ret = [self objectSwitch:object firstItemInList:firstObject restOfList:vl];
+    va_end(vl);
+    return ret;
 }
 
 + (void)blockSwitch:(id)object cases:(id)firstObject, ... {
-    NSMutableArray *args = [NSMutableArray array]; va_list vl; va_start(vl, firstObject); id o = firstObject; while (o) { [args addObject:o]; o = va_arg(vl, id); } va_end(vl);
-    void (^block)() = [self objectSwitch:object casesArray:args];
+    va_list vl; va_start(vl, firstObject);
+    void (^block)() = [self objectSwitch:object firstItemInList:firstObject restOfList:vl];
+    va_end(vl);
     if (block) {
         block();
     }
 }
 
 + (id)blockReturnSwitch:(id)object cases:(id)firstObject, ... {
-    NSMutableArray *args = [NSMutableArray array]; va_list vl; va_start(vl, firstObject); id o = firstObject; while (o) { [args addObject:o]; o = va_arg(vl, id); } va_end(vl);
-    id (^block)() = [self objectSwitch:object casesArray:args];
+    va_list vl; va_start(vl, firstObject);
+    id (^block)() = [self objectSwitch:object firstItemInList:firstObject restOfList:vl];
+    va_end(vl);
     if (block) {
         return block();
     }
