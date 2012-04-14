@@ -15,13 +15,13 @@
     // this resulted in crashes because the array was retained and autoreleased after this scope and stack blocks were retained out of this scope
     id caseObj = firstObject;
     while (caseObj) {
-        id retObj = va_arg(vl, id (^)());
+        id retObj = va_arg(vl, id);
         
         if (caseObj && retObj) {
             // check for collections
             if ([caseObj isKindOfClass:[NSArray class]]
                 || [caseObj isKindOfClass:[NSSet class]]) {
-                if ([(NSArray *)caseObj containsObject:object]) {
+                if (object && [(NSArray *)caseObj containsObject:object]) {
                     return retObj;
                 }
             }
