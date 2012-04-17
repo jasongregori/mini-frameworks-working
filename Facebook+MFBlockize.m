@@ -13,6 +13,7 @@
 @interface __Facebook_MFBlockize_GlobalSessionDelegate : NSObject <FBSessionDelegate>
 + (__Facebook_MFBlockize_GlobalSessionDelegate *)sessionDelegateFor:(Facebook *)facebook;
 @property (nonatomic, copy) void (^didLogoutBlock)();
+@property (nonatomic, copy) void (^sessionInvalidatedBlock)();
 @property (nonatomic, copy) void (^didExtendTokenBlock)(NSString *accessToken, NSDate *expiresAt);
 - (void)authorize:(Facebook *)facebook
       permissions:(NSArray *)permissions
@@ -50,6 +51,10 @@
 
 - (void)mfSetDidExtendTokenBlock:(void (^)(NSString *accessToken, NSDate *expiresAt))block {
     [[__Facebook_MFBlockize_GlobalSessionDelegate sessionDelegateFor:self] setDidExtendTokenBlock:block];
+}
+
+- (void)mfSetSessionInvalidatedBlock:(void (^)())block {
+    [[__Facebook_MFBlockize_GlobalSessionDelegate sessionDelegateFor:self] setSessionInvalidatedBlock:block];
 }
 
 #pragma mark - Dialogs
@@ -143,7 +148,7 @@
 
 @implementation __Facebook_MFBlockize_GlobalSessionDelegate
 @synthesize successBlock = __successBlock, failBlock = __failBlock;
-@synthesize didLogoutBlock, didExtendTokenBlock;
+@synthesize didLogoutBlock, didExtendTokenBlock, sessionInvalidatedBlock;
 
 + (__Facebook_MFBlockize_GlobalSessionDelegate *)sessionDelegateFor:(Facebook *)facebook {
     static char associationKey;
@@ -215,6 +220,12 @@
                expiresAt:(NSDate*)expiresAt {
     if (self.didExtendTokenBlock) {
         self.didExtendTokenBlock(accessToken, expiresAt);
+    }
+}
+
+- (void)fbSessionInvalidated {
+    if (self.sessionInvalidatedBlock) {
+        self.sessionInvalidatedBlock();
     }
 }
 

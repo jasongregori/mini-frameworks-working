@@ -24,6 +24,7 @@
           failBlock:(void (^)(BOOL userDidCancel))failBlock;
 - (void)mfSetDidLogoutBlock:(void (^)())block;
 - (void)mfSetDidExtendTokenBlock:(void (^)(NSString *accessToken, NSDate *expiresAt))block;
+- (void)mfSetSessionInvalidatedBlock:(void (^)())block;
 
 #pragma mark Dialog
 
