@@ -23,6 +23,7 @@
 
 @interface __Facebook_MFBlockize_Dialog_Helper : NSObject <FBDialogDelegate>
 @property (nonatomic, copy) void (^successBlock)(NSURL *url);
+@property (nonatomic, copy) void (^failureBlock)();
 @end
 
 @interface __Facebook_MFBlockize_Helper : NSObject <FBRequestDelegate>
@@ -61,16 +62,16 @@
 
 - (void)mfDialog:(NSString *)action
        andParams:(NSMutableDictionary *)params
-    successBlock:(void (^)(NSURL *url))successBlock {
+    successBlock:(void (^)(NSURL *url))successBlock
+    failureBlock:(void (^)())failureBlock {
+    
     static char dialogKey;
     __Facebook_MFBlockize_Dialog_Helper *h = [__Facebook_MFBlockize_Dialog_Helper new];
     objc_setAssociatedObject(self, &dialogKey, h, OBJC_ASSOCIATION_RETAIN);
-    h.successBlock = ^(NSURL *url){
-        if (successBlock) {
-            successBlock(url);
-        }
-        objc_setAssociatedObject(self, &dialogKey, nil, OBJC_ASSOCIATION_RETAIN);
-    };
+    // don't release the helper in the success/failure blocks, that leads to crashes from the dialog continually calling the delegate
+    // the helper releases the blocks on completion or if a new dialog is created
+    h.successBlock = successBlock;
+    h.failureBlock = failureBlock;
     [self dialog:action andParams:params andDelegate:h];
 }
 
@@ -232,12 +233,44 @@
 @end
 
 @implementation __Facebook_MFBlockize_Dialog_Helper
-@synthesize successBlock;
+@synthesize successBlock, failureBlock;
+
+- (void)fail {
+    // we could be dealloced in the block call, so dont mention self after this
+    // dont allow successes after our failure :)
+    self.successBlock = nil;
+    if (self.failureBlock) {
+        void (^block)() = self.failureBlock;
+        self.failureBlock = nil;
+        block();
+    }
+}
 
 - (void)dialogCompleteWithUrl:(NSURL *)url {
-    if (successBlock) {
-        successBlock(url);
+    // we could be dealloced in the block call, so dont mention self after this
+    // dont allow failures after our success :)
+    self.failureBlock = nil;
+    if (self.successBlock) {
+        void (^block)(NSURL *url) = self.successBlock;
+        self.successBlock = nil;
+        block(url);
     }
+}
+
+- (void)dialogDidComplete:(FBDialog *)dialog {
+    [self fail];
+}
+
+- (void)dialogDidNotCompleteWithUrl:(NSURL *)url {
+    [self fail];
+}
+
+- (void)dialogDidNotComplete:(FBDialog *)dialog {
+    [self fail];
+}
+
+- (void)dialog:(FBDialog *)dialog didFailWithError:(NSError *)error {
+    [self fail];
 }
 
 @end
