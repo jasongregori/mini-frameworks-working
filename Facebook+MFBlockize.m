@@ -152,6 +152,7 @@
         helper = [[__Facebook_MFBlockize_GlobalSessionDelegate alloc] init];
         objc_setAssociatedObject(facebook, &associationKey, helper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+    facebook.sessionDelegate = helper;
     return helper;
 }
 
@@ -184,7 +185,6 @@
     self.successBlock = successBlock;
     self.failBlock = failBlock;
     
-    facebook.sessionDelegate = self;
     [facebook authorize:permissions];
 }
 
