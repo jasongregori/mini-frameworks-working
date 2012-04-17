@@ -21,7 +21,7 @@
 @end
 
 @interface __Facebook_MFBlockize_Dialog_Helper : NSObject <FBDialogDelegate>
-@property (nonatomic, copy) void (^successBlock)();
+@property (nonatomic, copy) void (^successBlock)(NSURL *url);
 @end
 
 @interface __Facebook_MFBlockize_Helper : NSObject <FBRequestDelegate>
@@ -56,13 +56,13 @@
 
 - (void)mfDialog:(NSString *)action
        andParams:(NSMutableDictionary *)params
-    successBlock:(void (^)())successBlock {
+    successBlock:(void (^)(NSURL *url))successBlock {
     static char dialogKey;
     __Facebook_MFBlockize_Dialog_Helper *h = [__Facebook_MFBlockize_Dialog_Helper new];
     objc_setAssociatedObject(self, &dialogKey, h, OBJC_ASSOCIATION_RETAIN);
-    h.successBlock = ^{
+    h.successBlock = ^(NSURL *url){
         if (successBlock) {
-            successBlock();
+            successBlock(url);
         }
         objc_setAssociatedObject(self, &dialogKey, nil, OBJC_ASSOCIATION_RETAIN);
     };
@@ -223,9 +223,9 @@
 @implementation __Facebook_MFBlockize_Dialog_Helper
 @synthesize successBlock;
 
-- (void)dialogDidComplete:(FBDialog *)dialog {
+- (void)dialogCompleteWithUrl:(NSURL *)url {
     if (successBlock) {
-        successBlock();
+        successBlock(url);
     }
 }
 

@@ -31,7 +31,7 @@
 // remember they don't actually tell us if it was successful or not
 - (void)mfDialog:(NSString *)action
        andParams:(NSMutableDictionary *)params
-    successBlock:(void (^)())successBlock;
+    successBlock:(void (^)(NSURL *url))successBlock;
 
 #pragma mark Request
 // retain the object returned, the request is cancelled on dealloc
