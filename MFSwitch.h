@@ -67,4 +67,7 @@
 // the matching block will be run and the return object returned
 + (id)blockReturnSwitch:(id)object cases:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 
+// block switches that return scalers, if no matches, returns NO.
++ (BOOL)blockReturnBOOLSwitch:(id)object cases:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
+
 @end
