@@ -67,4 +67,14 @@
     return nil;
 }
 
++ (BOOL)blockReturnBOOLSwitch:(id)object cases:(id)firstObject, ... {
+    va_list vl; va_start(vl, firstObject);
+    BOOL (^block)() = [self objectSwitch:object firstItemInList:firstObject restOfList:vl];
+    va_end(vl);
+    if (block) {
+        return block();
+    }
+    return NO;
+}
+
 @end
