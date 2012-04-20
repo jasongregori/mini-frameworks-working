@@ -13,7 +13,7 @@
 @interface NSArray (MFSentence)
 
 - (NSString *)mfSentence;
-// If a string is an attributed string, word attributes does not
+// If a string is an attributed string, word attributes is not used. Otherwise word attributes is added to the string.
 - (NSAttributedString *)mfAttributedSentenceWithWordAttributes:(NSDictionary *)wordAttributes
                                            connectorAttributes:(NSDictionary *)connectorAttributes;
 
