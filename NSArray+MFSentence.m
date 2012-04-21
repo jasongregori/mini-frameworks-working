@@ -14,7 +14,15 @@
 - (NSString *)mfSentence {
     return [self mfSentenceWithWordsConnector:NSLocalizedStringFromTable(@", ", @"NSArray+MFSentence", @"The string to use for connecting words in a list together in a sentence. When there more than 2 words, this connects all the words except the last two: \"John{, }Jason{, }Bob, and Carl\"")
                             twoWordsConnector:NSLocalizedStringFromTable(@" & ", @"NSArray+MFSentence", @"The string to use for connecting two words in a list together in a sentence: \"John{ & }Jason\"")
-                            lastWordConnector:NSLocalizedStringFromTable(@", and ", @"NSArray+MFSentence", @"The string to use for connecting words in a list together in a sentence. When there more than 2 words, this connects the last two: \"John, Jason, Bob{, and }Carl\"")];
+                            lastWordConnector:NSLocalizedStringFromTable(@", and ", @"NSArray+MFSentence", @"The string to use for connecting words in a list together in a sentence. When there more than 2 words, this connects the last two: \"John, Jason, Bob{, and }Carl\"")
+                          withWordRangeValues:NULL];
+}
+
+- (NSString *)mfSentenceWithWordRangeValues:(NSArray **)ranges {
+    return [self mfSentenceWithWordsConnector:NSLocalizedStringFromTable(@", ", @"NSArray+MFSentence", @"The string to use for connecting words in a list together in a sentence. When there more than 2 words, this connects all the words except the last two: \"John{, }Jason{, }Bob, and Carl\"")
+                            twoWordsConnector:NSLocalizedStringFromTable(@" & ", @"NSArray+MFSentence", @"The string to use for connecting two words in a list together in a sentence: \"John{ & }Jason\"")
+                            lastWordConnector:NSLocalizedStringFromTable(@", and ", @"NSArray+MFSentence", @"The string to use for connecting words in a list together in a sentence. When there more than 2 words, this connects the last two: \"John, Jason, Bob{, and }Carl\"")
+                          withWordRangeValues:ranges];
 }
 
 - (NSAttributedString *)mfAttributedSentenceWithWordAttributes:(NSDictionary *)wordAttributes
@@ -26,23 +34,75 @@
                                     connectorAttributes:connectorAttributes];
 }
 
-
 - (NSString *)mfSentenceWithWordsConnector:(NSString *)wordsConnector
                          twoWordsConnector:(NSString *)twoWordsConnector
                          lastWordConnector:(NSString *)lastWordConnector {
+    return [self mfSentenceWithWordsConnector:wordsConnector
+                            twoWordsConnector:twoWordsConnector
+                            lastWordConnector:lastWordConnector
+                          withWordRangeValues:NULL];
+}
+
+- (NSString *)mfSentenceWithWordsConnector:(NSString *)wordsConnector
+                         twoWordsConnector:(NSString *)twoWordsConnector
+                         lastWordConnector:(NSString *)lastWordConnector
+                       withWordRangeValues:(NSArray **)rangesPointer {
+    NSString *ret;
+    NSMutableArray *ranges = (rangesPointer == NULL ? nil : [NSMutableArray new]);
     switch ([self count]) {
         case 0:
             return @"";
-        case 1:
-            return [[self objectAtIndex:0] description];
-        case 2:
-            return [self componentsJoinedByString:twoWordsConnector];
-        default:
-            return [NSString stringWithFormat:@"%@%@%@",
-                    [[self subarrayWithRange:NSMakeRange(0, [self count] - 1)] componentsJoinedByString:wordsConnector],
-                    lastWordConnector,
-                    [self lastObject]];
+        case 1: {
+            ret = [[self objectAtIndex:0] description];
+            if (ranges) {
+                [ranges addObject:[NSValue valueWithRange:NSMakeRange(0, ret.length)]];
+            }
+            break;
+        }
+        case 2: {
+            NSString *first = [[self objectAtIndex:0] description];
+            NSString *last = [[self objectAtIndex:1] description];
+            ret = [NSString stringWithFormat:@"%@%@%@", first, twoWordsConnector, last];
+            if (ranges) {
+                [ranges addObject:[NSValue valueWithRange:NSMakeRange(0, first.length)]];
+                [ranges addObject:[NSValue valueWithRange:NSMakeRange(ret.length-last.length, last.length)]];
+            }
+            break;
+        }
+        default: {
+            NSMutableString *string = [NSMutableString new];
+            NSUInteger i, count = [self count];
+            for (i = 0; i < count; i++) {
+                NSString *s = [[self objectAtIndex:i] description];
+
+                if (i+2 >= count) {
+                    // this is the second to last item
+                    NSString *last = [[self objectAtIndex:i+1] description];
+                    if (ranges) {
+                        [ranges addObject:[NSValue valueWithRange:NSMakeRange(string.length, s.length)]];
+                        [ranges addObject:[NSValue valueWithRange:NSMakeRange(string.length+s.length+lastWordConnector.length, last.length)]];
+                    }
+                    [string appendString:s];
+                    [string appendString:lastWordConnector];
+                    [string appendString:last];
+                    break;
+                }
+                // this is an earlier item
+                if (ranges) {
+                    [ranges addObject:[NSValue valueWithRange:NSMakeRange(string.length, s.length)]];
+                }
+                [string appendString:s];
+                [string appendString:wordsConnector];
+            }
+            ret = string;
+            break;
+        }
     }
+    
+    if (ranges) {
+        *rangesPointer = ranges;
+    }
+    return ret;
 }
 
 - (NSAttributedString *)mfAttributedSentenceWithWordsConnector:(NSString *)wordsConnector

@@ -13,6 +13,8 @@
 @interface NSArray (MFSentence)
 
 - (NSString *)mfSentence;
+// ranges returns the range of every object in the sentence, it will have the same count as self
+- (NSString *)mfSentenceWithWordRangeValues:(NSArray **)ranges;
 // If a string is an attributed string, word attributes is not used. Otherwise word attributes is added to the string.
 - (NSAttributedString *)mfAttributedSentenceWithWordAttributes:(NSDictionary *)wordAttributes
                                            connectorAttributes:(NSDictionary *)connectorAttributes;
