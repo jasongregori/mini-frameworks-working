@@ -11,7 +11,7 @@
 @implementation UIApplication (MFPresentModal)
 
 - (void)mfPresentModalViewController:(UIViewController *)modalViewController animated:(BOOL)animated {
-    UIViewController *topMostController = self.keyWindow.rootViewController;
+    UIViewController *topMostController = self.windows.count > 0 ? [[self.windows objectAtIndex:0] rootViewController] : nil;
     BOOL done = NO;
     while (!done) {
         if ([topMostController isKindOfClass:[UITabBarController class]]) {
