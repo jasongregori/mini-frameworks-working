@@ -53,7 +53,7 @@
     return nil;
 }
 
-+ (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block {
++ (id)mfSendWithOwner:(id)owner request:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block {
     __unsafe_unretained id weakOwner = owner;
     
     // ## use the object itself as the key because we know it will be around and unique for it's lifetime
@@ -62,10 +62,16 @@
         // call block
         if (block) { block(weakOwner, data, response, error); }
         // remove association
-        objc_setAssociatedObject(weakOwner, (__bridge void *)object, nil, OBJC_ASSOCIATION_RETAIN);
+        if (weakOwner) {
+            objc_setAssociatedObject(weakOwner, (__bridge void *)object, nil, OBJC_ASSOCIATION_RETAIN);
+        }
     }];
     // associate object with owner
-    objc_setAssociatedObject(owner, (__bridge void *)object, object, OBJC_ASSOCIATION_RETAIN);
+    if (owner) {
+        objc_setAssociatedObject(owner, (__bridge void *)object, object, OBJC_ASSOCIATION_RETAIN);
+    }
+    
+    return object;
 }
 
 #pragma mark - images
@@ -73,7 +79,7 @@
 static void (^__imageCacheBlock)(NSString *url, UIImage *image);
 static UIImage *(^__imageFromCacheBlock)(NSString *url);
 
-+ (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block {
++ (id)mfGetImageWithOwner:(id)owner url:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block {
     NSString *immutableURL = [url copy];
     // check cache
     if (__imageFromCacheBlock) {
@@ -83,21 +89,28 @@ static UIImage *(^__imageFromCacheBlock)(NSString *url);
             return nil;
         }
     }
-    return [self mfSendRequestForURL:url withBlock:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (block) {
-            if (data) {
-                UIImage *image = [UIImage imageWithData:data];
-                // cache image
-                if (__imageCacheBlock) {
-                    __imageCacheBlock(immutableURL, image);
-                }
-                block(image, nil);
-            }
-            else {
-                block(nil, error);
-            }
-        }
-    }];
+    return [self mfSendWithOwner:owner
+                         request:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]
+                      background:NO
+                       withBlock:^(id weakOwner, NSData *data, NSURLResponse *response, NSError *error) {
+                           if (block) {
+                               if (data) {
+                                   UIImage *image = [UIImage imageWithData:data];
+                                   // cache image
+                                   if (__imageCacheBlock) {
+                                       __imageCacheBlock(immutableURL, image);
+                                   }
+                                   block(image, nil);
+                               }
+                               else {
+                                   block(nil, error);
+                               }
+                           }
+                       }];
+}
+
++ (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block {
+    return [self mfGetImageWithOwner:nil url:url withBlock:block];
 }
 
 + (void)mfSetImageCacheBlock:(void (^)(NSString *url, UIImage *image))block {

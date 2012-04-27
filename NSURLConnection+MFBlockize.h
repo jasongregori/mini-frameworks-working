@@ -44,10 +44,11 @@
  • weakOwner is given back to the block as a convience for you
  • NB: Make sure you don't create a retain cycle here in your blocks!
 */
-+ (void)mfSendWithOwner:(id)owner request:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block;
++ (id)mfSendWithOwner:(id)owner request:(NSURLRequest *)request background:(BOOL)background withBlock:(void (^)(id weakOwner, NSData *data, NSURLResponse *response, NSError *error))block;
 
 #pragma mark images
 + (id)mfGetImage:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block;
++ (id)mfGetImageWithOwner:(id)owner url:(NSString *)url withBlock:(void (^)(UIImage *image, NSError *error))block;
 
 // The block set with this method is called for every image downloaded. In it, you may cache images.
 + (void)mfSetImageCacheBlock:(void (^)(NSString *url, UIImage *image))block;
