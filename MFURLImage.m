@@ -17,19 +17,23 @@
 @synthesize connectionRef = __connectionRef;
 
 - (void)setUrl:(NSString *)url {
-    if (__url != url) {
+    if (![__url isEqualToString:url]) {
         __url = [url copy];
         
         self.connectionRef = nil;
         self.image = nil;
-        if (__url) {
-            __unsafe_unretained MFURLImageView *weakself = self;
-            self.connectionRef = [NSURLConnection mfGetImage:url
-                                                   withBlock:^(UIImage *image, NSError *error) {
-                                                       weakself.image = image;
-                                                       weakself.connectionRef = nil;
-                                                   }];
-        }
+        [self refresh];
+    }
+}
+
+- (void)refresh {
+    if (self.url) {
+        __unsafe_unretained MFURLImageView *weakself = self;
+        self.connectionRef = [NSURLConnection mfGetImage:self.url
+                                               withBlock:^(UIImage *image, NSError *error) {
+                                                   weakself.image = image;
+                                                   weakself.connectionRef = nil;
+                                               }];
     }
 }
 

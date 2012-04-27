@@ -12,4 +12,5 @@
 
 @interface MFURLImageView : UIImageView
 @property (nonatomic, copy) NSString *url;
+- (void)refresh;
 @end
