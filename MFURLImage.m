@@ -20,13 +20,13 @@
     if (![__url isEqualToString:url]) {
         __url = [url copy];
         
-        self.connectionRef = nil;
-        self.image = nil;
         [self refresh];
     }
 }
 
 - (void)refresh {
+    self.connectionRef = nil;
+    self.image = nil;
     if (self.url) {
         __unsafe_unretained MFURLImageView *weakself = self;
         self.connectionRef = [NSURLConnection mfGetImage:self.url
