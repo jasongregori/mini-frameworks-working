@@ -17,11 +17,8 @@
 @synthesize connectionRef = __connectionRef;
 
 - (void)setUrl:(NSString *)url {
-    if (![__url isEqualToString:url]) {
-        __url = [url copy];
-        
-        [self refresh];
-    }
+    __url = [url copy];
+    [self refresh];
 }
 
 - (void)refresh {
