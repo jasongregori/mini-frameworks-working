@@ -22,7 +22,7 @@ The Goal
 
 The goal of mini-frameworks is to create a large set of useful and easy to use Mini Frameworks covering a broad range of uses that anyone can toss into their project.
 
-Ex: John needs to base 64 a string. He looks in mini-frameworks and **bam** he finds MFBase64. He throws it in his project and is good to go.
+> Ex: John needs to base 64 a string. He looks in mini-frameworks and **bam** he finds MFBase64. He throws it in his project and is good to go.
 
 If you come up with a really slick Mini Framework and would like for me to add it to this list, do not hesitate to send a pull request or the files. However, I might not add everything I get.
 
