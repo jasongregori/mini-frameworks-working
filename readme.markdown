@@ -32,6 +32,11 @@ If you come up with a really slick mini framework and would like for me to add i
 
 I encourage you to make your own mini frameworks repos. If everybody shared their little tricks think of how much better off we'd all be.
 
+Under Review
+------------
+
+The mini frameworks in the `Under Review` folder are ones I'm not sure are "useful enough" to be put on the list. Feel free to look through them and use them if you like.
+
 License
 -------
 
