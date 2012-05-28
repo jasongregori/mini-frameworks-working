@@ -19,7 +19,7 @@ Use
 
 Do not try to statically link or share mini frameworks between projects. Just copy them directly into your project. You will thank yourself later for doing it that way.
 
-You are encouraged to manipulate mini frameworks in whatever way helps you. If you need to rename a file or add something specific to a mini framework for your current project, **do it!** When you start your next project, come back here and get a fresh copy.
+You are encouraged to manipulate mini frameworks in whatever way helps you. If you need to rename a file or add something specific to a mini framework for your current project, **do it**! When you start your next project, come back here and get a fresh copy.
 
 The Goal
 --------
