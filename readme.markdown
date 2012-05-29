@@ -22,11 +22,9 @@ You are encouraged to manipulate mini frameworks in whatever way helps you. If y
 The Goal
 --------
 
-A mini framework should have the usefulness and ease of use of a code snippet without all the work organizing or upkeep that comes with a bigger code framework/library. They should be **simple**, allowing the user to easily understand what it does and how it works (if possible)....
+A mini framework should have the usefulness and ease of use of a code snippet without all the work organizing or upkeep that comes with a bigger code framework/library. The header should be **simple**, allowing the user to easily understand what it does. If possible, the implementation should be **simple**, allowing the user to easily understand how it works.
 
-This repository is a set of useful mini frameworks covering a broad range of uses to show you what a mini framework is and why they are useful. I hope others will create their own repositories and mini frameworks they find useful.
-
-In the future, I hope something along these lines plays out:
+I hope others will create their own repositories and mini frameworks they find useful. In the future, I hope something along these lines plays out:
 
 > John needs to base 64 a string. He searches for a mini framework that base 64 encodes. He finds one, throws it in his project, and is good to go.
 
@@ -47,6 +45,8 @@ Feel free to link back to this repository from your collection of mini framework
 
 This Repository
 ===============
+
+This repository is a set of useful mini frameworks covering a broad range of uses to show you what a mini framework is and why they are useful. 
 
 
 Under Review
