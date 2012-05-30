@@ -22,9 +22,9 @@ You are encouraged to manipulate mini frameworks in whatever way helps you. If y
 The Goal
 --------
 
-A mini framework should have the usefulness and ease of use of a code snippet without all the work organizing or upkeep that comes with a bigger code framework/library. The header should be **simple**, allowing the user to easily understand what it does. If possible, the implementation should be **simple**, allowing the user to easily understand how it works.
+I hope others will create their own repositories with mini frameworks they find useful. A mini framework should have the usefulness and ease of use of a code snippet without all the work organizing or upkeep that comes with a bigger code framework/library. The header should be **simple**, allowing the user to easily understand what it does. If possible, the implementation should also be simple, allowing the user to understand how it works.
 
-I hope others will create their own repositories and mini frameworks they find useful. In the future, I hope something along these lines plays out:
+In the future, I hope something along these lines plays out:
 
 > John needs to base 64 a string. He searches for a mini framework that base 64 encodes. He finds one, throws it in his project, and is good to go.
 
@@ -40,19 +40,13 @@ Mini Frameworks are under no obligation to remain backwards compatible. In fact,
 
 There is no required code style for a mini framework. You could even make mini frameworks for another coding language if you wanted to. If you'd like to stay consistent with this repository (for example the `MF` prefix), you may, but it is not necessary.
 
-Feel free to link back to this repository from your collection of mini frameworks (or not) so people can read about the rules of mini frameworks.
+Feel free to link back to this repository from your collection of mini frameworks (or not) so people can read more about mini frameworks.
 
 
 This Repository
 ===============
 
 This repository is a set of useful mini frameworks covering a broad range of uses to show you what a mini framework is and why they are useful. 
-
-
-Under Review
-------------
-
-The mini frameworks in the `Under Review` folder are ones I'm not sure are "useful enough" to be put on the list. Feel free to look through them and use them if you like.
 
 
 License
